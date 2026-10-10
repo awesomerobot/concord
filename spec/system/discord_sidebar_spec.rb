@@ -231,6 +231,13 @@ RSpec.describe "Discord sidebar" do
       category.update!(description: "Sit by the fire")
       visit("/c/#{category.slug}/#{category.id}")
 
+      expect(page).to have_css(".list-controls")
+      expect(page).to have_no_css(".list-controls .category-breadcrumb", visible: :visible)
+      expect(page).to have_no_css(
+        ".list-controls .notifications-tracking-trigger-btn",
+        visible: :visible,
+      )
+
       expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
       expect(header).to have_css(".discord-channel-header__description", text: "Sit by the fire")
       screenshot("forum")
@@ -243,6 +250,10 @@ RSpec.describe "Discord sidebar" do
       expect(header).to have_css(".discord-channel-header__name", text: "Best campfire songs")
       expect(header).to have_css(".discord-channel-header__description", text: "Lounge")
       screenshot("topic")
+
+      expect(page).to have_css(
+        ".topic-footer-main-buttons + * .notifications-tracking-trigger-btn, #topic-footer-buttons .notifications-tracking-trigger-btn",
+      )
 
       find(".topic-footer-main-buttons .create").click
       expect(page).to have_css("#reply-control.open")

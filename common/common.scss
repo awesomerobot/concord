@@ -419,3 +419,13 @@
 .discord-channel-header__actions .btn.--active .d-icon {
   color: var(--primary);
 }
+
+// The channel list and header row already say where you are, and a channel's
+// notifications are in its menu. Topic, group and chat bells share the
+// button's class, so only the list controls' one goes.
+.list-controls {
+  .category-breadcrumb,
+  .notifications-tracking-trigger-btn {
+    display: none;
+  }
+}
