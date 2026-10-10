@@ -54,7 +54,7 @@ yet.
 On wide screens, core's header contents are hidden and a Discord-style row
 takes their place inside the same header: the server name over the channel
 list, then the current channel's icon, name, description, actions and a search
-box. Living inside core's header keeps every height calculation built on it
+button that opens core's search panel as a dropdown. Living inside core's header keeps every height calculation built on it
 (chat, composer, sticky elements) working. Chat's own channel bar is hidden;
 its threads, pins, members and settings are in the row. Below the `md`
 breakpoint core's header stays, since it holds the button that opens the

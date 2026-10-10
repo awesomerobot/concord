@@ -245,15 +245,13 @@
   margin-left: auto;
 }
 
-.discord-channel-header__search {
-  position: relative;
-  flex: 0 0 16em;
-
-  .search-menu-container,
-  .search-input {
-    width: 100%;
-    margin: 0;
-  }
+// Core's header search panel, in a popover rather than hanging off the header.
+.discord-search-panel.menu-panel {
+  position: static;
+  width: min(32em, 90vw);
+  max-height: 70vh;
+  border: none;
+  box-shadow: none;
 }
 
 // Sits at the foot of the sidebar, under the scrolling channel list.

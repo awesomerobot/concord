@@ -206,6 +206,22 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_current_path(%r{/chat/c/hangout/#{chat_channel.id}/pins})
     end
 
+    it "searches from a dropdown without widening the page" do
+      visit("/latest")
+
+      overflow = page.evaluate_script(
+        "document.documentElement.scrollWidth - document.documentElement.clientWidth",
+      )
+      expect(overflow).to eq(0)
+
+      header.find(".discord-channel-header__search").click
+      expect(page).to have_css(".discord-search-panel #discord-search-input:focus")
+      screenshot("search")
+
+      send_keys(:escape)
+      expect(page).to have_no_css(".discord-search-panel")
+    end
+
     it "shows the category" do
       category.update!(description: "Sit by the fire")
       visit("/c/#{category.slug}/#{category.id}")

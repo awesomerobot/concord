@@ -1,10 +1,12 @@
 import Component from "@glimmer/component";
+import { on } from "@ember/modifier";
+import { action } from "@ember/object";
 import { service } from "@ember/service";
-import SearchMenu from "discourse/components/search-menu";
 import DButton from "discourse/ui-kit/d-button";
 import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+import SearchPopover from "./search-popover";
 import ServerHeader from "./server-header";
 
 const t = (key) => i18n(themePrefix(`channel_header.${key}`));
@@ -15,7 +17,18 @@ const t = (key) => i18n(themePrefix(`channel_header.${key}`));
  * header so everything that sizes itself to the header keeps working.
  */
 export default class ChannelHeader extends Component {
+  @service menu;
   @service router;
+
+  @action
+  openSearch(event) {
+    this.menu.show(event.currentTarget, {
+      identifier: "discord-search",
+      component: SearchPopover,
+      placement: "bottom-end",
+      modalForMobile: true,
+    });
+  }
 
   get channel() {
     const current = this.args.currentChannel.value;
@@ -165,12 +178,12 @@ export default class ChannelHeader extends Component {
             data-action-id={{this.memberListAction.id}}
           />
 
-          <div class="discord-channel-header__search search-menu">
-            <SearchMenu
-              @location="header"
-              @searchInputId="discord-search-input"
-            />
-          </div>
+          <DButton
+            @icon="magnifying-glass"
+            @title="search.title"
+            class="btn-flat discord-channel-header__search"
+            {{on "click" this.openSearch}}
+          />
         </div>
       </div>
     </div>
