@@ -17,8 +17,16 @@ const t = (key) => i18n(themePrefix(`channel_header.${key}`));
  * header so everything that sizes itself to the header keeps working.
  */
 export default class ChannelHeader extends Component {
+  @service appEvents;
   @service menu;
   @service router;
+
+  // Core's header owns the slide-in channel list and everything around it
+  // (animation, scroll lock, closing on a tap outside), so ask it to toggle.
+  @action
+  toggleChannelList() {
+    this.appEvents.trigger("header:keyboard-trigger", { type: "hamburger" });
+  }
 
   @action
   openSearch(event) {
@@ -144,6 +152,14 @@ export default class ChannelHeader extends Component {
       />
 
       <div class="discord-channel-header__channel">
+        {{! "hamburger-dropdown" makes core's close-on-click-outside leave
+            this button to toggle the panel itself. }}
+        <DButton
+          @action={{this.toggleChannelList}}
+          @icon="bars"
+          @title="sidebar.title"
+          class="btn-flat discord-channel-header__menu hamburger-dropdown"
+        />
         {{#if this.channel.name}}
           <span class="discord-channel-header__icon">
             {{dIcon this.channel.icon}}

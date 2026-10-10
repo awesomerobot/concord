@@ -51,14 +51,19 @@ yet.
 
 ## Layout
 
-On wide screens, core's header contents are hidden and a Discord-style row
+Core's header contents are hidden at every width, and a Discord-style row
 takes their place inside the same header: the server name over the channel
 list, then the current channel's icon, name, description, actions and a search
-button that opens core's search panel as a dropdown. Living inside core's header keeps every height calculation built on it
-(chat, composer, sticky elements) working. Chat's own channel bar is hidden;
-its threads, pins, members and settings are in the row. Below the `md`
-breakpoint core's header stays, since it holds the button that opens the
-sidebar.
+button that opens core's search panel as a dropdown. Living inside core's
+header keeps every height calculation built on it (chat, composer, sticky
+elements) working. Chat's own channel bar is hidden; its threads, pins and
+settings are in the row.
+
+Below the `md` breakpoint (phones, and narrow desktop windows) the row starts
+with a hamburger button that opens the channel list as core's slide-in panel,
+with the server name and user panel in it. The button asks core's header to
+toggle the panel, so its animation, scroll lock and close-on-tap-outside are
+core's own.
 
 The foot of the sidebar shows the current user; clicking opens core's user
 menu (notifications, messages, bookmarks, profile). Signed-out visitors get

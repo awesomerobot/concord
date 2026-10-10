@@ -346,4 +346,39 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_no_css(".discord-member-list")
     end
   end
+
+  describe "small screens" do
+    def opens_channel_list_from_header
+      visit("/chat/c/hangout/#{chat_channel.id}")
+
+      header = find(".discord-channel-header")
+      expect(header).to have_css(".discord-channel-header__name", text: "hangout")
+      expect(page).to have_no_css(".d-header .home-logo-wrapper-outlet", visible: :visible)
+      expect(page).to have_no_css(".c-routes.--channel > .c-navbar-container", visible: :visible)
+
+      screenshot("#{yield}-closed")
+
+      header.find(".discord-channel-header__menu").click
+      panel = find(".hamburger-panel")
+      expect(panel).to have_css(".sidebar-section-link[data-link-name='forum-#{category.slug}']")
+      expect(panel).to have_css(".discord-server-header")
+      expect(panel).to have_css(".discord-user-panel")
+      # Let the slide-in finish before the screenshot.
+      expect(page).to have_css(".hamburger-panel .discord-server-header__name", visible: :visible)
+      sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
+      screenshot(yield)
+
+      panel.find(".sidebar-section-link[data-link-name='forum-#{category.slug}']").click
+      expect(page).to have_current_path(%r{/c/#{category.slug}/#{category.id}})
+      expect(page).to have_no_css(".hamburger-panel")
+    end
+
+    it "opens the channel list from the header on phones", mobile: true do
+      opens_channel_list_from_header { "mobile" }
+    end
+
+    it "opens the channel list from the header in a narrow window" do
+      resize_window(width: 700) { opens_channel_list_from_header { "narrow" } }
+    end
+  end
 end
