@@ -159,6 +159,18 @@
 }
 
 @include viewport.from(md) {
+  // Fill the window like Discord. Core works out the page width and the
+  // composer's position from this, so it's set rather than removed.
+  :root {
+    --d-max-width: calc(100vw - var(--d-sidebar-width));
+  }
+
+  // Flush to the left edge, so the sidebar lines up with the server name
+  // above it.
+  body.has-sidebar-page #main-outlet-wrapper {
+    padding-left: 0;
+  }
+
   .d-header > .wrap {
     display: none;
   }

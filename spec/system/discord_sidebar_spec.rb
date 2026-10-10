@@ -216,6 +216,32 @@ RSpec.describe "Discord sidebar" do
 
       expect(header).to have_css(".discord-channel-header__name", text: "Best campfire songs")
       expect(header).to have_css(".discord-channel-header__description", text: "Lounge")
+      screenshot("topic")
+
+      find(".topic-footer-main-buttons .create").click
+      expect(page).to have_css("#reply-control.open")
+      screenshot("composer")
+    end
+
+    it "fills the window, with the sidebar under the server name" do
+      visit("/latest")
+
+      widths = page.evaluate_script(<<~JS)
+        (() => {
+          const rect = (s) => document.querySelector(s).getBoundingClientRect();
+          return {
+            window: window.innerWidth,
+            outlet: rect("#main-outlet-wrapper").width,
+            sidebar: rect(".sidebar-wrapper").left,
+            server: rect(".discord-channel-header .discord-server-header").right,
+            sidebarRight: rect(".sidebar-wrapper").right,
+          };
+        })()
+      JS
+
+      expect(widths["outlet"]).to be_within(20).of(widths["window"])
+      expect(widths["sidebar"]).to eq(0)
+      expect(widths["sidebarRight"]).to be_within(1).of(widths["server"])
     end
   end
 
