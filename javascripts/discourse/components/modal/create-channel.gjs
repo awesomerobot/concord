@@ -1,0 +1,228 @@
+import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
+import { hash } from "@ember/helper";
+import { action } from "@ember/object";
+import { service } from "@ember/service";
+import Form from "discourse/components/form";
+import { extractError } from "discourse/lib/ajax-error";
+import ComboBox from "discourse/select-kit/components/combo-box";
+import GroupChooser from "discourse/select-kit/components/group-chooser";
+import { eq } from "discourse/truth-helpers";
+import DModal from "discourse/ui-kit/d-modal";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
+import { i18n } from "discourse-i18n";
+
+const TYPE_ICONS = {
+  text: "hashtag",
+  voice: "volume-high",
+  forum: "far-comments",
+};
+
+export default class CreateChannelModal extends Component {
+  @service router;
+  @service toasts;
+
+  @tracked flash;
+
+  get creator() {
+    return this.args.model.creator;
+  }
+
+  get sidebarGroups() {
+    return this.args.model.sidebarGroups;
+  }
+
+  // Only admins can save groups, but they can make one from here by typing a
+  // new name.
+  get showGroupField() {
+    return this.sidebarGroups.canEdit;
+  }
+
+  get types() {
+    return this.creator.types.map((type) => ({
+      type,
+      icon: TYPE_ICONS[type],
+      title: i18n(themePrefix(`create_channel.types.${type}.title`)),
+      description: i18n(
+        themePrefix(`create_channel.types.${type}.description`)
+      ),
+    }));
+  }
+
+  formData = {
+    type: this.creator.types[0],
+    sidebarGroup:
+      this.sidebarGroups.groups[this.args.model.groupIndex]?.name ?? null,
+    name: "",
+    isPrivate: false,
+    groupIds: [],
+  };
+
+  @action
+  validate(data, { addError }) {
+    if (data.isPrivate && !data.groupIds?.length) {
+      addError("groupIds", {
+        title: i18n(themePrefix("create_channel.groups")),
+        message: i18n(themePrefix("create_channel.groups_required")),
+      });
+    }
+  }
+
+  @action
+  async create(data) {
+    this.flash = null;
+
+    try {
+      const { key, route, models, notice } = await this.creator.create(data);
+      const notices = notice ? [notice] : [];
+
+      // The channel exists by now, so a failure here leaves it ungrouped
+      // rather than failing the whole thing.
+      if (this.showGroupField && data.sidebarGroup) {
+        try {
+          await this.sidebarGroups.addChannel(data.sidebarGroup, key);
+        } catch (error) {
+          notices.push(extractError(error));
+        }
+      }
+
+      this.args.closeModal();
+
+      notices.forEach((message) => this.toasts.warning({ data: { message } }));
+
+      this.router.transitionTo(route, ...models);
+    } catch (error) {
+      this.flash = extractError(error);
+    }
+  }
+
+  <template>
+    <DModal
+      @closeModal={{@closeModal}}
+      @flash={{this.flash}}
+      @title={{i18n (themePrefix "create_channel.title")}}
+      class="discord-create-channel-modal"
+    >
+      <:body>
+        <Form
+          @data={{this.formData}}
+          @onSubmit={{this.create}}
+          @validate={{this.validate}}
+          as |form data|
+        >
+          <form.Field
+            @format="full"
+            @name="type"
+            @title={{i18n (themePrefix "create_channel.type")}}
+            @type="radio-group"
+            @validation="required"
+            as |field|
+          >
+            <field.Control as |radioGroup|>
+              {{#each this.types as |option|}}
+                <radioGroup.Radio @value={{option.type}} as |radio|>
+                  <radio.Title>
+                    {{dIcon option.icon}}
+                    {{option.title}}
+                  </radio.Title>
+                  <radio.Description>{{option.description}}</radio.Description>
+                </radioGroup.Radio>
+              {{/each}}
+            </field.Control>
+          </form.Field>
+
+          {{#if this.showGroupField}}
+            <form.Field
+              @format="full"
+              @name="sidebarGroup"
+              @title={{i18n (themePrefix "create_channel.sidebar_group")}}
+              @description={{i18n
+                (themePrefix "create_channel.sidebar_group_description")
+              }}
+              @type="custom"
+              as |field|
+            >
+              <field.Control>
+                <ComboBox
+                  @content={{this.sidebarGroups.names}}
+                  @nameProperty={{null}}
+                  @onChange={{field.set}}
+                  @options={{hash
+                    allowAny=true
+                    filterable=true
+                    none=(themePrefix "create_channel.no_sidebar_group")
+                  }}
+                  @value={{field.value}}
+                  @valueProperty={{null}}
+                />
+              </field.Control>
+            </form.Field>
+          {{/if}}
+
+          <form.Field
+            @format="full"
+            @name="name"
+            @title={{i18n (themePrefix "create_channel.name")}}
+            @type="input"
+            @validation="required|length:1,50"
+            as |field|
+          >
+            <field.Control
+              placeholder={{i18n
+                (themePrefix "create_channel.name_placeholder")
+              }}
+            />
+          </form.Field>
+
+          <form.Field
+            @description={{i18n
+              (themePrefix "create_channel.private_description")
+            }}
+            @format="full"
+            @name="isPrivate"
+            @title={{i18n (themePrefix "create_channel.private")}}
+            @type="toggle"
+            as |field|
+          >
+            <field.Control />
+          </form.Field>
+
+          {{#if data.isPrivate}}
+            <form.Field
+              @description={{if
+                (eq data.type "voice")
+                (i18n (themePrefix "create_channel.voice_groups_note"))
+              }}
+              @format="full"
+              @name="groupIds"
+              @title={{i18n (themePrefix "create_channel.groups")}}
+              @type="custom"
+              as |field|
+            >
+              <field.Control>
+                <GroupChooser
+                  @content={{this.creator.groups}}
+                  @labelProperty="name"
+                  @onChange={{field.set}}
+                  @value={{field.value}}
+                />
+              </field.Control>
+            </form.Field>
+          {{/if}}
+
+          <form.Actions>
+            <form.Submit
+              @label={{themePrefix "create_channel.submit"}}
+              class="btn-primary"
+            />
+            <form.Button
+              @action={{@closeModal}}
+              @label="cancel"
+              class="btn-transparent"
+            />
+          </form.Actions>
+        </Form>
+      </:body>
+    </DModal>
+  </template>
+}

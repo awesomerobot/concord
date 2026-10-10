@@ -1,0 +1,213 @@
+import { cached } from "@glimmer/tracking";
+import { setOwner } from "@ember/owner";
+import { service } from "@ember/service";
+import { canDisplayCategory } from "discourse/lib/sidebar/helpers";
+import Category from "discourse/models/category";
+import { channelKey } from "./sidebar-groups";
+import {
+  ForumChannelLink,
+  TagChannelLink,
+  TextChannelLink,
+  VoiceChannelLink,
+} from "./channel-links";
+
+/**
+ * Builds the one list of channels the sidebar shows, out of categories, tags
+ * and chat channels.
+ *
+ * It lives for the whole app rather than in the sidebar section, because the
+ * sidebar recreates section instances freely and the link objects carry
+ * unread counts that need refreshing from one place.
+ */
+export default class ChannelDirectory {
+  @service currentUser;
+  @service site;
+  @service siteSettings;
+  @service topicTrackingState;
+
+  #forumLinks = new Map();
+  #tagLinks = new Map();
+  #textLinks = new Map();
+
+  constructor(owner, sidebarGroups, channelActions) {
+    setOwner(this, owner);
+    this.sidebarGroups = sidebarGroups;
+    this.channelActions = channelActions;
+
+    this.chat = owner.lookup("service:chat");
+    this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
+    this.voiceRooms = owner.lookup("service:voice-rooms");
+    this.voiceWebrtc = owner.lookup("service:voice-webrtc");
+
+    this.topicTrackingState.onStateChange(() => this.#refreshCounts());
+  }
+
+  /**
+   * The channels under each heading, then the ones under none. A group only
+   * lists channels the user can see, in the order it stores them.
+   *
+   * @returns {{ grouped: Array<{ name: string, links: Array }>, ungrouped: Array }}
+   */
+  @cached
+  get sections() {
+    const links = this.#allLinks;
+    const byKey = new Map(links.map((link) => [link.channelKey, link]));
+    const placed = new Set();
+
+    const grouped = this.sidebarGroups.groups.map((group) => ({
+      name: group.name,
+      links: (group.channels || [])
+        .map(({ type, id }) => {
+          const key = channelKey(type, id);
+          placed.add(key);
+          return byKey.get(key);
+        })
+        .filter(Boolean),
+    }));
+
+    return {
+      grouped,
+      ungrouped: links.filter((link) => !placed.has(link.channelKey)),
+    };
+  }
+
+  get #allLinks() {
+    const textChannels = this.#textChannels;
+    const links = [];
+
+    for (const category of this.categories) {
+      links.push(this.#forumLink(category));
+
+      if (settings.group_chat_with_category) {
+        for (const channel of textChannels.filter(
+          (c) => c.chatableId === category.id
+        )) {
+          links.push(this.#textLink(channel));
+          textChannels.splice(textChannels.indexOf(channel), 1);
+        }
+      }
+    }
+
+    links.push(...textChannels.map((channel) => this.#textLink(channel)));
+    links.push(...this.#voiceRooms.map((room) => this.#voiceLink(room)));
+
+    if (settings.include_tags) {
+      links.push(...this.#tags.map((tag) => this.#tagLink(tag)));
+    }
+
+    return links;
+  }
+
+  // Every category the user can see, like every channel in a Discord server,
+  // so a channel shows up as soon as it's made. The categories that only back
+  // chat channels are left out: the chat channel stands in for them.
+  @cached
+  get categories() {
+    const container = Category.findSingleBySlug(
+      settings.chat_container_category
+    );
+    let sorted = [...this.site.categories];
+
+    if (!this.siteSettings.fixed_category_positions) {
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return Category.sortCategories(sorted).filter(
+      (category) =>
+        !(container && this.#isWithin(category, container)) &&
+        canDisplayCategory(category.id, this.siteSettings)
+    );
+  }
+
+  #isWithin(category, ancestor) {
+    for (let c = category; c; c = c.parentCategory) {
+      if (c.id === ancestor.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  get #tags() {
+    if (!this.siteSettings.tagging_enabled) {
+      return [];
+    }
+
+    const tags =
+      this.currentUser?.sidebarTags?.length > 0
+        ? this.currentUser.sidebarTags
+        : this.site.navigation_menu_site_top_tags || [];
+
+    return tags.filter((tag) => !tag.pm_only);
+  }
+
+  get #textChannels() {
+    if (
+      !settings.include_chat_channels ||
+      !this.chatChannelsManager ||
+      !(this.chat?.userCanChat || this.chat?.anonymousUserCanViewPublicChat)
+    ) {
+      return [];
+    }
+
+    return [...this.chatChannelsManager.publicMessageChannels];
+  }
+
+  get #voiceRooms() {
+    if (!this.voiceRooms || !this.siteSettings.voice_enabled) {
+      return [];
+    }
+
+    return [...this.voiceRooms.rooms].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+  }
+
+  #forumLink(category) {
+    return this.#memo(this.#forumLinks, category.id, () => {
+      return new ForumChannelLink({
+        category,
+        topicTrackingState: this.topicTrackingState,
+        currentUser: this.currentUser,
+      });
+    });
+  }
+
+  #tagLink(tag) {
+    return this.#memo(this.#tagLinks, tag.id, () => {
+      return new TagChannelLink({
+        tag,
+        topicTrackingState: this.topicTrackingState,
+        currentUser: this.currentUser,
+      });
+    });
+  }
+
+  #textLink(channel) {
+    return this.#memo(
+      this.#textLinks,
+      channel.id,
+      () => new TextChannelLink({ channel })
+    );
+  }
+
+  // Not memoized: the voice plugin swaps in a new room object on every update,
+  // so a fresh link per render is what keeps it current.
+  #voiceLink(room) {
+    return this.channelActions.decorate(
+      new VoiceChannelLink({ room, voiceWebrtc: this.voiceWebrtc })
+    );
+  }
+
+  #memo(map, key, build) {
+    if (!map.has(key)) {
+      map.set(key, this.channelActions.decorate(build()));
+    }
+    return map.get(key);
+  }
+
+  #refreshCounts() {
+    this.#forumLinks.forEach((link) => link.refreshCounts());
+    this.#tagLinks.forEach((link) => link.refreshCounts());
+  }
+}

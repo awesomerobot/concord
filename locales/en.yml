@@ -1,0 +1,74 @@
+en:
+  theme_metadata:
+    description: "Replaces the sidebar with a single Discord-style channel list made of categories, tags and chat channels."
+    settings:
+      include_tags: "List the user's sidebar tags as channels."
+      include_chat_channels: "List followed chat channels as channels (requires chat)."
+      group_chat_with_category: "Place each category's chat channels directly after that category, instead of after all categories."
+      sidebar_groups:
+        description: "Headings the channel list is grouped under, and the channels in each. The create-channel modal adds to these; channels in no group are listed at the top, without a heading."
+        schema:
+          properties:
+            name:
+              label: "Name"
+            channels:
+              label: "Channels"
+              schema:
+                properties:
+                  type:
+                    label: "Type"
+                  id:
+                    label: "ID"
+                    description: "Category ID for forum, chat channel ID for text, room ID for voice, tag ID for tag."
+      chat_container_category: "Slug of the category that holds the categories backing chat channels made from the create-channel modal. It's created if missing, and hidden from the channel list."
+  create_channel:
+    action: "Create channel"
+    title: "Create channel"
+    type: "Channel type"
+    types:
+      text:
+        title: "Text"
+        description: "Send messages, images, GIFs, emoji and opinions"
+      voice:
+        title: "Voice"
+        description: "Hang out together with voice, video and screen share"
+      forum:
+        title: "Forum"
+        description: "Create a space for organized discussions"
+    sidebar_group: "Group"
+    no_sidebar_group: "No group"
+    sidebar_group_description: "Pick a heading for the channel, or type a new name to create one."
+    name: "Channel name"
+    name_placeholder: "new-channel"
+    private: "Private channel"
+    private_description: "Only the selected groups will be able to view this channel."
+    groups: "Who can access this channel"
+    groups_required: "Pick at least one group for a private channel."
+    voice_groups_note: "Voice channels add the current members of these groups. People who join a group later won't get access automatically."
+    voice_members_capped: "Only the first %{count} members were added to the voice channel."
+    container_name: "Chat channels"
+    submit: "Create channel"
+  channel_menu:
+    title: "Channel options"
+    group_title: "Group options"
+    name: "Name"
+    rename: "Rename"
+    rename_group: "Rename group"
+    move_up: "Move up"
+    move_down: "Move down"
+    delete: "Delete"
+    delete_group: "Delete group"
+    delete_group_confirm: "Delete the %{name} group? Its channels stay, and move to the top of the list."
+    delete_confirm: "Delete %{name}? This can't be undone."
+    mark_read: "Mark as read"
+    notifications: "Notifications"
+    all_posts: "All posts"
+    default: "Default"
+    all_messages: "All messages"
+    mentions_only: "Only mentions"
+    nothing: "Nothing"
+    mute: "Mute"
+    copy_link: "Copy link"
+    link_copied: "Link copied"
+    move_to_group: "Move to group"
+    no_group: "No group"

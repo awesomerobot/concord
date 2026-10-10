@@ -1,0 +1,392 @@
+import { setOwner } from "@ember/owner";
+import { service } from "@ember/service";
+import { ajax } from "discourse/lib/ajax";
+import { popupAjaxError } from "discourse/lib/ajax-error";
+import { clipboardCopy } from "discourse/lib/utilities";
+import { i18n } from "discourse-i18n";
+import ActionMenu from "../components/action-menu";
+import RenameModal from "../components/modal/rename";
+
+const CATEGORY_LEVELS = { muted: 0, regular: 1, watching: 3 };
+
+const t = (key, opts) => i18n(themePrefix(`channel_menu.${key}`), opts);
+
+/**
+ * What the inline menus on headings and channels offer. Each kind of channel
+ * is backed by something different, so most items differ by kind, and each
+ * shows only when the user may do it.
+ *
+ * An item is `{ label, icon, action, checked?, danger? }`, or
+ * `{ heading }` to label the items after it.
+ */
+export default class ChannelActions {
+  @service currentUser;
+  @service dialog;
+  @service menu;
+  @service modal;
+  @service router;
+  @service toasts;
+
+  constructor(owner, sidebarGroups) {
+    setOwner(this, owner);
+    this.sidebarGroups = sidebarGroups;
+    this.chatApi = owner.lookup("service:chat-api");
+    this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
+    this.voiceRooms = owner.lookup("service:voice-rooms");
+  }
+
+  /** Puts the `…` button on a channel row. */
+  decorate(link) {
+    if (!this.currentUser) {
+      return link;
+    }
+
+    link.hoverType = "icon";
+    link.hoverValue = "ellipsis";
+    link.hoverTitle = t("title");
+    link.hoverAction = (event, onClose) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.#show(event, this.channelItems(link), onClose);
+    };
+
+    return link;
+  }
+
+  /** The `…` button on a group heading. */
+  groupAction(index) {
+    if (!this.sidebarGroups.canEdit) {
+      return;
+    }
+
+    return {
+      id: "groupMenu",
+      icon: "ellipsis",
+      title: t("group_title"),
+      action: (event) => this.#show(event, this.groupItems(index)),
+    };
+  }
+
+  groupItems(index) {
+    const groups = this.sidebarGroups;
+    const group = groups.groups[index];
+
+    return [
+      {
+        label: t("rename_group"),
+        icon: "pencil",
+        action: () =>
+          this.#rename(t("rename_group"), group.name, (name) =>
+            groups.renameGroup(index, name)
+          ),
+      },
+      index > 0 && {
+        label: t("move_up"),
+        icon: "arrow-up",
+        action: () => this.#run(() => groups.moveGroup(index, -1)),
+      },
+      index < groups.groups.length - 1 && {
+        label: t("move_down"),
+        icon: "arrow-down",
+        action: () => this.#run(() => groups.moveGroup(index, 1)),
+      },
+      {
+        label: t("delete_group"),
+        icon: "trash-can",
+        danger: true,
+        action: () =>
+          this.dialog.deleteConfirm({
+            message: t("delete_group_confirm", { name: group.name }),
+            didConfirm: () => this.#run(() => groups.deleteGroup(index)),
+          }),
+      },
+    ].filter(Boolean);
+  }
+
+  channelItems(link) {
+    const [type] = link.channelKey.split(":");
+    const items = [];
+
+    switch (type) {
+      case "forum":
+        items.push(...this.#forumItems(link.category));
+        break;
+      case "text":
+        items.push(...this.#textItems(link.channel));
+        break;
+      case "voice":
+        items.push(...this.#voiceItems(link.room));
+        break;
+    }
+
+    items.push({
+      label: t("copy_link"),
+      icon: "link",
+      action: () => this.#copyLink(link),
+    });
+
+    items.push(...this.#moveItems(link.channelKey));
+
+    // Destructive last, after everything else.
+    const remove = items.findIndex((item) => item.danger);
+    if (remove !== -1) {
+      items.push(...items.splice(remove, 1));
+    }
+
+    return items;
+  }
+
+  #forumItems(category) {
+    const level = category.notification_level;
+    const items = [
+      {
+        label: t("mark_read"),
+        icon: "check",
+        action: () => this.#run(() => this.#dismissCategory(category)),
+      },
+      { heading: t("notifications") },
+      ...[
+        ["watching", "all_posts"],
+        ["regular", "default"],
+        ["muted", "mute"],
+      ].map(([name, label]) => ({
+        label: t(label),
+        checked: level === CATEGORY_LEVELS[name],
+        action: () =>
+          this.#run(() => category.setNotification(CATEGORY_LEVELS[name])),
+      })),
+    ];
+
+    if (category.can_edit) {
+      items.push(
+        {
+          label: t("rename"),
+          icon: "pencil",
+          action: () =>
+            this.#rename(t("rename"), category.name, (name) =>
+              ajax(`/categories/${category.id}`, {
+                type: "PUT",
+                data: { name },
+              }).then(() => category.set("name", name))
+            ),
+        },
+        {
+          label: t("delete"),
+          icon: "trash-can",
+          danger: true,
+          action: () =>
+            this.#confirmDelete(category.name, async () => {
+              await ajax(`/categories/${category.id}`, { type: "DELETE" });
+              await this.sidebarGroups.removeChannel(`forum:${category.id}`);
+              this.#goHomeIfOn(category.url);
+            }),
+        }
+      );
+    }
+
+    return items;
+  }
+
+  #textItems(channel) {
+    const membership = channel.currentUserMembership;
+    const items = [
+      {
+        label: t("mark_read"),
+        icon: "check",
+        action: () =>
+          this.#run(() => this.chatApi.markChannelAsRead(channel.id)),
+      },
+      { heading: t("notifications") },
+      ...[
+        ["always", "all_messages"],
+        ["mention", "mentions_only"],
+        ["never", "nothing"],
+      ].map(([level, label]) => ({
+        label: t(label),
+        checked: !membership?.muted && membership?.notificationLevel === level,
+        action: () =>
+          this.#updateChatSettings(channel, {
+            muted: false,
+            notification_level: level,
+          }),
+      })),
+      {
+        label: t("mute"),
+        checked: !!membership?.muted,
+        action: () =>
+          this.#updateChatSettings(channel, { muted: !membership?.muted }),
+      },
+    ];
+
+    if (this.currentUser.staff) {
+      items.push(
+        {
+          label: t("rename"),
+          icon: "pencil",
+          action: () =>
+            this.#rename(t("rename"), channel.title, (name) =>
+              this.chatApi
+                .updateChannel(channel.id, { name })
+                .then(() => (channel.title = name))
+            ),
+        },
+        {
+          label: t("delete"),
+          icon: "trash-can",
+          danger: true,
+          action: () =>
+            this.#confirmDelete(channel.title, async () => {
+              await this.chatApi.destroyChannel(channel.id);
+              this.chatChannelsManager.remove(channel);
+              await this.sidebarGroups.removeChannel(`text:${channel.id}`);
+              this.router.transitionTo("discovery.latest");
+            }),
+        }
+      );
+    }
+
+    return items;
+  }
+
+  #voiceItems(room) {
+    if (!room.can_manage) {
+      return [];
+    }
+
+    return [
+      {
+        label: t("rename"),
+        icon: "pencil",
+        action: () =>
+          this.#rename(t("rename"), room.name, (name) =>
+            ajax(`/voice/rooms/${room.id}`, {
+              type: "PUT",
+              data: { room: { name } },
+            }).then((result) => this.voiceRooms.upsertRoom(result.room))
+          ),
+      },
+      {
+        label: t("delete"),
+        icon: "trash-can",
+        danger: true,
+        action: () =>
+          this.#confirmDelete(room.name, async () => {
+            await ajax(`/voice/rooms/${room.id}`, { type: "DELETE" });
+            this.voiceRooms.handleDirectoryEvent({ type: "destroyed", room });
+            await this.sidebarGroups.removeChannel(`voice:${room.id}`);
+          }),
+      },
+    ];
+  }
+
+  #moveItems(key) {
+    const groups = this.sidebarGroups;
+
+    if (!groups.canEdit) {
+      return [];
+    }
+
+    const current = groups.groupIndexOf(key);
+
+    return [
+      { heading: t("move_to_group") },
+      ...groups.groups.map((group, index) => ({
+        label: group.name,
+        checked: index === current,
+        action: () => this.#run(() => groups.moveChannel(key, group.name)),
+      })),
+      {
+        label: t("no_group"),
+        checked: current === -1,
+        action: () => this.#run(() => groups.moveChannel(key, null)),
+      },
+    ];
+  }
+
+  #show(event, items, onClose) {
+    this.menu.show(event.target.closest("a, button") || event.target, {
+      identifier: "discord-channel-menu",
+      component: ActionMenu,
+      data: { items },
+      placement: "right-start",
+      modalForMobile: true,
+      onClose,
+    });
+  }
+
+  #copyLink(link) {
+    const href = link.href && link.href !== "#" ? link.href : null;
+    const url =
+      href ||
+      (link.route === "voice-room" || link.room
+        ? this.router.urlFor("voice-room", link.room.slug)
+        : this.router.urlFor(
+            link.route,
+            ...(link.models || (link.model ? [link.model] : []))
+          ));
+
+    clipboardCopy(new URL(url, window.location.origin).href);
+    this.toasts.success({
+      duration: "short",
+      data: { message: t("link_copied") },
+    });
+  }
+
+  // New topics and unread posts both, whichever "new" the user has set up.
+  async #dismissCategory(category) {
+    await ajax("/topics/reset-new", {
+      type: "PUT",
+      data: {
+        category_id: category.id,
+        dismiss_topics: true,
+        dismiss_posts: true,
+      },
+    });
+    await ajax("/topics/bulk", {
+      type: "PUT",
+      data: {
+        filter: "unread",
+        category_id: category.id,
+        operation: { type: "dismiss_posts" },
+      },
+    });
+  }
+
+  #updateChatSettings(channel, settings) {
+    return this.#run(async () => {
+      const result =
+        await this.chatApi.updateCurrentUserChannelNotificationsSettings(
+          channel.id,
+          settings
+        );
+      const membership = channel.currentUserMembership;
+      membership.muted = result.membership.muted;
+      membership.notificationLevel = result.membership.notification_level;
+    });
+  }
+
+  #rename(title, value, save) {
+    this.modal.show(RenameModal, { model: { title, value, save } });
+  }
+
+  #confirmDelete(name, destroy) {
+    this.dialog.deleteConfirm({
+      message: t("delete_confirm", { name }),
+      didConfirm: () => this.#run(destroy),
+    });
+  }
+
+  #goHomeIfOn(url) {
+    if (this.router.currentURL?.startsWith(url)) {
+      this.router.transitionTo("discovery.latest");
+    }
+  }
+
+  async #run(fn) {
+    try {
+      await fn();
+    } catch (error) {
+      popupAjaxError(error);
+    }
+  }
+}

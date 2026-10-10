@@ -1,0 +1,151 @@
+// Discord's channel list: quiet grey rows that light up when there's
+// something new, with a pill on the left edge marking unread channels.
+.sidebar-section[data-section-name^="discord-"] {
+  .sidebar-section-header-text {
+    font-size: var(--font-down-2);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--primary-medium);
+  }
+
+  .sidebar-section-link-wrapper {
+    position: relative;
+  }
+
+  .discord-channel {
+    margin: 1px 0.5em;
+    padding-inline: 0.5em;
+    border-radius: var(--d-border-radius);
+    color: var(--primary-medium);
+
+    .sidebar-section-link-prefix .prefix-icon {
+      color: var(--primary-low-mid);
+    }
+
+    &:hover {
+      background: var(--primary-very-low);
+      color: var(--primary-high);
+    }
+
+    &.active,
+    &.sidebar-section-link--active {
+      background: var(--primary-low);
+      color: var(--primary);
+
+      .sidebar-section-link-prefix .prefix-icon {
+        color: var(--primary-medium);
+      }
+    }
+  }
+
+  .discord-channel--unread {
+    color: var(--primary);
+    font-weight: 600;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 4px;
+      height: 8px;
+      border-radius: 0 4px 4px 0;
+      background: var(--primary);
+      transform: translateY(-50%);
+    }
+
+    // The pill already says it, so the dot would be noise.
+    .sidebar-section-link-suffix.unread {
+      display: none;
+    }
+  }
+
+  .sidebar-section-link-content-badge {
+    min-width: 1.4em;
+    padding: 0 0.4em;
+    border-radius: 1em;
+    background: var(--danger);
+    color: var(--secondary);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .sidebar-section-link--muted {
+    opacity: 0.5;
+  }
+}
+
+.discord-channel--connecting {
+  opacity: 0.7;
+}
+
+// Channel types as Discord's stacked cards.
+.discord-create-channel-modal {
+  .form-kit__field-radio {
+    width: 100%;
+  }
+
+  .form-kit__control-radio-label {
+    width: 100%;
+    padding: 0.75em 1em;
+    border-radius: var(--d-border-radius);
+    background: var(--primary-very-low);
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &:has(.form-kit__control-radio:checked) {
+      background: var(--primary-low);
+    }
+  }
+
+  .form-kit__control-radio-title {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+    font-weight: 600;
+
+    .d-icon {
+      color: var(--primary-medium);
+    }
+  }
+}
+
+.discord-server-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75em 1em;
+  border-bottom: 1px solid var(--primary-low);
+  font-weight: 700;
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__create {
+    padding: 0.25em;
+  }
+}
+
+.discord-action-menu {
+  .btn.--danger {
+    color: var(--danger);
+
+    .d-icon {
+      color: var(--danger);
+    }
+  }
+
+  .btn.--no-icon {
+    padding-left: 2.25em;
+  }
+}
+
+// Chat is always full page; the button to shrink it into the drawer goes.
+.c-navbar__open-drawer-button {
+  display: none;
+}
