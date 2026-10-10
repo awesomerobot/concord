@@ -1,8 +1,8 @@
 import Component from "@glimmer/component";
-import { getOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import SearchMenu from "discourse/components/search-menu";
 import DButton from "discourse/ui-kit/d-button";
+import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import ServerHeader from "./server-header";
@@ -15,44 +15,41 @@ const t = (key) => i18n(themePrefix(`channel_header.${key}`));
  * header so everything that sizes itself to the header keeps working.
  */
 export default class ChannelHeader extends Component {
-  @service discovery;
   @service router;
 
-  get chat() {
-    return getOwner(this).lookup("service:chat");
-  }
-
-  get voiceRooms() {
-    return getOwner(this).lookup("service:voice-rooms");
-  }
-
-  get routeName() {
-    return this.router.currentRouteName || "";
-  }
-
   get channel() {
-    const name = this.routeName;
+    const current = this.args.currentChannel.value;
+    let channel;
 
-    if (name.startsWith("chat.channel")) {
-      return this.#textChannel(this.chat?.activeChannel);
+    switch (current?.type) {
+      case "text":
+        channel = this.#textChannel(current.channel);
+        break;
+      case "topic":
+        channel = this.#topic(current.topic);
+        break;
+      case "voice":
+        channel = this.#voiceRoom(current.room);
+        break;
+      case "forum":
+        channel = this.#forum(current.category);
+        break;
+      case "tag":
+        channel = { icon: "tag", name: current.tag.name };
+        break;
     }
 
-    if (name.startsWith("topic.")) {
-      return this.#topic(this.#routeAttributes("topic"));
-    }
+    return { actions: [], ...channel };
+  }
 
-    if (name === "voice-room") {
-      const slug = this.router.currentRoute.params.slug;
-      return this.#voiceRoom(this.voiceRooms?.roomBySlug(slug));
-    }
-
-    if (this.discovery.category) {
-      return this.#forum(this.discovery.category);
-    }
-
-    if (this.discovery.tag) {
-      return { icon: "tag", name: this.discovery.tag.name };
-    }
+  get memberListAction() {
+    return {
+      id: "member-list",
+      icon: "users",
+      title: t("member_list"),
+      active: this.args.memberList.open,
+      action: () => this.args.memberList.toggle(),
+    };
   }
 
   #textChannel(channel) {
@@ -79,12 +76,6 @@ export default class ChannelHeader extends Component {
           icon: "thumbtack",
           title: t("pins"),
           action: go("chat.channel.pins"),
-        },
-        {
-          id: "members",
-          icon: "users",
-          title: t("members"),
-          action: go("chat.channel.info.members"),
         },
         {
           id: "settings",
@@ -131,17 +122,6 @@ export default class ChannelHeader extends Component {
     };
   }
 
-  #routeAttributes(routeName) {
-    let route = this.router.currentRoute;
-
-    while (route) {
-      if (route.name === routeName) {
-        return route.attributes;
-      }
-      route = route.parent;
-    }
-  }
-
   <template>
     <div class="discord-channel-header">
       <ServerHeader
@@ -151,7 +131,7 @@ export default class ChannelHeader extends Component {
       />
 
       <div class="discord-channel-header__channel">
-        {{#if this.channel}}
+        {{#if this.channel.name}}
           <span class="discord-channel-header__icon">
             {{dIcon this.channel.icon}}
           </span>
@@ -173,6 +153,17 @@ export default class ChannelHeader extends Component {
               data-action-id={{action.id}}
             />
           {{/each}}
+          <DButton
+            @action={{this.memberListAction.action}}
+            @icon={{this.memberListAction.icon}}
+            @translatedTitle={{this.memberListAction.title}}
+            aria-pressed={{if this.memberListAction.active "true" "false"}}
+            class={{dConcatClass
+              "btn-flat"
+              (if this.memberListAction.active "--active")
+            }}
+            data-action-id={{this.memberListAction.id}}
+          />
 
           <div class="discord-channel-header__search search-menu">
             <SearchMenu

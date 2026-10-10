@@ -265,4 +265,48 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_css(".discord-user-panel .discord-user-panel__signup")
     end
   end
+
+  describe "member list" do
+    fab!(:member) { Fabricate(:user, username: "camper") }
+    fab!(:outsider) { Fabricate(:user, username: "stranger") }
+
+    let(:list) { find(".discord-member-list") }
+
+    before do
+      chat_channel.add(member)
+      DirectoryItem.refresh!
+    end
+
+    def section(id)
+      list.find(".discord-member-list__section[data-section-id='#{id}']")
+    end
+
+    it "lists a chat channel's members, with online admins under their role" do
+      visit("/chat/c/hangout/#{chat_channel.id}")
+
+      expect(section("role-admins")).to have_css("[data-username='#{admin.username}']")
+      expect(section("offline")).to have_css("[data-username='camper']")
+      expect(list).to have_no_css("[data-username='stranger']")
+      screenshot("member-list")
+    end
+
+    it "lists everyone on forum pages" do
+      visit("/c/#{category.slug}/#{category.id}")
+
+      expect(list).to have_css("[data-username='camper']")
+      expect(list).to have_css("[data-username='stranger']")
+    end
+
+    it "hides and remembers being hidden" do
+      visit("/latest")
+      expect(page).to have_css(".discord-member-list")
+
+      find(".discord-channel-header [data-action-id='member-list']").click
+      expect(page).to have_no_css(".discord-member-list")
+
+      visit("/latest")
+      expect(page).to have_css(".discord-channel-header [data-action-id='member-list']")
+      expect(page).to have_no_css(".discord-member-list")
+    end
+  end
 end

@@ -20,6 +20,7 @@ en:
                   id:
                     label: "ID"
                     description: "Category ID for forum, chat channel ID for text, room ID for voice, tag ID for tag."
+      member_list_roles: "Groups shown as roles in the member list, in this order. Their online members get a section each, above everyone else."
       chat_container_category: "Slug of the category that holds the categories backing chat channels made from the create-channel modal. It's created if missing, and hidden from the channel list."
   create_channel:
     action: "Create channel"
@@ -75,5 +76,9 @@ en:
   channel_header:
     threads: "Threads"
     pins: "Pinned messages"
-    members: "Members"
+    member_list: "Member list"
     settings: "Channel settings"
+  member_list:
+    title: "Members"
+    online: "Online"
+    offline: "Offline"

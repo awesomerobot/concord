@@ -36,3 +36,7 @@ sidebar_groups:
             id:
               type: integer
               required: true
+member_list_roles:
+  type: list
+  list_type: group
+  default: "1|2"

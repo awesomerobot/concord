@@ -63,3 +63,19 @@ sidebar.
 The foot of the sidebar shows the current user; clicking opens core's user
 menu (notifications, messages, bookmarks, profile). Signed-out visitors get
 log in and sign up buttons there. Core's sidebar footer is hidden.
+
+## Member list
+
+A panel down the right of the page, toggled by the people icon in the header
+row (the choice is remembered per browser). It shows:
+
+- on a voice channel, who's in the call first
+- online members of each group in `member_list_roles` (admins and moderators
+  by default), a section per role
+- everyone else online, then offline
+
+On a chat channel it covers the channel's members; elsewhere, everyone in the
+user directory. "Online" means active in the last few minutes, from chat's
+presence channel plus the who's-online plugin when installed. Members load 50
+at a time as you scroll; a chat channel's first 250 load up front so its online
+members can be found.

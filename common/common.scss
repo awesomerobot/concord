@@ -323,3 +323,96 @@
   border: none;
   box-shadow: none;
 }
+
+// Discord's member list: a third column on the main grid.
+.discord-member-list {
+  display: none;
+}
+
+@include viewport.from(md) {
+  body.has-sidebar-page.discord-member-list-open #main-outlet-wrapper {
+    grid-template-areas:
+      "sidebar content members"
+      "sidebar below-content members";
+    grid-template-columns:
+      var(--d-sidebar-width) minmax(0, 1fr)
+      var(--discord-member-list-width);
+  }
+
+  .discord-member-list {
+    display: block;
+    grid-area: members;
+    position: sticky;
+    top: var(--main-outlet-offset);
+    height: calc(var(--composer-vh, 1dvh) * 100 - var(--main-outlet-offset));
+    overflow-y: auto;
+    padding: 0.5em;
+    box-sizing: border-box;
+    border-left: 1px solid var(--d-sidebar-border-color);
+    background: var(--d-sidebar-background);
+  }
+}
+
+:root {
+  --discord-member-list-width: 15em;
+}
+
+.discord-member-list__heading {
+  display: flex;
+  gap: 0.35em;
+  align-items: center;
+  margin: 1em 0.5em 0.25em;
+  color: var(--primary-medium);
+  font-size: var(--font-down-2);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.discord-member-list__member {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.3em 0.5em;
+  border-radius: var(--d-border-radius);
+
+  &:hover {
+    background: var(--primary-very-low);
+  }
+
+  &.--offline {
+    opacity: 0.45;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.discord-member-list__avatar {
+  position: relative;
+  display: flex;
+}
+
+// Discord's green dot on the avatar's corner.
+.discord-member-list__presence {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 0.6em;
+  height: 0.6em;
+  border: 2px solid var(--d-sidebar-background);
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.discord-member-list__name {
+  overflow: hidden;
+  color: var(--primary-high);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discord-channel-header__actions .btn.--active .d-icon {
+  color: var(--primary);
+}

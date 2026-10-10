@@ -5,6 +5,8 @@ import { i18n } from "discourse-i18n";
 import CreateChannelModal from "../components/modal/create-channel";
 import ChannelActions from "../lib/channel-actions";
 import ChannelCreator from "../lib/channel-creator";
+import CurrentChannel from "../lib/current-channel";
+import MemberListData from "../lib/member-list";
 import ChannelDirectory from "../lib/channel-directory";
 import {
   CHANNELS_PANEL,
@@ -13,6 +15,7 @@ import {
 } from "../lib/constants";
 import SidebarGroups from "../lib/sidebar-groups";
 import ChannelHeader from "../components/channel-header";
+import MemberList from "../components/member-list";
 import ServerHeader from "../components/server-header";
 import UserPanel from "../components/user-panel";
 
@@ -23,6 +26,8 @@ export default apiInitializer((api) => {
   const directory = new ChannelDirectory(owner, sidebarGroups, channelActions);
   const creator = new ChannelCreator(owner);
   const modal = owner.lookup("service:modal");
+  const currentChannel = new CurrentChannel(owner);
+  const memberList = new MemberListData(owner, currentChannel);
   const sidebarState = owner.lookup("service:sidebar-state");
 
   const openCreateChannel = (groupIndex = null) =>
@@ -134,12 +139,20 @@ export default apiInitializer((api) => {
     <template>
       <ChannelHeader
         @canCreate={{creator.types.length}}
+        @currentChannel={{currentChannel}}
+        @memberList={{memberList}}
         @onCreate={{openCreateChannel}}
       />
     </template>
   );
 
   api.renderInOutlet("after-sidebar-sections", UserPanel);
+
+  // A third column of the main grid, after the page itself.
+  api.renderInOutlet(
+    "after-main-outlet",
+    <template><MemberList @memberList={{memberList}} /></template>
+  );
 
   // The state patch redirects these to the channel panel.
   api.setSidebarPanel("main");
