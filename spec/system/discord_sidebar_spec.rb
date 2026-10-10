@@ -195,6 +195,11 @@ RSpec.describe "Discord sidebar" do
       expect(header).to have_css(".discord-channel-header__name", text: "hangout")
       expect(page).to have_css(".c-routes.--channel")
       expect(page).to have_no_css(".c-routes.--channel > .c-navbar-container", visible: :visible)
+
+      gap = page.evaluate_script(<<~JS)
+        window.innerHeight - document.querySelector(".chat-channel").getBoundingClientRect().bottom
+      JS
+      expect(gap).to be_within(2).of(0)
       screenshot("chat")
 
       header.find("[data-action-id='pins']").click

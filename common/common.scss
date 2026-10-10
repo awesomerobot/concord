@@ -198,8 +198,13 @@
 
   // Chat's own channel bar; the row above covers it. Thread and pin panes
   // keep theirs.
-  .c-routes.--channel > .c-navbar-container {
-    display: none;
+  .c-routes.--channel {
+    // Chat sizes the channel to the window minus this bar's height.
+    --chat-header-offset: 0px;
+
+    > .c-navbar-container {
+      display: none;
+    }
   }
 }
 
