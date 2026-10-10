@@ -93,6 +93,11 @@ RSpec.describe "Discord sidebar" do
     sidebar_group_chooser.expand
     sidebar_group_chooser.search("Gaming")
     sidebar_group_chooser.select_row_by_value("Gaming")
+    screenshot("new-group-picked")
+    expect(page).to have_css(
+      ".form-kit__field[data-name='sidebarGroup'] .select-kit-header .name",
+      text: "Gaming",
+    )
     form.field("name").fill_in("lfg")
     form.submit
 

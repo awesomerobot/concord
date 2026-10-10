@@ -58,6 +58,13 @@ export default class CreateChannelModal extends Component {
     groupIds: [],
   };
 
+  // A name typed into the picker isn't a group yet, and select-kit only
+  // shows a selection that's among its options.
+  groupOptions = (value) => {
+    const names = this.sidebarGroups.names;
+    return value && !names.includes(value) ? [...names, value] : names;
+  };
+
   @action
   validate(data, { addError }) {
     if (data.isPrivate && !data.groupIds?.length) {
@@ -144,7 +151,7 @@ export default class CreateChannelModal extends Component {
             >
               <field.Control>
                 <ComboBox
-                  @content={{this.sidebarGroups.names}}
+                  @content={{this.groupOptions field.value}}
                   @nameProperty={{null}}
                   @onChange={{field.set}}
                   @options={{hash
