@@ -12,7 +12,9 @@ import {
   UNGROUPED_SECTION,
 } from "../lib/constants";
 import SidebarGroups from "../lib/sidebar-groups";
+import ChannelHeader from "../components/channel-header";
 import ServerHeader from "../components/server-header";
+import UserPanel from "../components/user-panel";
 
 export default apiInitializer((api) => {
   const owner = getOwnerWithFallback(api);
@@ -124,6 +126,20 @@ export default apiInitializer((api) => {
       />
     </template>
   );
+
+  // On wide screens core's header contents are hidden and this row takes
+  // their place, so the header keeps its height and the layout built on it.
+  api.renderInOutlet(
+    "after-header",
+    <template>
+      <ChannelHeader
+        @canCreate={{creator.types.length}}
+        @onCreate={{openCreateChannel}}
+      />
+    </template>
+  );
+
+  api.renderInOutlet("after-sidebar-sections", UserPanel);
 
   // The state patch redirects these to the channel panel.
   api.setSidebarPanel("main");

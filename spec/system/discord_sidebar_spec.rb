@@ -22,6 +22,11 @@ RSpec.describe "Discord sidebar" do
     sign_in(admin)
   end
 
+  def screenshot(name)
+    dir = ENV["DCCK_SCREENSHOTS"]
+    page.save_screenshot(File.join(dir, "#{name}.png")) if dir
+  end
+
   def channel_link(name)
     sidebar.find(".sidebar-section-link[data-link-name='#{name}']")
   end
@@ -114,8 +119,8 @@ RSpec.describe "Discord sidebar" do
     )
     visit("/latest")
 
-    find(".chat-header-icon").click
-    expect(page).to have_current_path(%r{/chat})
+    channel_link("text-hangout").click
+    expect(page).to have_current_path(%r{/chat/c/hangout/#{chat_channel.id}})
     expect(page).to have_no_css(".chat-drawer.is-expanded")
     expect(page).to have_no_css(".c-navbar__open-drawer-button", visible: :visible)
   end
@@ -178,5 +183,60 @@ RSpec.describe "Discord sidebar" do
 
     expect(sidebar).to have_css(".sidebar-section[data-section-name='discord-group-new']")
     expect(theme.reload.settings[:sidebar_groups].value.first["name"]).to eq("New")
+  end
+
+  describe "header" do
+    let(:header) { find(".discord-channel-header") }
+
+    it "replaces core's header and chat's channel bar with the channel's own" do
+      visit("/chat/c/hangout/#{chat_channel.id}")
+
+      expect(page).to have_no_css(".d-header > .wrap", visible: :visible)
+      expect(header).to have_css(".discord-channel-header__name", text: "hangout")
+      expect(page).to have_css(".c-routes.--channel")
+      expect(page).to have_no_css(".c-routes.--channel > .c-navbar-container", visible: :visible)
+      screenshot("chat")
+
+      header.find("[data-action-id='pins']").click
+      expect(page).to have_current_path(%r{/chat/c/hangout/#{chat_channel.id}/pins})
+    end
+
+    it "shows the category" do
+      category.update!(description: "Sit by the fire")
+      visit("/c/#{category.slug}/#{category.id}")
+
+      expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
+      expect(header).to have_css(".discord-channel-header__description", text: "Sit by the fire")
+      screenshot("forum")
+    end
+
+    it "shows a topic's title over its category" do
+      topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
+      visit(topic.relative_url)
+
+      expect(header).to have_css(".discord-channel-header__name", text: "Best campfire songs")
+      expect(header).to have_css(".discord-channel-header__description", text: "Lounge")
+    end
+  end
+
+  describe "user panel" do
+    it "opens the user menu from the foot of the sidebar" do
+      visit("/latest")
+
+      panel = find(".discord-user-panel")
+      expect(panel).to have_css(".discord-user-panel__name", text: admin.username)
+
+      panel.find(".discord-user-panel__me").click
+      expect(page).to have_css(".discord-user-menu .user-menu .quick-access-panel")
+      screenshot("user-menu")
+    end
+
+    it "offers log in and sign up when signed out" do
+      Capybara.reset_sessions!
+      visit("/latest")
+
+      expect(page).to have_css(".discord-user-panel .discord-user-panel__login")
+      expect(page).to have_css(".discord-user-panel .discord-user-panel__signup")
+    end
   end
 end

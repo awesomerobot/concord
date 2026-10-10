@@ -72,3 +72,8 @@ en:
     link_copied: "Link copied"
     move_to_group: "Move to group"
     no_group: "No group"
+  channel_header:
+    threads: "Threads"
+    pins: "Pinned messages"
+    members: "Members"
+    settings: "Channel settings"

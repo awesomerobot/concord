@@ -11,7 +11,9 @@ export default class ServerHeader extends Component {
   @service sidebarState;
 
   get show() {
-    return this.sidebarState.currentPanelKey === CHANNELS_PANEL;
+    return (
+      this.args.always || this.sidebarState.currentPanelKey === CHANNELS_PANEL
+    );
   }
 
   <template>

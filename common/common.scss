@@ -1,3 +1,5 @@
+@use "lib/viewport";
+
 // Discord's channel list: quiet grey rows that light up when there's
 // something new, with a pill on the left edge marking unread channels.
 .sidebar-section[data-section-name^="discord-"] {
@@ -148,4 +150,164 @@
 // Chat is always full page; the button to shrink it into the drawer goes.
 .c-navbar__open-drawer-button {
   display: none;
+}
+
+// Discord's top row replaces core's header contents on wide screens. Below
+// that, core's header stays: it holds the button that opens the sidebar.
+.discord-channel-header {
+  display: none;
+}
+
+@include viewport.from(md) {
+  .d-header > .wrap {
+    display: none;
+  }
+
+  .discord-channel-header {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    border-bottom: 1px solid var(--primary-low);
+
+    > .discord-server-header {
+      width: var(--d-sidebar-width);
+      flex-shrink: 0;
+      box-sizing: border-box;
+      border-bottom: none;
+      border-right: 1px solid var(--d-sidebar-border-color);
+    }
+  }
+
+  // The copy at the top of the sidebar is for narrow screens.
+  .sidebar-wrapper .discord-server-header {
+    display: none;
+  }
+
+  // Chat's own channel bar; the row above covers it. Thread and pin panes
+  // keep theirs.
+  .c-routes.--channel > .c-navbar-container {
+    display: none;
+  }
+}
+
+.discord-channel-header__channel {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.5em;
+  min-width: 0;
+  padding-inline: 1em;
+}
+
+.discord-channel-header__icon {
+  color: var(--primary-medium);
+}
+
+.discord-channel-header__name {
+  margin: 0;
+  font-size: var(--font-0);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.discord-channel-header__description {
+  overflow: hidden;
+  padding-left: 0.75em;
+  border-left: 1px solid var(--primary-low);
+  color: var(--primary-medium);
+  font-size: var(--font-down-1);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discord-channel-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  margin-left: auto;
+}
+
+.discord-channel-header__search {
+  position: relative;
+  flex: 0 0 16em;
+
+  .search-menu-container,
+  .search-input {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+// Sits at the foot of the sidebar, under the scrolling channel list.
+.discord-user-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding: 0.5em;
+  border-top: 1px solid var(--d-sidebar-border-color);
+  background: var(--d-sidebar-background);
+
+  &__me {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.5em;
+    min-width: 0;
+    padding: 0.25em;
+    border-radius: var(--d-border-radius);
+    text-align: left;
+
+    &:hover {
+      background: var(--primary-very-low);
+    }
+  }
+
+  &__avatar {
+    position: relative;
+
+    .avatar {
+      width: 2em;
+      height: 2em;
+    }
+  }
+
+  &__names {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  &__name {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__subtitle {
+    overflow: hidden;
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// Core's footer moves out of the way of the user panel; its keyboard
+// shortcut and colour scheme buttons are reachable elsewhere.
+.sidebar-wrapper .sidebar-footer-wrapper {
+  display: none;
+}
+
+// The user menu normally hangs off the header, so it's absolutely placed.
+.discord-user-menu .user-menu.revamped {
+  position: static;
+  height: min(32em, 70vh);
+  border: none;
+  box-shadow: none;
 }

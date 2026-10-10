@@ -48,3 +48,18 @@ next to its `+`. Items depend on the channel's kind and what the user may do:
 
 Core hides the row button on narrow touch screens, so phones don't get these
 yet.
+
+## Layout
+
+On wide screens, core's header contents are hidden and a Discord-style row
+takes their place inside the same header: the server name over the channel
+list, then the current channel's icon, name, description, actions and a search
+box. Living inside core's header keeps every height calculation built on it
+(chat, composer, sticky elements) working. Chat's own channel bar is hidden;
+its threads, pins, members and settings are in the row. Below the `md`
+breakpoint core's header stays, since it holds the button that opens the
+sidebar.
+
+The foot of the sidebar shows the current user; clicking opens core's user
+menu (notifications, messages, bookmarks, profile). Signed-out visitors get
+log in and sign up buttons there. Core's sidebar footer is hidden.
