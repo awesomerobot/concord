@@ -34,6 +34,8 @@ export default class ChannelHeader extends Component {
       identifier: "discord-search",
       component: SearchPopover,
       placement: "bottom-end",
+      // The panel's own width rules; the menu's default cap is narrower.
+      maxWidth: "none",
       modalForMobile: true,
     });
   }

@@ -1,7 +1,7 @@
 import UserMenu from "discourse/components/user-menu/menu";
 
 // Core's user menu (notifications, messages, bookmarks), opened from the user
-// panel instead of the header. Its profile tab is behind the gear instead.
+// panel's bell. Its profile tab is behind the user's name instead.
 const UserMenuPopover = <template>
   <div class="discord-user-menu">
     <UserMenu @closeUserMenu={{@close}} />

@@ -221,6 +221,9 @@ RSpec.describe "Discord sidebar" do
 
       header.find(".discord-channel-header__search").click
       expect(page).to have_css(".discord-search-panel #discord-search-input:focus")
+      expect(page.evaluate_script(<<~JS)).to eq(550)
+        document.querySelector(".discord-search-panel").getBoundingClientRect().width
+      JS
       screenshot("search")
 
       send_keys(:escape)
@@ -283,22 +286,26 @@ RSpec.describe "Discord sidebar" do
   end
 
   describe "user panel" do
-    it "opens the user menu from the foot of the sidebar" do
+    it "opens the notifications menu from the bell" do
+      Fabricate(:notification, user: admin)
       visit("/latest")
 
       panel = find(".discord-user-panel")
       expect(panel).to have_css(".discord-user-panel__name", text: admin.username)
+      expect(panel).to have_css(".discord-user-panel__notifications .badge-notification", text: "1")
+      expect(panel).to have_no_css(".discord-user-panel__avatar .badge-notification", visible: :visible)
+      screenshot("user-panel")
 
-      panel.find(".discord-user-panel__me").click
+      panel.find(".discord-user-panel__notifications").click
       expect(page).to have_css(".discord-user-menu .user-menu .quick-access-panel")
       expect(page).to have_no_css(".discord-user-menu #user-menu-button-profile", visible: :visible)
       screenshot("user-menu")
     end
 
-    it "opens the profile menu from the gear" do
+    it "opens the profile menu from the user's name" do
       visit("/latest")
 
-      find(".discord-user-panel__settings").click
+      find(".discord-user-panel__me").click
       menu = find(".discord-profile-menu #quick-access-profile")
       expect(menu).to have_css("li.preferences")
       expect(menu).to have_css("li.logout")

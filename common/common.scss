@@ -346,6 +346,26 @@
     white-space: nowrap;
   }
 
+  // The bell carries the unread badge, so the avatar doesn't.
+  &__avatar .badge-notification {
+    display: none;
+  }
+
+  &__notifications {
+    position: relative;
+
+    .badge-notification {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 0.6em;
+      padding: 0.1em 0.35em;
+      background: var(--tertiary);
+      color: var(--secondary);
+      font-size: var(--font-down-3);
+    }
+  }
+
   &__subtitle {
     overflow: hidden;
     color: var(--primary-medium);
@@ -372,7 +392,7 @@
 .discord-user-menu .user-menu.revamped {
   height: min(32em, 70vh);
 
-  // The gear in the user panel opens the profile tab.
+  // The user's name in the user panel opens the profile tab.
   .bottom-tabs {
     display: none;
   }

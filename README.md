@@ -65,10 +65,10 @@ with the server name and user panel in it. The button asks core's header to
 toggle the panel, so its animation, scroll lock and close-on-tap-outside are
 core's own.
 
-The foot of the sidebar shows the current user; clicking opens core's user
-menu (notifications, messages, bookmarks). The gear beside it opens the user
+The foot of the sidebar shows the current user; clicking opens the user
 menu's profile tab on its own (status, presence, summary, activity,
-preferences, log out), so that tab is hidden from the user menu. Signed-out
+preferences, log out). The bell beside it, carrying the unread badge, opens
+core's user menu (notifications, messages, bookmarks) without that tab. Signed-out
 visitors get
 log in and sign up buttons there. Core's sidebar footer is hidden.
 

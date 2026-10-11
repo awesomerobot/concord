@@ -9,8 +9,8 @@ import { i18n } from "discourse-i18n";
 import ProfileMenuPopover from "./profile-menu-popover";
 import UserMenuPopover from "./user-menu-popover";
 
-// Discord's panel at the foot of the channel list: who you are, with your
-// notifications behind the avatar and the profile menu behind the gear.
+// Discord's panel at the foot of the channel list: who you are, with the
+// profile menu behind your name and notifications behind the bell.
 export default class UserPanel extends Component {
   @service currentUser;
   @service menu;
@@ -20,6 +20,15 @@ export default class UserPanel extends Component {
     return this.siteSettings.prioritize_full_name_in_ux
       ? this.currentUser.name || this.currentUser.username
       : this.currentUser.username;
+  }
+
+  // The badge core shows on the header avatar, in the same order of priority.
+  get notificationCount() {
+    return (
+      this.currentUser.new_personal_messages_notifications_count ||
+      this.currentUser.unseen_reviewable_count ||
+      this.currentUser.all_unread_notifications_count
+    );
   }
 
   get subtitle() {
@@ -63,7 +72,7 @@ export default class UserPanel extends Component {
           class="discord-user-panel__me btn-transparent"
           title={{i18n "user.avatar.header_title"}}
           type="button"
-          {{on "click" this.openUserMenu}}
+          {{on "click" this.openProfileMenu}}
         >
           <span class="discord-user-panel__avatar">
             <Notifications />
@@ -74,11 +83,15 @@ export default class UserPanel extends Component {
           </span>
         </button>
         <DButton
-          @icon="gear"
-          @title="user.preferences.title"
-          class="btn-flat discord-user-panel__settings"
-          {{on "click" this.openProfileMenu}}
-        />
+          @icon="bell"
+          @title="user.notifications"
+          class="btn-flat discord-user-panel__notifications"
+          {{on "click" this.openUserMenu}}
+        >
+          {{#if this.notificationCount}}
+            <span class="badge-notification">{{this.notificationCount}}</span>
+          {{/if}}
+        </DButton>
       {{else}}
         <DButton
           @action={{this.showLogin}}

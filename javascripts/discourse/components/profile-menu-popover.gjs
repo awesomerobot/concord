@@ -4,8 +4,8 @@ import UserMenuProfileTabContent from "discourse/components/user-menu/profile-ta
 import { bind } from "discourse/lib/decorators";
 
 // The user menu's profile tab (status, presence, preferences, log out) on
-// its own, opened from the user panel's gear. Wrapped in the user menu's
-// markup so core's styles for the tab apply.
+// its own, opened from the user's name in the user panel. Wrapped in the user
+// menu's markup so core's styles for the tab apply.
 export default class ProfileMenuPopover extends Component {
   @service router;
 
