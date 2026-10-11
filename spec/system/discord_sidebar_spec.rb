@@ -607,6 +607,9 @@ RSpec.describe "Discord sidebar" do
       expect(section("offline")).to have_css("[data-username='camper']")
       expect(list).to have_no_css("[data-username='stranger']")
       screenshot("member-list")
+      expect(page.evaluate_script(<<~JS)).to eq("0px")
+        getComputedStyle(document.querySelector(".full-page-chat")).borderRightWidth
+      JS
     end
 
     it "opens user cards from the list" do

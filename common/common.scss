@@ -325,6 +325,12 @@ body.discord-header .d-header > .wrap {
   }
 }
 
+// Chat draws a line down its right edge, which beside the member list's own
+// reads as a doubled border; the member list (or the window) marks the edge.
+.has-full-page-chat .full-page-chat {
+  border-right: 0;
+}
+
 // Chat's own channel bar; the row above covers it. Thread and pin panes keep
 // theirs.
 .c-routes.--channel {
