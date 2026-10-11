@@ -9,12 +9,13 @@ It replaces the sidebar with one section where everything is a channel:
 - **Voice rooms** (voice plugin) are voice channels; clicking one joins it
 - **Tags** are tag channels
 
-Channels can be sorted under collapsible headings, kept in the
-`sidebar_groups` setting. Anything not in a group is listed at the top with no
-heading, like Discord. Each heading has its own `+`, which opens the modal with that group
-picked; admins can also pick the group in the modal. Groups are saved through
-the admin theme-setting endpoint, so only admins can change them, and others
-see changes on their next page load.
+Channels can be sorted into collapsible sections, kept in the
+`sidebar_sections` setting. Anything not in a section is listed at the top with
+no heading, like Discord. Each section heading has its own `+`, which opens the
+modal with that section picked; admins can also pick the section in the modal.
+Sections are saved through the admin theme-setting endpoint, so only admins can
+change them, and others see changes on their next page load. (The setting used
+to be `sidebar_groups`; a settings migration carries it over.)
 
 The `+` next to the site name at the top opens a create-channel modal. It offers the
 channel types the user is allowed to create, and a private toggle that limits
@@ -35,7 +36,7 @@ Not yet covered: a chat home page (DMs, friends list). That's coming to core.
 
 ## Menus
 
-Every channel row has a `…` button on hover, and every group heading has one
+Every channel row has a `…` button on hover, and every section heading has one
 next to its `+`. Items depend on the channel's kind and what the user may do:
 
 - Forum: mark as read, notifications (all posts / default / mute), rename and
@@ -43,11 +44,11 @@ next to its `+`. Items depend on the channel's kind and what the user may do:
 - Text: mark as read, notifications (all messages / only mentions / nothing),
   mute, rename and delete for staff
 - Voice: rename and delete for the room's managers
-- All: copy link, and for admins, move to group
-- Group headings (admins): rename, move up, move down, delete
+- All: copy link, and for admins, move to section
+- Section headings (admins): rename, move up, move down, delete
 
 A channel's menu leads with mark as read, rename and copy link, then
-notifications and move to group, with delete in its own section at the end.
+notifications and move to section, with delete on its own at the end.
 
 Core hides the row button on narrow touch screens, so phones don't get these
 yet.

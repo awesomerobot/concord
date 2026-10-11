@@ -2,7 +2,7 @@ import { trustHTML } from "@ember/template";
 import { emojiUnescape } from "discourse/lib/text";
 import CategorySectionLink from "discourse/lib/sidebar/user/categories-section/category-section-link";
 import TagSectionLink from "discourse/lib/sidebar/user/tags-section/tag-section-link";
-import { channelKey } from "./sidebar-groups";
+import { channelKey } from "./sidebar-sections";
 
 // Every link is prefixed by its kind, since a category, a tag and a chat
 // channel can share a slug and section links are keyed by name.

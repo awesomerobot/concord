@@ -5,7 +5,7 @@ import DButton from "discourse/ui-kit/d-button";
 import { CHANNELS_PANEL } from "../lib/constants";
 
 // The bar above Discord's channel list: the server's name, and where you make
-// channels that don't belong to a group.
+// channels that don't belong to a section.
 export default class ServerHeader extends Component {
   @service siteSettings;
   @service sidebarState;

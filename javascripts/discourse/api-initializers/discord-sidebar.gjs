@@ -10,10 +10,10 @@ import MemberListData from "../lib/member-list";
 import ChannelDirectory from "../lib/channel-directory";
 import {
   CHANNELS_PANEL,
-  GROUP_SECTION_PREFIX,
-  UNGROUPED_SECTION,
+  SECTION_PREFIX,
+  TOP_SECTION,
 } from "../lib/constants";
-import SidebarGroups from "../lib/sidebar-groups";
+import SidebarSections from "../lib/sidebar-sections";
 import ChannelHeader from "../components/channel-header";
 import MemberList from "../components/member-list";
 import ServerHeader from "../components/server-header";
@@ -21,21 +21,21 @@ import UserPanel from "../components/user-panel";
 
 export default apiInitializer((api) => {
   const owner = getOwnerWithFallback(api);
-  const sidebarGroups = new SidebarGroups(api.getCurrentUser());
-  const channelActions = new ChannelActions(owner, sidebarGroups);
-  const directory = new ChannelDirectory(owner, sidebarGroups, channelActions);
+  const sidebarSections = new SidebarSections(api.getCurrentUser());
+  const channelActions = new ChannelActions(owner, sidebarSections);
+  const directory = new ChannelDirectory(owner, sidebarSections, channelActions);
   const creator = new ChannelCreator(owner);
   const modal = owner.lookup("service:modal");
   const currentChannel = new CurrentChannel(owner);
   const memberList = new MemberListData(owner, currentChannel);
   const sidebarState = owner.lookup("service:sidebar-state");
 
-  const openCreateChannel = (groupIndex = null) =>
+  const openCreateChannel = (sectionIndex = null) =>
     modal.show(CreateChannelModal, {
-      model: { creator, sidebarGroups, groupIndex },
+      model: { creator, sidebarSections, sectionIndex },
     });
 
-  const createAction = (groupIndex) => {
+  const createAction = (sectionIndex) => {
     if (!creator.types.length) {
       return;
     }
@@ -45,20 +45,20 @@ export default apiInitializer((api) => {
         id: "createChannel",
         icon: "plus",
         title: i18n(themePrefix("create_channel.action")),
-        action: () => openCreateChannel(groupIndex),
+        action: () => openCreateChannel(sectionIndex),
       },
     ];
   };
 
-  // Channels in no group sit at the top with no heading, as in Discord. A
+  // Channels in no section sit at the top with no heading, as in Discord. A
   // section without a header never collapses.
-  class UngroupedSection extends BaseCustomSidebarSection {
-    name = UNGROUPED_SECTION;
+  class TopSection extends BaseCustomSidebarSection {
+    name = TOP_SECTION;
     text = "";
     hideSectionHeader = true;
 
     get links() {
-      return directory.sections.ungrouped;
+      return directory.layout.top;
     }
 
     get displaySection() {
@@ -66,23 +66,23 @@ export default apiInitializer((api) => {
     }
   }
 
-  const groupSection = (index, name) =>
+  const headedSection = (index, name) =>
     class extends BaseCustomSidebarSection {
       name = name;
       actionsInline = true;
 
       get text() {
-        return sidebarGroups.groups[index]?.name;
+        return sidebarSections.sections[index]?.name;
       }
 
       get links() {
-        return directory.sections.grouped[index]?.links || [];
+        return directory.layout.sections[index]?.links || [];
       }
 
       get actions() {
         return [
           ...(createAction(index) || []),
-          channelActions.groupAction(index),
+          channelActions.sectionAction(index),
         ].filter(Boolean);
       }
     };
@@ -97,30 +97,30 @@ export default apiInitializer((api) => {
       }
   );
 
-  // A section per group. Named after the group, since that's what keeps a
+  // A sidebar section per section. Named after it, since that's what keeps a
   // section collapsed across page loads, with the position added where two
-  // groups share a name. Rebuilt whenever the groups change.
+  // share a name. Rebuilt whenever the sections change.
   const panel = sidebarState.panels.find((p) => p.key === CHANNELS_PANEL);
   const syncSections = () => {
     const seen = new Set();
 
     panel.sections = [
-      UngroupedSection,
-      ...sidebarGroups.groups.map((group, index) => {
-        let name = `${GROUP_SECTION_PREFIX}${group.name
+      TopSection,
+      ...sidebarSections.sections.map((section, index) => {
+        let name = `${SECTION_PREFIX}${section.name
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")}`;
         if (seen.has(name)) {
           name = `${name}-${index}`;
         }
         seen.add(name);
-        return groupSection(index, name);
+        return headedSection(index, name);
       }),
     ];
   };
 
   syncSections();
-  sidebarGroups.onChange = syncSections;
+  sidebarSections.onChange = syncSections;
 
   api.renderInOutlet(
     "before-sidebar-sections",

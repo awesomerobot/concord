@@ -10,11 +10,11 @@ group_chat_with_category:
 chat_container_category:
   type: string
   default: "chat-channels"
-sidebar_groups:
+sidebar_sections:
   type: objects
   default: []
   schema:
-    name: group
+    name: section
     properties:
       name:
         type: string

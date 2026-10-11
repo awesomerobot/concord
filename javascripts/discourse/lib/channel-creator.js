@@ -3,7 +3,7 @@ import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
-import { channelKey } from "./sidebar-groups";
+import { channelKey } from "./sidebar-sections";
 
 // Members fetched per group for a private voice channel. Voice rooms only know
 // individual members, and each one is a request.

@@ -3,7 +3,7 @@ import { setOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import { canDisplayCategory } from "discourse/lib/sidebar/helpers";
 import Category from "discourse/models/category";
-import { channelKey } from "./sidebar-groups";
+import { channelKey } from "./sidebar-sections";
 import {
   ForumChannelLink,
   TagChannelLink,
@@ -29,9 +29,9 @@ export default class ChannelDirectory {
   #tagLinks = new Map();
   #textLinks = new Map();
 
-  constructor(owner, sidebarGroups, channelActions) {
+  constructor(owner, sidebarSections, channelActions) {
     setOwner(this, owner);
-    this.sidebarGroups = sidebarGroups;
+    this.sidebarSections = sidebarSections;
     this.channelActions = channelActions;
 
     this.chat = owner.lookup("service:chat");
@@ -43,20 +43,21 @@ export default class ChannelDirectory {
   }
 
   /**
-   * The channels under each heading, then the ones under none. A group only
-   * lists channels the user can see, in the order it stores them.
+   * The channels in no section, for the top of the list, then each section's.
+   * A section only lists channels the user can see, in the order it stores
+   * them.
    *
-   * @returns {{ grouped: Array<{ name: string, links: Array }>, ungrouped: Array }}
+   * @returns {{ top: Array, sections: Array<{ name: string, links: Array }> }}
    */
   @cached
-  get sections() {
+  get layout() {
     const links = this.#allLinks;
     const byKey = new Map(links.map((link) => [link.channelKey, link]));
     const placed = new Set();
 
-    const grouped = this.sidebarGroups.groups.map((group) => ({
-      name: group.name,
-      links: (group.channels || [])
+    const sections = this.sidebarSections.sections.map((section) => ({
+      name: section.name,
+      links: (section.channels || [])
         .map(({ type, id }) => {
           const key = channelKey(type, id);
           placed.add(key);
@@ -66,8 +67,8 @@ export default class ChannelDirectory {
     }));
 
     return {
-      grouped,
-      ungrouped: links.filter((link) => !placed.has(link.channelKey)),
+      top: links.filter((link) => !placed.has(link.channelKey)),
+      sections,
     };
   }
 

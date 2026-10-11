@@ -42,9 +42,9 @@ RSpec.describe "Discord sidebar" do
     )
   end
 
-  def sidebar_group_chooser
+  def section_chooser
     PageObjects::Components::SelectKit.new(
-      ".form-kit__field[data-name='sidebarGroup'] .select-kit",
+      ".form-kit__field[data-name='section'] .select-kit",
     )
   end
 
@@ -85,17 +85,17 @@ RSpec.describe "Discord sidebar" do
     expect(channel_link("forum-secret-plans")).to be_present
   end
 
-  it "creates a text channel in a new group typed into the group picker" do
+  it "creates a text channel in a new section typed into the section picker" do
     visit("/latest")
     open_create_modal
 
     form.field("type").select("text")
-    sidebar_group_chooser.expand
-    sidebar_group_chooser.search("Gaming")
-    sidebar_group_chooser.select_row_by_value("Gaming")
-    screenshot("new-group-picked")
+    section_chooser.expand
+    section_chooser.search("Gaming")
+    section_chooser.select_row_by_value("Gaming")
+    screenshot("new-section-picked")
     expect(page).to have_css(
-      ".form-kit__field[data-name='sidebarGroup'] .select-kit-header .name",
+      ".form-kit__field[data-name='section'] .select-kit-header .name",
       text: "Gaming",
     )
     form.field("name").fill_in("lfg")
@@ -105,12 +105,12 @@ RSpec.describe "Discord sidebar" do
     created = Chat::Channel.find_by(name: "lfg")
     expect(created.chatable.parent_category.slug).to eq("chat-channels")
 
-    groups = theme.reload.settings[:sidebar_groups].value
-    expect(groups).to eq(
+    sections = theme.reload.settings[:sidebar_sections].value
+    expect(sections).to eq(
       [{ "name" => "Gaming", "channels" => [{ "type" => "text", "id" => created.id }] }],
     )
 
-    gaming = sidebar.find(".sidebar-section[data-section-name='discord-group-gaming']")
+    gaming = sidebar.find(".sidebar-section[data-section-name='discord-section-gaming']")
     expect(gaming).to have_css(".sidebar-section-link[data-link-name='text-lfg']")
     expect(sidebar).to have_no_css(
       ".sidebar-section-link[data-link-name='forum-#{created.chatable.slug}']",
@@ -143,9 +143,9 @@ RSpec.describe "Discord sidebar" do
     expect(channel_link("voice-room-#{room.id}")).to be_present
   end
 
-  it "mutes a text channel and moves it to a group from its menu" do
+  it "mutes a text channel and moves it to a section from its menu" do
     theme.update_setting(
-      :sidebar_groups,
+      :sidebar_sections,
       [{ "name" => "Hangouts", "channels" => [] }].to_json,
     )
     theme.save!
@@ -171,41 +171,41 @@ RSpec.describe "Discord sidebar" do
     link.find(".sidebar-section-hover-button").click
     find(".discord-action-menu .btn", text: "Hangouts").click
 
-    hangouts = sidebar.find(".sidebar-section[data-section-name='discord-group-hangouts']")
+    hangouts = sidebar.find(".sidebar-section[data-section-name='discord-section-hangouts']")
     expect(hangouts).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
   end
 
-  it "renames a group from its heading menu" do
-    theme.update_setting(:sidebar_groups, [{ "name" => "Old", "channels" => [] }].to_json)
+  it "renames a section from its heading menu" do
+    theme.update_setting(:sidebar_sections, [{ "name" => "Old", "channels" => [] }].to_json)
     theme.save!
 
     visit("/latest")
 
-    heading = sidebar.find(".sidebar-section[data-section-name='discord-group-old']")
+    heading = sidebar.find(".sidebar-section[data-section-name='discord-section-old']")
     heading.find(".sidebar-section-header-wrapper").hover
-    heading.find("[data-sidebar-action-id='groupMenu']").click
-    find(".discord-action-menu .btn", text: "Rename group").click
+    heading.find("[data-sidebar-action-id='sectionMenu']").click
+    find(".discord-action-menu .btn", text: "Rename section").click
 
     rename_form = PageObjects::Components::FormKit.new(".discord-rename-modal form")
     rename_form.field("name").fill_in("New")
     rename_form.submit
 
-    expect(sidebar).to have_css(".sidebar-section[data-section-name='discord-group-new']")
-    expect(theme.reload.settings[:sidebar_groups].value.first["name"]).to eq("New")
+    expect(sidebar).to have_css(".sidebar-section[data-section-name='discord-section-new']")
+    expect(theme.reload.settings[:sidebar_sections].value.first["name"]).to eq("New")
   end
 
-  it "centres group carets over the channel icons" do
+  it "centres section carets over the channel icons" do
     theme.update_setting(
-      :sidebar_groups,
+      :sidebar_sections,
       [{ "name" => "Hangouts", "channels" => [{ "type" => "forum", "id" => category.id }] }].to_json,
     )
     theme.save!
 
     visit("/latest")
 
-    section = "[data-section-name='discord-group-hangouts']"
+    section = "[data-section-name='discord-section-hangouts']"
     expect(sidebar).to have_css("#{section} .sidebar-section-link-prefix")
-    screenshot("group")
+    screenshot("section")
 
     centres = page.evaluate_script(<<~JS)
       (() => {
@@ -330,6 +330,11 @@ RSpec.describe "Discord sidebar" do
 
       panel.find(".discord-user-panel__notifications").click
       expect(page).to have_css(".discord-user-menu .user-menu .quick-access-panel")
+      tabs_left, panel_left = page.evaluate_script(<<~JS)
+        [".discord-user-menu .menu-tabs-container", ".discord-user-menu .quick-access-panel"]
+          .map((s) => document.querySelector(s).getBoundingClientRect().left)
+      JS
+      expect(tabs_left).to be < panel_left
       expect(page).to have_no_css(".discord-user-menu #user-menu-button-profile", visible: :visible)
       screenshot("user-menu")
     end

@@ -28,14 +28,14 @@ export default class CreateChannelModal extends Component {
     return this.args.model.creator;
   }
 
-  get sidebarGroups() {
-    return this.args.model.sidebarGroups;
+  get sidebarSections() {
+    return this.args.model.sidebarSections;
   }
 
-  // Only admins can save groups, but they can make one from here by typing a
-  // new name.
-  get showGroupField() {
-    return this.sidebarGroups.canEdit;
+  // Only admins can save sections, but they can make one from here by typing
+  // a new name.
+  get showSectionField() {
+    return this.sidebarSections.canEdit;
   }
 
   get types() {
@@ -51,17 +51,18 @@ export default class CreateChannelModal extends Component {
 
   formData = {
     type: this.creator.types[0],
-    sidebarGroup:
-      this.sidebarGroups.groups[this.args.model.groupIndex]?.name ?? null,
+    section:
+      this.sidebarSections.sections[this.args.model.sectionIndex]?.name ??
+      null,
     name: "",
     isPrivate: false,
     groupIds: [],
   };
 
-  // A name typed into the picker isn't a group yet, and select-kit only
+  // A name typed into the picker isn't a section yet, and select-kit only
   // shows a selection that's among its options.
-  groupOptions = (value) => {
-    const names = this.sidebarGroups.names;
+  sectionOptions = (value) => {
+    const names = this.sidebarSections.names;
     return value && !names.includes(value) ? [...names, value] : names;
   };
 
@@ -83,11 +84,11 @@ export default class CreateChannelModal extends Component {
       const { key, route, models, notice } = await this.creator.create(data);
       const notices = notice ? [notice] : [];
 
-      // The channel exists by now, so a failure here leaves it ungrouped
-      // rather than failing the whole thing.
-      if (this.showGroupField && data.sidebarGroup) {
+      // The channel exists by now, so a failure here leaves it at the top of
+      // the list rather than failing the whole thing.
+      if (this.showSectionField && data.section) {
         try {
-          await this.sidebarGroups.addChannel(data.sidebarGroup, key);
+          await this.sidebarSections.addChannel(data.section, key);
         } catch (error) {
           notices.push(extractError(error));
         }
@@ -138,26 +139,26 @@ export default class CreateChannelModal extends Component {
             </field.Control>
           </form.Field>
 
-          {{#if this.showGroupField}}
+          {{#if this.showSectionField}}
             <form.Field
               @format="full"
-              @name="sidebarGroup"
-              @title={{i18n (themePrefix "create_channel.sidebar_group")}}
+              @name="section"
+              @title={{i18n (themePrefix "create_channel.section")}}
               @description={{i18n
-                (themePrefix "create_channel.sidebar_group_description")
+                (themePrefix "create_channel.section_description")
               }}
               @type="custom"
               as |field|
             >
               <field.Control>
                 <ComboBox
-                  @content={{this.groupOptions field.value}}
+                  @content={{this.sectionOptions field.value}}
                   @nameProperty={{null}}
                   @onChange={{field.set}}
                   @options={{hash
                     allowAny=true
                     filterable=true
-                    none=(themePrefix "create_channel.no_sidebar_group")
+                    none=(themePrefix "create_channel.no_section")
                   }}
                   @value={{field.value}}
                   @valueProperty={{null}}

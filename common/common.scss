@@ -401,6 +401,17 @@
   .bottom-tabs {
     display: none;
   }
+
+  // Tabs on the left, nearer the bell at the left of the screen.
+  .panel-body-contents {
+    flex-direction: row;
+  }
+
+  .quick-access-panel {
+    border-right: none;
+    border-left: var(--user-menu-border-width) solid
+      var(--content-border-color);
+  }
 }
 
 .discord-profile-menu .user-menu.revamped {

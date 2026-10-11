@@ -27,9 +27,9 @@ export default class ChannelActions {
   @service router;
   @service toasts;
 
-  constructor(owner, sidebarGroups) {
+  constructor(owner, sidebarSections) {
     setOwner(this, owner);
-    this.sidebarGroups = sidebarGroups;
+    this.sidebarSections = sidebarSections;
     this.chatApi = owner.lookup("service:chat-api");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
     this.voiceRooms = owner.lookup("service:voice-rooms");
@@ -53,57 +53,57 @@ export default class ChannelActions {
     return link;
   }
 
-  /** The `…` button on a group heading. */
-  groupAction(index) {
-    if (!this.sidebarGroups.canEdit) {
+  /** The `…` button on a section heading. */
+  sectionAction(index) {
+    if (!this.sidebarSections.canEdit) {
       return;
     }
 
     return {
-      id: "groupMenu",
+      id: "sectionMenu",
       icon: "ellipsis",
-      title: t("group_title"),
-      action: (event) => this.#show(event, this.groupItems(index)),
+      title: t("section_title"),
+      action: (event) => this.#show(event, this.sectionItems(index)),
     };
   }
 
-  groupItems(index) {
-    const groups = this.sidebarGroups;
-    const group = groups.groups[index];
+  sectionItems(index) {
+    const sections = this.sidebarSections;
+    const section = sections.sections[index];
 
     return [
       {
-        label: t("rename_group"),
+        label: t("rename_section"),
         icon: "pencil",
         action: () =>
-          this.#rename(t("rename_group"), group.name, (name) =>
-            groups.renameGroup(index, name)
+          this.#rename(t("rename_section"), section.name, (name) =>
+            sections.renameSection(index, name)
           ),
       },
       index > 0 && {
         label: t("move_up"),
         icon: "arrow-up",
-        action: () => this.#run(() => groups.moveGroup(index, -1)),
+        action: () => this.#run(() => sections.moveSection(index, -1)),
       },
-      index < groups.groups.length - 1 && {
+      index < sections.sections.length - 1 && {
         label: t("move_down"),
         icon: "arrow-down",
-        action: () => this.#run(() => groups.moveGroup(index, 1)),
+        action: () => this.#run(() => sections.moveSection(index, 1)),
       },
       {
-        label: t("delete_group"),
+        label: t("delete_section"),
         icon: "trash-can",
         danger: true,
         action: () =>
           this.dialog.deleteConfirm({
-            message: t("delete_group_confirm", { name: group.name }),
-            didConfirm: () => this.#run(() => groups.deleteGroup(index)),
+            message: t("delete_section_confirm", { name: section.name }),
+            didConfirm: () => this.#run(() => sections.deleteSection(index)),
           }),
       },
     ].filter(Boolean);
   }
 
-  // Everyday actions first, then notifications, the group, and deleting last
+  // Everyday actions first, then notifications, the section, and deleting last
   // on its own.
   channelItems(link) {
     const [type] = link.channelKey.split(":");
@@ -134,7 +134,7 @@ export default class ChannelActions {
     const items = {
       markRead: {
         label: t("mark_read"),
-        icon: "check",
+        icon: "eye",
         action: () => this.#run(() => this.#dismissCategory(category)),
       },
       notifications: [
@@ -171,7 +171,7 @@ export default class ChannelActions {
         action: () =>
           this.#confirmDelete(category.name, async () => {
             await ajax(`/categories/${category.id}`, { type: "DELETE" });
-            await this.sidebarGroups.removeChannel(`forum:${category.id}`);
+            await this.sidebarSections.removeChannel(`forum:${category.id}`);
             this.#goHomeIfOn(category.url);
           }),
       };
@@ -185,7 +185,7 @@ export default class ChannelActions {
     const items = {
       markRead: {
         label: t("mark_read"),
-        icon: "check",
+        icon: "eye",
         action: () =>
           this.#run(() => this.chatApi.markChannelAsRead(channel.id)),
       },
@@ -233,7 +233,7 @@ export default class ChannelActions {
           this.#confirmDelete(channel.title, async () => {
             await this.chatApi.destroyChannel(channel.id);
             this.chatChannelsManager.remove(channel);
-            await this.sidebarGroups.removeChannel(`text:${channel.id}`);
+            await this.sidebarSections.removeChannel(`text:${channel.id}`);
             this.router.transitionTo("discovery.latest");
           }),
       };
@@ -267,32 +267,33 @@ export default class ChannelActions {
           this.#confirmDelete(room.name, async () => {
             await ajax(`/voice/rooms/${room.id}`, { type: "DELETE" });
             this.voiceRooms.handleDirectoryEvent({ type: "destroyed", room });
-            await this.sidebarGroups.removeChannel(`voice:${room.id}`);
+            await this.sidebarSections.removeChannel(`voice:${room.id}`);
           }),
       },
     };
   }
 
   #moveItems(key) {
-    const groups = this.sidebarGroups;
+    const sections = this.sidebarSections;
 
-    if (!groups.canEdit) {
+    if (!sections.canEdit) {
       return [];
     }
 
-    const current = groups.groupIndexOf(key);
+    const current = sections.sectionIndexOf(key);
 
     return [
-      { heading: t("move_to_group") },
-      ...groups.groups.map((group, index) => ({
-        label: group.name,
+      { heading: t("move_to_section") },
+      ...sections.sections.map((section, index) => ({
+        label: section.name,
         checked: index === current,
-        action: () => this.#run(() => groups.moveChannel(key, group.name)),
+        action: () =>
+          this.#run(() => sections.moveChannel(key, section.name)),
       })),
       {
-        label: t("no_group"),
+        label: t("no_section"),
         checked: current === -1,
-        action: () => this.#run(() => groups.moveChannel(key, null)),
+        action: () => this.#run(() => sections.moveChannel(key, null)),
       },
     ];
   }
