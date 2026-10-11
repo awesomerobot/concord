@@ -2,6 +2,8 @@ import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import DiscourseURL from "discourse/lib/url";
+import Category from "discourse/models/category";
 import DButton from "discourse/ui-kit/d-button";
 import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
@@ -110,12 +112,22 @@ export default class ChannelHeader extends Component {
     };
   }
 
-  // The topic list's own controls already offer a new topic.
+  // The topic list's own controls already offer a new topic. Settings sit
+  // here like a text channel's, rather than in the list's controls.
   #forum(category) {
     return {
       icon: "far-comments",
       name: category.displayName,
       description: category.description_text,
+      actions: [
+        category.can_edit && {
+          id: "settings",
+          icon: "gear",
+          title: t("settings"),
+          action: () =>
+            DiscourseURL.routeTo(`/c/${Category.slugFor(category)}/edit`),
+        },
+      ].filter(Boolean),
     };
   }
 

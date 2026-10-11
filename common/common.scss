@@ -516,12 +516,14 @@
   color: var(--primary);
 }
 
-// The channel list and header row already say where you are, and a channel's
-// notifications are in its menu. Topic, group and chat bells share the
-// button's class, so only the list controls' one goes.
+// The channel list and header row already say where you are, a channel's
+// notifications are in its menu, and its settings are in the header row.
+// Topic, group and chat bells share the button's class, so only the list
+// controls' one goes.
 .list-controls {
   .category-breadcrumb,
-  .notifications-tracking-trigger-btn {
+  .notifications-tracking-trigger-btn,
+  .edit-category {
     display: none;
   }
 }

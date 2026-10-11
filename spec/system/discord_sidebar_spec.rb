@@ -275,7 +275,11 @@ RSpec.describe "Discord sidebar" do
 
       expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
       expect(header).to have_css(".discord-channel-header__description", text: "Sit by the fire")
+      expect(page).to have_no_css(".list-controls .edit-category", visible: :visible)
       screenshot("forum")
+
+      header.find("[data-action-id='settings']").click
+      expect(page).to have_current_path(%r{/c/#{category.slug}/edit})
     end
 
     it "shows a topic's title over its category" do
