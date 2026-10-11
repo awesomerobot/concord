@@ -49,6 +49,11 @@ RSpec.describe "Discord sidebar" do
     sidebar.find(".sidebar-section-link[data-link-name='#{name}']")
   end
 
+  # The create and privacy modals keep their buttons in the modal's footer.
+  def submit_modal
+    find(".d-modal__footer .btn-primary").click
+  end
+
   def open_create_modal
     find(".discord-server-header__create").click
     expect(modal).to be_open
@@ -115,7 +120,7 @@ RSpec.describe "Discord sidebar" do
     group_chooser.select_row_by_name(group.name)
     group_chooser.collapse
     screenshot("create-modal")
-    form.submit
+    submit_modal
 
     expect(page).to have_current_path(%r{/c/secret-plans/\d+})
     created = Category.find_by(name: "secret-plans")
@@ -138,7 +143,7 @@ RSpec.describe "Discord sidebar" do
       text: "Gaming",
     )
     form.field("name").fill_in("lfg")
-    form.submit
+    submit_modal
 
     expect(page).to have_current_path(%r{/chat/c/lfg/\d+})
     created = Chat::Channel.find_by(name: "lfg")
@@ -193,7 +198,7 @@ RSpec.describe "Discord sidebar" do
 
     form.field("type").select("voice")
     form.field("name").fill_in("Late night")
-    form.submit
+    submit_modal
 
     room = Voice::Room.find_by(name: "Late night")
     expect(room.public).to eq(true)
@@ -299,6 +304,13 @@ RSpec.describe "Discord sidebar" do
         document.querySelector(".sidebar-wrapper .discord-server-header__ai").nextElementSibling.matches(".discord-server-header__dms")
       JS
       expect(next_to_dms).to eq(true)
+      sizes = page.evaluate_script(<<~JS)
+        ["ai", "dms", "create"].map((name) => {
+          const rect = document.querySelector(`.sidebar-wrapper .discord-server-header__${name}`).getBoundingClientRect();
+          return [Math.round(rect.width), Math.round(rect.height)];
+        })
+      JS
+      expect(sizes.uniq.size).to eq(1)
       screenshot("ai-conversations-link")
 
       # A toggle, like the DM button: in, then back out to where you were.
@@ -344,7 +356,7 @@ RSpec.describe "Discord sidebar" do
       group_chooser.select_row_by_name(group.name)
       group_chooser.collapse
       screenshot("privacy")
-      privacy_form.submit
+      submit_modal
 
       expect(page).to have_no_css(".discord-channel-privacy-modal")
       expect(category.reload.read_restricted).to eq(true)
@@ -353,7 +365,7 @@ RSpec.describe "Discord sidebar" do
       open_privacy("forum-lounge")
       expect(privacy_form.field("isPrivate")).to have_value(true)
       privacy_form.field("isPrivate").toggle
-      privacy_form.submit
+      submit_modal
 
       expect(page).to have_no_css(".discord-channel-privacy-modal")
       expect(category.reload.read_restricted).to eq(false)
@@ -367,7 +379,7 @@ RSpec.describe "Discord sidebar" do
       open_privacy("forum-lounge")
       privacy_form.field("isPrivate").toggle
       expect(page).to have_css(".discord-channel-privacy-modal", text: "designers")
-      privacy_form.submit
+      submit_modal
 
       expect(page).to have_no_css(".discord-channel-privacy-modal")
       expect(category.reload.read_restricted).to eq(true)
@@ -419,7 +431,7 @@ RSpec.describe "Discord sidebar" do
       group_chooser.search(group.name)
       group_chooser.select_row_by_name(group.name)
       group_chooser.collapse
-      privacy_form.submit
+      submit_modal
 
       expect(page).to have_no_css(".discord-channel-privacy-modal")
       expect(backing.reload.read_restricted).to eq(true)
@@ -440,7 +452,7 @@ RSpec.describe "Discord sidebar" do
 
       open_privacy("voice-room-#{voice_room.id}")
       privacy_form.field("isPrivate").toggle
-      privacy_form.submit
+      submit_modal
 
       expect(page).to have_no_css(".discord-channel-privacy-modal")
       expect(voice_room.reload.public).to eq(false)

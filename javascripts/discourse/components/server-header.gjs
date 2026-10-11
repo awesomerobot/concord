@@ -126,7 +126,7 @@ export default class ServerHeader extends Component {
         {{#if @directMessages.available}}
           <DButton
             @action={{this.toggleDirectMessages}}
-            @icon="comments"
+            @icon="far-comments"
             @translatedTitle={{i18n (themePrefix "direct_messages.title")}}
             aria-pressed={{if @directMessages.active "true" "false"}}
             class={{dConcatClass

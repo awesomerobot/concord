@@ -27,6 +27,7 @@ export default class ChannelPrivacyModal extends Component {
   @service toasts;
 
   @tracked flash;
+  formApi;
   @tracked formData;
   @tracked loaded;
 
@@ -172,6 +173,18 @@ export default class ChannelPrivacyModal extends Component {
     );
   }
 
+  @action
+  registerApi(api) {
+    this.formApi = api;
+  }
+
+  // The buttons sit in the modal's fixed footer, outside the form, which
+  // only renders once the permissions have loaded.
+  @action
+  submit() {
+    this.formApi?.submit();
+  }
+
   <template>
     <DModal
       @closeModal={{@closeModal}}
@@ -184,11 +197,6 @@ export default class ChannelPrivacyModal extends Component {
           <p class="discord-channel-privacy-modal__shared">
             {{t "shared" category=this.sharedCategoryName}}
           </p>
-          <DButton
-            @action={{this.openCategorySecurity}}
-            @translatedLabel={{t "open_category"}}
-            class="btn-default"
-          />
         {{else}}
           {{! template-lint-disable no-invalid-interactive }}
           <div {{on "click" this.closeOnParentLink}}>
@@ -196,6 +204,7 @@ export default class ChannelPrivacyModal extends Component {
               {{#if this.formData}}
                 <Form
                   @data={{this.formData}}
+                  @onRegisterApi={{this.registerApi}}
                   @onSubmit={{this.save}}
                   @validate={{this.validate}}
                   as |form data|
@@ -235,21 +244,33 @@ export default class ChannelPrivacyModal extends Component {
                       </field.Control>
                     </form.Field>
                   {{/if}}
-
-                  <form.Actions>
-                    <form.Submit @label="save" class="btn-primary" />
-                    <form.Button
-                      @action={{@closeModal}}
-                      @label="cancel"
-                      class="btn-transparent"
-                    />
-                  </form.Actions>
                 </Form>
               {{/if}}
             </DConditionalLoadingSpinner>
           </div>
         {{/if}}
       </:body>
+      <:footer>
+        {{#if (eq this.privacy.kind "shared")}}
+          <DButton
+            @action={{this.openCategorySecurity}}
+            @translatedLabel={{t "open_category"}}
+            class="btn-primary"
+          />
+        {{else}}
+          <DButton
+            @action={{this.submit}}
+            @disabled={{this.loading}}
+            @label="save"
+            class="btn-primary"
+          />
+        {{/if}}
+        <DButton
+          @action={{@closeModal}}
+          @label="cancel"
+          class="btn-transparent"
+        />
+      </:footer>
     </DModal>
   </template>
 }

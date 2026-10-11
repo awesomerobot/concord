@@ -8,6 +8,7 @@ import { extractError } from "discourse/lib/ajax-error";
 import ComboBox from "discourse/select-kit/components/combo-box";
 import GroupChooser from "discourse/select-kit/components/group-chooser";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import DModal from "discourse/ui-kit/d-modal";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
@@ -23,6 +24,7 @@ export default class CreateChannelModal extends Component {
   @service toasts;
 
   @tracked flash;
+  formApi;
 
   get creator() {
     return this.args.model.creator;
@@ -103,6 +105,17 @@ export default class CreateChannelModal extends Component {
     }
   }
 
+  @action
+  registerApi(api) {
+    this.formApi = api;
+  }
+
+  // The buttons sit in the modal's fixed footer, outside the form.
+  @action
+  submit() {
+    this.formApi.submit();
+  }
+
   <template>
     <DModal
       @closeModal={{@closeModal}}
@@ -113,6 +126,7 @@ export default class CreateChannelModal extends Component {
       <:body>
         <Form
           @data={{this.formData}}
+          @onRegisterApi={{this.registerApi}}
           @onSubmit={{this.create}}
           @validate={{this.validate}}
           as |form data|
@@ -216,20 +230,20 @@ export default class CreateChannelModal extends Component {
               </field.Control>
             </form.Field>
           {{/if}}
-
-          <form.Actions>
-            <form.Submit
-              @label={{themePrefix "create_channel.submit"}}
-              class="btn-primary"
-            />
-            <form.Button
-              @action={{@closeModal}}
-              @label="cancel"
-              class="btn-transparent"
-            />
-          </form.Actions>
         </Form>
       </:body>
+      <:footer>
+        <DButton
+          @action={{this.submit}}
+          @label={{themePrefix "create_channel.submit"}}
+          class="btn-primary"
+        />
+        <DButton
+          @action={{@closeModal}}
+          @label="cancel"
+          class="btn-transparent"
+        />
+      </:footer>
     </DModal>
   </template>
 }

@@ -204,23 +204,26 @@
     white-space: nowrap;
   }
 
+  // The buttons after the name: all one size, whatever their icon.
+  &__ai,
+  &__dms,
   &__create {
-    padding: 0.25em;
+    flex-shrink: 0;
+    justify-content: center;
+    width: 2em;
+    height: 2em;
+    margin: -0.25em 0 -0.25em 0.25em;
+    padding: 0;
   }
 
-  // The AI link takes over pushing the buttons right.
-  &__ai + &__dms {
-    margin-left: 0;
+  // The first of them pushes them all to the right, the name staying left.
+  &__name + .btn {
+    margin-left: auto;
   }
 
   &__ai,
   &__dms {
     position: relative;
-    flex-shrink: 0;
-
-    // Pushes it and the create button to the right, the name staying left.
-    margin: -0.25em 0.25em -0.25em auto;
-    padding: 0.25em 0.5em;
 
     &.--active {
       background: var(--primary-low);
