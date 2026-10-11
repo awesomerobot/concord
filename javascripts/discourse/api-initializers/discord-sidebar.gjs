@@ -1,5 +1,4 @@
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
-import { schedule } from "@ember/runloop";
 import { apiInitializer } from "discourse/lib/api";
 import { getOwnerWithFallback } from "discourse/lib/get-owner";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
@@ -187,15 +186,15 @@ export default apiInitializer((api) => {
     );
   }
 
-  // The list is rendered afresh each time the slide-in opens, and once for
-  // the sidebar on wide screens.
+  // Rendered afresh each time the slide-in list opens. Core scrolls the
+  // current channel's row into view (the panels ask it to), but then focuses
+  // the slide-in's first link, which scrolls it back to the top; so scroll
+  // again a frame later, still before the list is first drawn.
   const onListInserted = (element) => {
-    // A frame later, since core focuses the slide-in's first link (scrolling
-    // it to the top) once it renders. That's still before it's first drawn.
-    const list = element.closest(
-      ".sidebar-hamburger-dropdown, .sidebar-wrapper"
-    );
-    requestAnimationFrame(() => scrollToActive(list));
+    const list = element.closest(".sidebar-hamburger-dropdown");
+    if (list) {
+      requestAnimationFrame(() => scrollToActive(list));
+    }
     replaySlideIn(element);
   };
 
@@ -256,12 +255,6 @@ export default apiInitializer((api) => {
         .lookup("service:app-events")
         .trigger("header:keyboard-trigger", { type: "hamburger" });
     }
-
-    // Arriving somewhere from outside the list, like search or a link in a
-    // post, keeps the channel's row in sight.
-    schedule("afterRender", () =>
-      scrollToActive(document.querySelector(".sidebar-wrapper"))
-    );
   });
 
   // Chat only updates presence on its own routes, so a visit that starts on a

@@ -1,6 +1,6 @@
 /**
  * Scrolls the channel list so the current channel's row is on screen,
- * centred if it wasn't. Done by hand rather than with `scrollIntoView`,
+ * centred if it wasn't, and clear of the slide-in list's sticky server name. Done by hand rather than with `scrollIntoView`,
  * which would also scroll the page sideways while the slide-in list is still
  * off screen.
  *
