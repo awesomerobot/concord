@@ -3,6 +3,7 @@ import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import Notifications from "discourse/components/header/user-dropdown/notifications";
+import bodyClass from "discourse/helpers/body-class";
 import DiscourseURL from "discourse/lib/url";
 import Category from "discourse/models/category";
 import DButton from "discourse/ui-kit/d-button";
@@ -181,6 +182,8 @@ export default class ChannelHeader extends Component {
   }
 
   <template>
+    {{! Core's header contents make way while this is shown. }}
+    {{bodyClass "discord-header"}}
     <div class="discord-channel-header">
       <ServerHeader
         @always={{true}}

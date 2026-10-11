@@ -14,6 +14,9 @@ import { i18n } from "discourse-i18n";
  *   { type: "tag", tag } | { type: "page", icon, name, description? } |
  *   undefined}
  */
+// Core's own sign-in pages, which keep core's minimal header and nothing else.
+const AUTH_ROUTES = ["login", "signup", "discovery.login-required"];
+
 export default class CurrentChannel {
   @service discovery;
   @service router;
@@ -22,6 +25,10 @@ export default class CurrentChannel {
     setOwner(this, owner);
     this.chat = owner.lookup("service:chat");
     this.voiceRooms = owner.lookup("service:voice-rooms");
+  }
+
+  get isAuthPage() {
+    return AUTH_ROUTES.includes(this.router.currentRouteName);
   }
 
   get value() {

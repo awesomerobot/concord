@@ -139,12 +139,14 @@ export default apiInitializer((api) => {
   api.renderInOutlet(
     "after-header",
     <template>
-      <ChannelHeader
-        @canCreate={{creator.types.length}}
-        @currentChannel={{currentChannel}}
-        @memberList={{memberList}}
-        @onCreate={{openCreateChannel}}
-      />
+      {{#unless currentChannel.isAuthPage}}
+        <ChannelHeader
+          @canCreate={{creator.types.length}}
+          @currentChannel={{currentChannel}}
+          @memberList={{memberList}}
+          @onCreate={{openCreateChannel}}
+        />
+      {{/unless}}
     </template>
   );
 
@@ -153,7 +155,11 @@ export default apiInitializer((api) => {
   // A third column of the main grid, after the page itself.
   api.renderInOutlet(
     "after-main-outlet",
-    <template><MemberList @memberList={{memberList}} /></template>
+    <template>
+      {{#unless currentChannel.isAuthPage}}
+        <MemberList @memberList={{memberList}} />
+      {{/unless}}
+    </template>
   );
 
   api.renderInOutlet(

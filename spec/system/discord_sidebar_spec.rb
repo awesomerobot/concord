@@ -494,6 +494,18 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_css(".discord-user-panel .discord-user-panel__login")
       expect(page).to have_css(".discord-user-panel .discord-user-panel__signup")
     end
+
+    it "leaves the log in and sign up pages to core" do
+      Capybara.reset_sessions!
+
+      %w[/login /signup].each do |path|
+        visit(path)
+        expect(page).to have_css(".d-header .home-logo-wrapper-outlet", visible: :visible)
+        expect(page).to have_no_css(".discord-channel-header, .discord-member-list")
+        expect(page).to have_no_css("body.discord-member-list-open")
+        screenshot("auth#{path.tr("/", "-")}")
+      end
+    end
   end
 
   describe "member list" do
