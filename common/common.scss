@@ -208,6 +208,12 @@
     padding: 0.25em;
   }
 
+  // The AI link takes over pushing the buttons right.
+  &__ai + &__dms {
+    margin-left: 0;
+  }
+
+  &__ai,
   &__dms {
     position: relative;
     flex-shrink: 0;

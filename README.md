@@ -134,6 +134,14 @@ and group chat they follow, with avatars and unread counts. Opening a DM
 switches to the list on its own, and going to any of the server's channels
 switches back.
 
+## AI conversations
+
+With Discourse AI, people who can start an AI bot conversation get a button
+before the DM one, standing in for Discourse AI's header button. Like the DM
+button it's a toggle: it opens the conversations, with Discourse AI's own
+list beneath the server name, and from there goes back to the last forum
+page. The `ai_conversations_link` setting turns it off.
+
 ## Member list
 
 A panel down the right of the page, toggled by the people icon in the header

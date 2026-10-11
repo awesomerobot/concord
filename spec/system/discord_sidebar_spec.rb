@@ -280,6 +280,49 @@ RSpec.describe "Discord sidebar" do
     end
   end
 
+  describe "AI conversations link" do
+    fab!(:llm_model)
+
+    before do
+      SiteSetting.discourse_ai_enabled = true
+      SiteSetting.ai_bot_enabled = true
+      SiteSetting.ai_bot_enabled_llms = llm_model.id.to_s
+      AiAgent.ensure_users!
+    end
+
+    it "links to AI bot conversations beside the DM button" do
+      visit("/latest")
+
+      link = find(".discord-server-header__ai")
+      expect(link[:href]).to end_with("/discourse-ai/ai-bot/conversations")
+      next_to_dms = page.evaluate_script(<<~JS)
+        document.querySelector(".sidebar-wrapper .discord-server-header__ai").nextElementSibling.matches(".discord-server-header__dms")
+      JS
+      expect(next_to_dms).to eq(true)
+      screenshot("ai-conversations-link")
+
+      # A toggle, like the DM button: in, then back out to where you were.
+      link.click
+      expect(page).to have_current_path(%r{^/discourse-ai/ai-bot/conversations})
+      expect(page).to have_css(".discord-server-header__ai.--active[aria-pressed='true']")
+      screenshot("ai-conversations-active")
+
+      find(".discord-server-header__ai").click
+      expect(page).to have_current_path("/latest")
+      expect(page).to have_css(".discord-server-header__ai[aria-pressed='false']")
+      expect(channel_link("forum-#{category.slug}")).to be_present
+    end
+
+    it "can be turned off" do
+      theme.update_setting(:ai_conversations_link, false)
+      theme.save!
+      visit("/latest")
+
+      expect(page).to have_css(".discord-server-header__dms")
+      expect(page).to have_no_css(".discord-server-header__ai")
+    end
+  end
+
   describe "privacy" do
     let(:privacy_form) { PageObjects::Components::FormKit.new(".discord-channel-privacy-modal form") }
 

@@ -4,6 +4,9 @@ include_tags:
 include_chat_channels:
   type: bool
   default: true
+ai_conversations_link:
+  type: bool
+  default: true
 chat_container_category:
   type: string
   default: "chat-channels"

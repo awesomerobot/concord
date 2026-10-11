@@ -4,6 +4,7 @@ en:
     settings:
       include_tags: "List the user's sidebar tags as channels. Off by default for now."
       include_chat_channels: "List followed chat channels as channels (requires chat)."
+      ai_conversations_link: "Link to AI bot conversations beside the server name, for people who can start one (requires Discourse AI)."
       sidebar_sections:
         description: "Headed sections the channel list is split into, and the channels in each. The create-channel modal adds to these; channels in no section are listed at the top, without a heading."
         schema:
@@ -86,6 +87,7 @@ en:
     private_parent: "Stays private, since its %{name} parent category is private."
     parent_groups: "Only groups that can see %{name} can be added: %{groups}."
     voice_note: "Adds their current members. People who join a group later won't get access, and to remove someone use the room's member list."
+  ai_conversations: "AI conversations"
   direct_messages:
     title: "Direct messages"
     new: "New DM or group chat"
