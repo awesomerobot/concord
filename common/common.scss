@@ -392,17 +392,26 @@ body.discord-header .d-header > .wrap {
 }
 
 .discord-channel-header__icon {
+  flex-shrink: 0;
   color: var(--primary-medium);
 }
 
+// A long name (a topic title, say) is cut off rather than pushing the actions
+// off the row; the description gives way first.
 .discord-channel-header__name {
+  flex: 0 1 auto;
+  min-width: 3em;
+  overflow: hidden;
   margin: 0;
   font-size: var(--font-0);
   font-weight: 700;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .discord-channel-header__description {
+  flex: 0 100 auto;
+  min-width: 0;
   overflow: hidden;
   padding-left: 0.75em;
   border-left: 1px solid var(--primary-low);
@@ -413,6 +422,7 @@ body.discord-header .d-header > .wrap {
 }
 
 .discord-channel-header__actions {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.25em;

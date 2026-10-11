@@ -588,6 +588,28 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_no_css(".user-menu-dropdown-wrapper")
     end
 
+    it "keeps the header's buttons on screen with a long title", mobile: true do
+      topic =
+        Fabricate(
+          :post,
+          topic:
+            Fabricate(
+              :topic,
+              category:,
+              title: "What are the very best campfire songs everyone should know",
+            ),
+        ).topic
+      visit(topic.relative_url)
+
+      header = find(".discord-channel-header")
+      expect(header).to have_css(".discord-channel-header__user")
+      right = page.evaluate_script(<<~JS)
+        document.querySelector(".discord-channel-header__user").getBoundingClientRect().right
+      JS
+      expect(right).to be <= page.evaluate_script("window.innerWidth")
+      screenshot("mobile-long-title")
+    end
+
     it "opens the channel list from the header on phones", mobile: true do
       opens_channel_list_from_header { "mobile" }
     end
