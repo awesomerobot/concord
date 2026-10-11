@@ -179,6 +179,10 @@ export class DirectMessageLink {
     return `dm-${this.channel.id}`;
   }
 
+  get channelKey() {
+    return channelKey("dm", this.channel.id);
+  }
+
   get #users() {
     return this.channel.chatable?.users || [];
   }

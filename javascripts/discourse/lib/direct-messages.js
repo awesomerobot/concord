@@ -20,9 +20,10 @@ export default class DirectMessages {
 
   #links = new Map();
 
-  constructor(owner, currentChannel) {
+  constructor(owner, currentChannel, channelActions) {
     setOwner(this, owner);
     this.currentChannel = currentChannel;
+    this.channelActions = channelActions;
     this.chat = owner.lookup("service:chat");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
     this.router.on("routeDidChange", this.follow);
@@ -46,10 +47,18 @@ export default class DirectMessages {
     return this.chatChannelsManager?.directMessageChannels || [];
   }
 
+  /** The DM link a sidebar row was rendered from, by its name. */
+  linkNamed(name) {
+    return this.links.find((link) => link.name === name);
+  }
+
   get links() {
     return this.channels.map((channel) => {
       if (!this.#links.has(channel.id)) {
-        this.#links.set(channel.id, new DirectMessageLink({ channel }));
+        this.#links.set(
+          channel.id,
+          this.channelActions.decorate(new DirectMessageLink({ channel }))
+        );
       }
       return this.#links.get(channel.id);
     });
@@ -84,9 +93,7 @@ export default class DirectMessages {
       active = true;
     } else if (name.startsWith("chat.channel") && this.chat?.activeChannel) {
       active = this.chat.activeChannel.isDirectMessageChannel;
-    } else if (
-      SERVER_CHANNEL_TYPES.includes(this.currentChannel.value?.type)
-    ) {
+    } else if (SERVER_CHANNEL_TYPES.includes(this.currentChannel.value?.type)) {
       active = false;
     }
 

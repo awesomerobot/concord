@@ -72,6 +72,7 @@ en:
     link_copied: "Link copied"
     move_to_section: "Move to section"
     no_section: "No section"
+    close_dm: "Close conversation"
     new_section: "New section…"
     create_section: "Create section"
   direct_messages:

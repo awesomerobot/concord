@@ -32,6 +32,7 @@ export default class ChannelActions {
   constructor(owner, sidebarSections) {
     setOwner(this, owner);
     this.sidebarSections = sidebarSections;
+    this.chat = owner.lookup("service:chat");
     this.chatApi = owner.lookup("service:chat-api");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
     this.voiceRooms = owner.lookup("service:voice-rooms");
@@ -114,6 +115,11 @@ export default class ChannelActions {
   // on its own.
   channelItems(link) {
     const [type] = link.channelKey.split(":");
+
+    if (type === "dm") {
+      return this.#directMessageItems(link.channel);
+    }
+
     const sections =
       {
         forum: () => this.#forumItems(link.category),
@@ -188,37 +194,9 @@ export default class ChannelActions {
   }
 
   #textItems(channel) {
-    const membership = channel.currentUserMembership;
     const items = {
-      markRead: {
-        label: t("mark_read"),
-        icon: "eye",
-        action: () =>
-          this.#run(() => this.chatApi.markChannelAsRead(channel.id)),
-      },
-      notifications: [
-        { heading: t("notifications") },
-        ...[
-          ["always", "all_messages"],
-          ["mention", "mentions_only"],
-          ["never", "nothing"],
-        ].map(([level, label]) => ({
-          label: t(label),
-          checked:
-            !membership?.muted && membership?.notificationLevel === level,
-          action: () =>
-            this.#updateChatSettings(channel, {
-              muted: false,
-              notification_level: level,
-            }),
-        })),
-        {
-          label: t("mute"),
-          checked: !!membership?.muted,
-          action: () =>
-            this.#updateChatSettings(channel, { muted: !membership?.muted }),
-        },
-      ],
+      markRead: this.#chatMarkRead(channel),
+      notifications: this.#chatNotifications(channel),
     };
 
     if (this.currentUser.staff) {
@@ -248,6 +226,65 @@ export default class ChannelActions {
     }
 
     return items;
+  }
+
+  // Closing a DM takes it off the list until there's something new in it,
+  // as chat's own menu does; there's nothing to leave.
+  #directMessageItems(channel) {
+    return [
+      this.#chatMarkRead(channel),
+      ...this.#chatNotifications(channel),
+      { divider: true },
+      {
+        id: "close-dm",
+        label: t("close_dm"),
+        icon: "xmark",
+        action: () =>
+          this.#run(async () => {
+            await this.chat.unfollowChannel(channel);
+            this.chatChannelsManager.remove(channel);
+            if (this.chat.activeChannel?.id === channel.id) {
+              this.router.transitionTo("discovery.latest");
+            }
+          }),
+      },
+    ];
+  }
+
+  #chatMarkRead(channel) {
+    return {
+      id: "mark-read",
+      label: t("mark_read"),
+      icon: "eye",
+      action: () => this.#run(() => this.chatApi.markChannelAsRead(channel.id)),
+    };
+  }
+
+  #chatNotifications(channel) {
+    const membership = channel.currentUserMembership;
+
+    return [
+      { heading: t("notifications") },
+      ...[
+        ["always", "all_messages"],
+        ["mention", "mentions_only"],
+        ["never", "nothing"],
+      ].map(([level, label]) => ({
+        label: t(label),
+        checked: !membership?.muted && membership?.notificationLevel === level,
+        action: () =>
+          this.#updateChatSettings(channel, {
+            muted: false,
+            notification_level: level,
+          }),
+      })),
+      {
+        label: t("mute"),
+        checked: !!membership?.muted,
+        action: () =>
+          this.#updateChatSettings(channel, { muted: !membership?.muted }),
+      },
+    ];
   }
 
   #voiceItems(room) {
@@ -309,8 +346,7 @@ export default class ChannelActions {
       ...sections.sections.map((section, index) => ({
         label: section.name,
         checked: index === current,
-        action: () =>
-          this.#run(() => sections.moveChannel(key, section.name)),
+        action: () => this.#run(() => sections.moveChannel(key, section.name)),
       })),
       {
         label: t("no_section"),

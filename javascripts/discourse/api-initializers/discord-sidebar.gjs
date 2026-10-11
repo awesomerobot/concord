@@ -29,12 +29,20 @@ export default apiInitializer((api) => {
   const owner = getOwnerWithFallback(api);
   const sidebarSections = new SidebarSections(api.getCurrentUser());
   const channelActions = new ChannelActions(owner, sidebarSections);
-  const directory = new ChannelDirectory(owner, sidebarSections, channelActions);
+  const directory = new ChannelDirectory(
+    owner,
+    sidebarSections,
+    channelActions
+  );
   const creator = new ChannelCreator(owner);
   const modal = owner.lookup("service:modal");
   const currentChannel = new CurrentChannel(owner);
   const memberList = new MemberListData(owner, currentChannel);
-  const directMessages = new DirectMessages(owner, currentChannel);
+  const directMessages = new DirectMessages(
+    owner,
+    currentChannel,
+    channelActions
+  );
   const sidebarState = owner.lookup("service:sidebar-state");
 
   const openCreateChannel = (sectionIndex = null) =>
@@ -205,7 +213,9 @@ export default apiInitializer((api) => {
     installLongPress(
       `.sidebar-section[data-section-name^="discord-"] .sidebar-section-link`,
       (row) => {
-        const link = directory.linkNamed(row.dataset.linkName);
+        const name = row.dataset.linkName;
+        const link =
+          directory.linkNamed(name) || directMessages.linkNamed(name);
         if (link?.channelKey) {
           channelActions.showChannelMenu(row, link);
         }

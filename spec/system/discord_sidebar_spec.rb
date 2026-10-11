@@ -320,6 +320,24 @@ RSpec.describe "Discord sidebar" do
       expect(sidebar).to have_no_css("[data-section-name='discord-dms']")
     end
 
+    it "closes a DM from its menu" do
+      visit("/latest")
+      dms_button.click
+
+      row = sidebar.find(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
+      row.hover
+      row.find(".sidebar-section-hover-button").click
+      menu = find(".discord-action-menu")
+      expect(menu).to have_css("[data-item-id='mark-read']")
+      expect(menu).to have_css(".btn", text: "Mute")
+      expect(menu).to have_no_css("[data-item-id='move-to-section']")
+      screenshot("dm-menu")
+
+      menu.find("[data-item-id='close-dm']").click
+      expect(sidebar).to have_no_css(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
+      expect(dm_channel.membership_for(admin).reload.following).to eq(false)
+    end
+
     it "follows the page between DMs and the server's channels" do
       visit("/chat/c/-/#{dm_channel.id}")
       expect(sidebar).to have_css(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
