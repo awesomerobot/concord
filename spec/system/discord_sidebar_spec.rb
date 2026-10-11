@@ -625,6 +625,15 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_no_css(".discord-member-list")
     end
 
+    it "searches from the full search page on phones", mobile: true do
+      visit("/latest")
+
+      find(".discord-channel-header__search").click
+      expect(page).to have_current_path(%r{^/search})
+      expect(page).to have_css(".full-page-search")
+      expect(page).to have_no_css(".discord-search-panel")
+    end
+
     it "opens the channel list from the header on phones", mobile: true do
       opens_channel_list_from_header { "mobile" }
     end

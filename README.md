@@ -65,6 +65,8 @@ elements) working. Chat's own channel bar is hidden; its threads, pins and
 settings are in the row. A forum channel's settings (core's wrench) are there
 too, for people who can edit the category. In a text channel the search
 button opens chat's own message search for that channel instead of site search.
+On phones it goes to core's full page search instead of the dropdown, as core's
+own header does.
 
 Below the `md` breakpoint (phones, and narrow desktop windows) the row starts
 with a hamburger button that opens the channel list as core's slide-in panel,

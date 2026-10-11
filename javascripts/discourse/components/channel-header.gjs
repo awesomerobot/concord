@@ -25,6 +25,8 @@ export default class ChannelHeader extends Component {
   @service currentUser;
   @service menu;
   @service router;
+  @service search;
+  @service site;
 
   // Core's header owns the slide-in channel list and everything around it
   // (animation, scroll lock, closing on a tap outside), so ask it to toggle.
@@ -50,6 +52,22 @@ export default class ChannelHeader extends Component {
     );
     if (this.args.currentChannel.value?.type === "text" && chatFilter) {
       chatFilter.click();
+      return;
+    }
+
+    // Phones get core's full page search, as from core's own header.
+    if (this.site.mobileView) {
+      if (this.router.currentRouteName === "full-page-search") {
+        document.querySelector(".full-page-search")?.focus();
+        return;
+      }
+
+      const context = this.search.searchContext;
+      DiscourseURL.routeTo(
+        context
+          ? `/search?context=${context.type}&context_id=${context.id}&skip_context=true`
+          : "/search"
+      );
       return;
     }
 
