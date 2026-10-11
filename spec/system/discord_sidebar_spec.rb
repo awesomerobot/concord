@@ -609,6 +609,15 @@ RSpec.describe "Discord sidebar" do
       screenshot("member-list")
     end
 
+    it "opens user cards from the list" do
+      visit("/chat/c/hangout/#{chat_channel.id}")
+
+      list.find("[data-username='camper'] .discord-member-list__name").click
+      expect(page).to have_css(".user-card .user-profile-link", text: "camper")
+      expect(page).to have_current_path(%r{/chat/c/hangout/})
+      screenshot("member-card")
+    end
+
     it "lists everyone on forum pages" do
       visit("/c/#{category.slug}/#{category.id}")
 
@@ -698,7 +707,8 @@ RSpec.describe "Discord sidebar" do
       sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
       screenshot("mobile-member-list")
 
-      find(".discord-member-list__cloak").click(x: 10, y: 300)
+      list.find("[data-username='#{admin.username}'] .discord-member-list__name").click
+      expect(page).to have_css(".user-card")
       expect(page).to have_no_css(".discord-member-list")
     end
 

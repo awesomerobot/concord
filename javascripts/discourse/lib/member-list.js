@@ -78,6 +78,10 @@ export default class MemberList {
     this.whosOnline = owner.lookup("service:whos-online");
     this.open = this.keyValueStore.get(OPEN_KEY) !== "false";
     this.router.on("routeDidChange", () => (this.slideOpen = false));
+    // A user card opens beneath the slide-in, so make way for it.
+    owner
+      .lookup("service:app-events")
+      .on("card:show", () => (this.slideOpen = false));
   }
 
   // The same breakpoint core opens its sidebar as a slide-in below.

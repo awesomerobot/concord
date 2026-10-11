@@ -45,65 +45,68 @@ export default class MemberList extends Component {
   isOnline = (user) => this.onlineIds.has(user.id);
 
   <template>
-    {{#if this.show}}
-      {{#if @memberList.compact}}
-        <div
-          class="discord-member-list__cloak"
-          role="presentation"
-          {{on "click" this.close}}
-        ></div>
-      {{else}}
-        {{bodyClass "discord-member-list-open"}}
-      {{/if}}
-      <aside
-        aria-label={{i18n (themePrefix "member_list.title")}}
-        class={{dConcatClass
-          "discord-member-list"
-          (if @memberList.compact "--slide-in")
-        }}
-      >
-        <DLoadMore
-          @action={{@memberList.pager.loadMore}}
-          @enabled={{not @memberList.pager.done}}
-          @isLoading={{@memberList.pager.loading}}
+    {{! Always there, so core's user cards can listen for clicks on it. }}
+    <div class="discord-member-list-host">
+      {{#if this.show}}
+        {{#if @memberList.compact}}
+          <div
+            class="discord-member-list__cloak"
+            role="presentation"
+            {{on "click" this.close}}
+          ></div>
+        {{else}}
+          {{bodyClass "discord-member-list-open"}}
+        {{/if}}
+        <aside
+          aria-label={{i18n (themePrefix "member_list.title")}}
+          class={{dConcatClass
+            "discord-member-list"
+            (if @memberList.compact "--slide-in")
+          }}
         >
-          {{#each @memberList.sections key="id" as |listSection|}}
-            <section
-              class="discord-member-list__section"
-              data-section-id={{listSection.id}}
-            >
-              <h2 class="discord-member-list__heading">
-                {{#if listSection.icon}}{{dIcon listSection.icon}}{{/if}}
-                {{this.sectionTitle listSection}}
-                —
-                {{listSection.users.length}}
-              </h2>
+          <DLoadMore
+            @action={{@memberList.pager.loadMore}}
+            @enabled={{not @memberList.pager.done}}
+            @isLoading={{@memberList.pager.loading}}
+          >
+            {{#each @memberList.sections key="id" as |listSection|}}
+              <section
+                class="discord-member-list__section"
+                data-section-id={{listSection.id}}
+              >
+                <h2 class="discord-member-list__heading">
+                  {{#if listSection.icon}}{{dIcon listSection.icon}}{{/if}}
+                  {{this.sectionTitle listSection}}
+                  —
+                  {{listSection.users.length}}
+                </h2>
 
-              {{#each listSection.users key="id" as |user|}}
-                <div
-                  class={{dConcatClass
-                    "discord-member-list__member"
-                    (unless (this.isOnline user) "--offline")
-                  }}
-                  data-username={{user.username}}
-                >
-                  <span class="discord-member-list__avatar">
-                    <DUserAvatar @size="small" @user={{user}} />
-                    {{#if (this.isOnline user)}}
-                      <span class="discord-member-list__presence"></span>
-                    {{/if}}
-                  </span>
-                  <a
-                    class="discord-member-list__name"
-                    data-user-card={{user.username}}
-                    href="/u/{{user.username}}"
-                  >{{this.displayName user}}</a>
-                </div>
-              {{/each}}
-            </section>
-          {{/each}}
-        </DLoadMore>
-      </aside>
-    {{/if}}
+                {{#each listSection.users key="id" as |user|}}
+                  <div
+                    class={{dConcatClass
+                      "discord-member-list__member"
+                      (unless (this.isOnline user) "--offline")
+                    }}
+                    data-username={{user.username}}
+                  >
+                    <span class="discord-member-list__avatar">
+                      <DUserAvatar @size="small" @user={{user}} />
+                      {{#if (this.isOnline user)}}
+                        <span class="discord-member-list__presence"></span>
+                      {{/if}}
+                    </span>
+                    <a
+                      class="discord-member-list__name"
+                      data-user-card={{user.username}}
+                      href="/u/{{user.username}}"
+                    >{{this.displayName user}}</a>
+                  </div>
+                {{/each}}
+              </section>
+            {{/each}}
+          </DLoadMore>
+        </aside>
+      {{/if}}
+    </div>
   </template>
 }

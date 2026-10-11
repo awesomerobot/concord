@@ -236,7 +236,7 @@ export default class ChannelHeader extends Component {
               href={{this.channel.back.href}}
               title={{this.channel.back.title}}
             >
-              {{dIcon "arrow-left"}}
+              {{dIcon "chevron-left"}}
             </a>
           {{else}}
             <span class="discord-channel-header__icon">

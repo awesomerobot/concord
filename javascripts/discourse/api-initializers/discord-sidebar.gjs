@@ -196,6 +196,9 @@ export default apiInitializer((api) => {
 
   api.renderInOutlet("after-sidebar-sections", UserPanel);
 
+  // Names in the member list open user cards, as they do on the page.
+  api.addCardClickListenerSelector(".discord-member-list-host");
+
   // A third column of the main grid, after the page itself.
   api.renderInOutlet(
     "after-main-outlet",

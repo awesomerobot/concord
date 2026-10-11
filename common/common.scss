@@ -633,6 +633,11 @@ body.discord-header .d-header > .wrap {
   }
 }
 
+// Lets the list take its place in the main grid as if unwrapped.
+.discord-member-list-host {
+  display: contents;
+}
+
 // Discord's member list: a third column on the main grid, or on small
 // screens a panel sliding in from the right over a shade, like core's menus.
 .discord-member-list {
