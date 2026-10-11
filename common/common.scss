@@ -381,6 +381,15 @@ body.discord-header .d-header > .wrap {
     }
   }
 
+  // The server name (and its DM and create buttons) stays at the top while
+  // the channels scroll under it.
+  .sidebar-hamburger-dropdown .discord-server-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--d-sidebar-background);
+  }
+
   // The slide-in panel's own footer, like the sidebar's. The user panel's
   // job is done by the avatar in the header row, except for signing in.
   .sidebar-hamburger-dropdown {

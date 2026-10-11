@@ -770,6 +770,30 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_no_css(".discord-search-panel")
     end
 
+    it "keeps the server name at the top of the channel list on phones", mobile: true do
+      30.times { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
+      visit("/latest")
+      find(".discord-channel-header__menu").click
+      expect(page).to have_css(".hamburger-panel .discord-server-header__name", visible: :visible)
+
+      offsets = page.evaluate_script(<<~JS)
+        (() => {
+          const name = document.querySelector(".hamburger-panel .discord-server-header");
+          let scroller = name.parentElement;
+          while (scroller && scroller.scrollHeight <= scroller.clientHeight) {
+            scroller = scroller.parentElement;
+          }
+          const before = name.getBoundingClientRect().top;
+          scroller.scrollTop = 600;
+          return [before, name.getBoundingClientRect().top, scroller.scrollTop];
+        })()
+      JS
+      expect(offsets.last).to be > 0
+      expect(offsets[1]).to be_within(1).of(offsets.first)
+      sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
+      screenshot("mobile-sticky-name")
+    end
+
     it "opens a channel's menu with a long press on phones", mobile: true do
       visit("/latest")
       find(".discord-channel-header__menu").click
