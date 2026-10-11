@@ -224,6 +224,20 @@
     }
   }
 
+  &__review-badge {
+    flex-shrink: 0;
+    min-width: 1.4em;
+    padding: 0 0.35em;
+    box-sizing: border-box;
+    border-radius: 1em;
+    background: var(--danger);
+    color: var(--secondary);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
+  }
+
   &__dms-badge {
     position: absolute;
     top: -0.25em;

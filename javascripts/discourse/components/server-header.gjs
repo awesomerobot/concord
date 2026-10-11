@@ -17,9 +17,15 @@ import ActionMenu from "./action-menu";
 // (Discord's Home), and where you make channels that don't belong to a
 // section.
 export default class ServerHeader extends Component {
+  @service currentUser;
   @service menu;
   @service siteSettings;
   @service sidebarState;
+
+  // What's waiting in the review queue, which the server menu leads to.
+  get reviewCount() {
+    return this.currentUser?.can_review ? this.currentUser.reviewable_count : 0;
+  }
 
   get show() {
     return (
@@ -55,6 +61,12 @@ export default class ServerHeader extends Component {
           <span class="discord-server-header__title">
             {{this.siteSettings.title}}
           </span>
+          {{#if this.reviewCount}}
+            <span
+              class="discord-server-header__review-badge"
+              title={{i18n "review.title"}}
+            >{{this.reviewCount}}</span>
+          {{/if}}
           {{dIcon "angle-down"}}
         </button>
 
