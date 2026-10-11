@@ -846,6 +846,17 @@ RSpec.describe "Discord sidebar" do
       expect(list).to have_css("[data-username='stranger']")
     end
 
+    it "counts you online anywhere on the site, not only in chat" do
+      visit("/c/#{category.slug}/#{category.id}")
+      expect(section("role-admins")).to have_css("[data-username='#{admin.username}']")
+
+      channel_link("text-hangout").click
+      expect(page).to have_css(".chat-composer")
+      channel_link("forum-#{category.slug}").click
+      expect(page).to have_css(".discord-channel-header__name", text: "Lounge")
+      expect(section("role-admins")).to have_css("[data-username='#{admin.username}']")
+    end
+
     it "hides and remembers being hidden" do
       visit("/latest")
       expect(page).to have_css(".discord-member-list")

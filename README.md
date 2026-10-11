@@ -144,8 +144,10 @@ closes on navigation or a tap beside it. It shows:
 - everyone else online, then offline
 
 On a chat channel it covers the channel's members; elsewhere, everyone in the
-user directory. "Online" means active in the last few minutes, from chat's
-presence channel plus the who's-online plugin when installed. Members load 50
+user directory. "Online" means active anywhere on the site in the last few
+minutes (chat would only count people while chat is open, so the theme has it
+count the whole site), plus the who's-online plugin when installed. Hiding
+your presence still hides you. Members load 50
 at a time as you scroll; a chat channel's first 250 load up front so its online
 members can be found. Names open user cards, as they do on the page.
 

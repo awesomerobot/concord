@@ -213,6 +213,10 @@ export default apiInitializer((api) => {
 
   api.renderInOutlet("after-sidebar-sections", UserPanel);
 
+  // Chat only updates presence on its own routes, so a visit that starts on a
+  // forum page wouldn't count as online until chat was opened.
+  owner.lookup("service:chat")?.updatePresence?.();
+
   // Touch screens have no hover for the rows' `…` button, so a long press
   // opens the channel's menu, as in Discord.
   if (api.getCurrentUser()) {
