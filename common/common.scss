@@ -3,6 +3,11 @@
 // Discord's channel list: quiet grey rows that light up when there's
 // something new, with a pill on the left edge marking unread channels.
 .sidebar-section[data-section-name^="discord-"] {
+  // Inset like the channel rows below, so the caret sits over their icons.
+  .sidebar-section-header-wrapper {
+    padding-left: 1em;
+  }
+
   .sidebar-section-header-text {
     font-size: var(--font-down-2);
     font-weight: 600;

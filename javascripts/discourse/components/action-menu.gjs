@@ -21,6 +21,8 @@ export default class ActionMenu extends Component {
         {{#if item.heading}}
           <dropdown.divider />
           <dropdown.subheader>{{item.heading}}</dropdown.subheader>
+        {{else if item.divider}}
+          <dropdown.divider />
         {{else}}
           <dropdown.item>
             <DButton

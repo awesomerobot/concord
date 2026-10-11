@@ -155,6 +155,10 @@ RSpec.describe "Discord sidebar" do
     link = channel_link("text-hangout")
     link.hover
     link.find(".sidebar-section-hover-button").click
+    labels = all(".discord-action-menu .btn").map(&:text)
+    expect(labels.first(3)).to eq(["Mark as read", "Rename", "Copy link"])
+    expect(labels.last).to eq("Delete")
+    screenshot("channel-menu")
     find(".discord-action-menu .btn", text: "Mute").click
 
     expect(sidebar).to have_css(
@@ -188,6 +192,34 @@ RSpec.describe "Discord sidebar" do
 
     expect(sidebar).to have_css(".sidebar-section[data-section-name='discord-group-new']")
     expect(theme.reload.settings[:sidebar_groups].value.first["name"]).to eq("New")
+  end
+
+  it "centres group carets over the channel icons" do
+    theme.update_setting(
+      :sidebar_groups,
+      [{ "name" => "Hangouts", "channels" => [{ "type" => "forum", "id" => category.id }] }].to_json,
+    )
+    theme.save!
+
+    visit("/latest")
+
+    section = "[data-section-name='discord-group-hangouts']"
+    expect(sidebar).to have_css("#{section} .sidebar-section-link-prefix")
+    screenshot("group")
+
+    centres = page.evaluate_script(<<~JS)
+      (() => {
+        const centre = (selector) => {
+          const rect = document.querySelector(selector).getBoundingClientRect();
+          return rect.left + rect.width / 2;
+        };
+        return [
+          centre("#{section} .sidebar-section-header-caret"),
+          centre("#{section} .sidebar-section-link-prefix .prefix-icon"),
+        ];
+      })()
+    JS
+    expect(centres.first).to be_within(1).of(centres.last)
   end
 
   describe "header" do

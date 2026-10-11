@@ -46,6 +46,9 @@ next to its `+`. Items depend on the channel's kind and what the user may do:
 - All: copy link, and for admins, move to group
 - Group headings (admins): rename, move up, move down, delete
 
+A channel's menu leads with mark as read, rename and copy link, then
+notifications and move to group, with delete in its own section at the end.
+
 Core hides the row button on narrow touch screens, so phones don't get these
 yet.
 

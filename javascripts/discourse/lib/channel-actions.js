@@ -16,8 +16,8 @@ const t = (key, opts) => i18n(themePrefix(`channel_menu.${key}`), opts);
  * is backed by something different, so most items differ by kind, and each
  * shows only when the user may do it.
  *
- * An item is `{ label, icon, action, checked?, danger? }`, or
- * `{ heading }` to label the items after it.
+ * An item is `{ label, icon, action, checked?, danger? }`, `{ heading }` to
+ * label the items after it, or `{ divider: true }`.
  */
 export default class ChannelActions {
   @service currentUser;
@@ -103,85 +103,78 @@ export default class ChannelActions {
     ].filter(Boolean);
   }
 
+  // Everyday actions first, then notifications, the group, and deleting last
+  // on its own.
   channelItems(link) {
     const [type] = link.channelKey.split(":");
-    const items = [];
+    const sections =
+      {
+        forum: () => this.#forumItems(link.category),
+        text: () => this.#textItems(link.channel),
+        voice: () => this.#voiceItems(link.room),
+      }[type]?.() || {};
 
-    switch (type) {
-      case "forum":
-        items.push(...this.#forumItems(link.category));
-        break;
-      case "text":
-        items.push(...this.#textItems(link.channel));
-        break;
-      case "voice":
-        items.push(...this.#voiceItems(link.room));
-        break;
-    }
-
-    items.push({
-      label: t("copy_link"),
-      icon: "link",
-      action: () => this.#copyLink(link),
-    });
-
-    items.push(...this.#moveItems(link.channelKey));
-
-    // Destructive last, after everything else.
-    const remove = items.findIndex((item) => item.danger);
-    if (remove !== -1) {
-      items.push(...items.splice(remove, 1));
-    }
-
-    return items;
+    return [
+      sections.markRead,
+      sections.rename,
+      {
+        label: t("copy_link"),
+        icon: "link",
+        action: () => this.#copyLink(link),
+      },
+      ...(sections.notifications || []),
+      ...this.#moveItems(link.channelKey),
+      sections.delete && { divider: true },
+      sections.delete,
+    ].filter(Boolean);
   }
 
   #forumItems(category) {
     const level = category.notification_level;
-    const items = [
-      {
+    const items = {
+      markRead: {
         label: t("mark_read"),
         icon: "check",
         action: () => this.#run(() => this.#dismissCategory(category)),
       },
-      { heading: t("notifications") },
-      ...[
-        ["watching", "all_posts"],
-        ["regular", "default"],
-        ["muted", "mute"],
-      ].map(([name, label]) => ({
-        label: t(label),
-        checked: level === CATEGORY_LEVELS[name],
-        action: () =>
-          this.#run(() => category.setNotification(CATEGORY_LEVELS[name])),
-      })),
-    ];
+      notifications: [
+        { heading: t("notifications") },
+        ...[
+          ["watching", "all_posts"],
+          ["regular", "default"],
+          ["muted", "mute"],
+        ].map(([name, label]) => ({
+          label: t(label),
+          checked: level === CATEGORY_LEVELS[name],
+          action: () =>
+            this.#run(() => category.setNotification(CATEGORY_LEVELS[name])),
+        })),
+      ],
+    };
 
     if (category.can_edit) {
-      items.push(
-        {
-          label: t("rename"),
-          icon: "pencil",
-          action: () =>
-            this.#rename(t("rename"), category.name, (name) =>
-              ajax(`/categories/${category.id}`, {
-                type: "PUT",
-                data: { name },
-              }).then(() => category.set("name", name))
-            ),
-        },
-        {
-          label: t("delete"),
-          icon: "trash-can",
-          danger: true,
-          action: () =>
-            this.#confirmDelete(category.name, async () => {
-              await ajax(`/categories/${category.id}`, { type: "DELETE" });
-              await this.sidebarGroups.removeChannel(`forum:${category.id}`);
-              this.#goHomeIfOn(category.url);
-            }),
-        }
-      );
+      items.rename = {
+        label: t("rename"),
+        icon: "pencil",
+        action: () =>
+          this.#rename(t("rename"), category.name, (name) =>
+            ajax(`/categories/${category.id}`, {
+              type: "PUT",
+              data: { name },
+            }).then(() => category.set("name", name))
+          ),
+      };
+      items.delete = {
+        label: t("delete"),
+        icon: "trash-can",
+        danger: true,
+        action: () =>
+          this.#confirmDelete(category.name, async () => {
+            await ajax(`/categories/${category.id}`, { type: "DELETE" });
+            await this.sidebarGroups.removeChannel(`forum:${category.id}`);
+            this.#goHomeIfOn(category.url);
+          }),
+      };
     }
 
     return items;
@@ -189,60 +182,61 @@ export default class ChannelActions {
 
   #textItems(channel) {
     const membership = channel.currentUserMembership;
-    const items = [
-      {
+    const items = {
+      markRead: {
         label: t("mark_read"),
         icon: "check",
         action: () =>
           this.#run(() => this.chatApi.markChannelAsRead(channel.id)),
       },
-      { heading: t("notifications") },
-      ...[
-        ["always", "all_messages"],
-        ["mention", "mentions_only"],
-        ["never", "nothing"],
-      ].map(([level, label]) => ({
-        label: t(label),
-        checked: !membership?.muted && membership?.notificationLevel === level,
-        action: () =>
-          this.#updateChatSettings(channel, {
-            muted: false,
-            notification_level: level,
-          }),
-      })),
-      {
-        label: t("mute"),
-        checked: !!membership?.muted,
-        action: () =>
-          this.#updateChatSettings(channel, { muted: !membership?.muted }),
-      },
-    ];
+      notifications: [
+        { heading: t("notifications") },
+        ...[
+          ["always", "all_messages"],
+          ["mention", "mentions_only"],
+          ["never", "nothing"],
+        ].map(([level, label]) => ({
+          label: t(label),
+          checked:
+            !membership?.muted && membership?.notificationLevel === level,
+          action: () =>
+            this.#updateChatSettings(channel, {
+              muted: false,
+              notification_level: level,
+            }),
+        })),
+        {
+          label: t("mute"),
+          checked: !!membership?.muted,
+          action: () =>
+            this.#updateChatSettings(channel, { muted: !membership?.muted }),
+        },
+      ],
+    };
 
     if (this.currentUser.staff) {
-      items.push(
-        {
-          label: t("rename"),
-          icon: "pencil",
-          action: () =>
-            this.#rename(t("rename"), channel.title, (name) =>
-              this.chatApi
-                .updateChannel(channel.id, { name })
-                .then(() => (channel.title = name))
-            ),
-        },
-        {
-          label: t("delete"),
-          icon: "trash-can",
-          danger: true,
-          action: () =>
-            this.#confirmDelete(channel.title, async () => {
-              await this.chatApi.destroyChannel(channel.id);
-              this.chatChannelsManager.remove(channel);
-              await this.sidebarGroups.removeChannel(`text:${channel.id}`);
-              this.router.transitionTo("discovery.latest");
-            }),
-        }
-      );
+      items.rename = {
+        label: t("rename"),
+        icon: "pencil",
+        action: () =>
+          this.#rename(t("rename"), channel.title, (name) =>
+            this.chatApi
+              .updateChannel(channel.id, { name })
+              .then(() => (channel.title = name))
+          ),
+      };
+      items.delete = {
+        label: t("delete"),
+        icon: "trash-can",
+        danger: true,
+        action: () =>
+          this.#confirmDelete(channel.title, async () => {
+            await this.chatApi.destroyChannel(channel.id);
+            this.chatChannelsManager.remove(channel);
+            await this.sidebarGroups.removeChannel(`text:${channel.id}`);
+            this.router.transitionTo("discovery.latest");
+          }),
+      };
     }
 
     return items;
@@ -250,11 +244,11 @@ export default class ChannelActions {
 
   #voiceItems(room) {
     if (!room.can_manage) {
-      return [];
+      return {};
     }
 
-    return [
-      {
+    return {
+      rename: {
         label: t("rename"),
         icon: "pencil",
         action: () =>
@@ -265,7 +259,7 @@ export default class ChannelActions {
             }).then((result) => this.voiceRooms.upsertRoom(result.room))
           ),
       },
-      {
+      delete: {
         label: t("delete"),
         icon: "trash-can",
         danger: true,
@@ -276,7 +270,7 @@ export default class ChannelActions {
             await this.sidebarGroups.removeChannel(`voice:${room.id}`);
           }),
       },
-    ];
+    };
   }
 
   #moveItems(key) {
