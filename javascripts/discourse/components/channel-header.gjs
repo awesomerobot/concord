@@ -10,10 +10,16 @@ import DButton from "discourse/ui-kit/d-button";
 import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+import ActionMenu from "./action-menu";
 import SearchPopover from "./search-popover";
 import ServerHeader from "./server-header";
 
 const t = (key) => i18n(themePrefix(`channel_header.${key}`));
+
+// Folded into the "…" menu on small screens, where the row has no room.
+const COLLAPSIBLE = ["threads", "pins", "member-list"];
+
+const isCollapsible = (action) => COLLAPSIBLE.includes(action.id);
 
 /**
  * Discord's top row: the server's name over the channel list, then the
@@ -107,6 +113,28 @@ export default class ChannelHeader extends Component {
     }
 
     return { actions: [], ...channel };
+  }
+
+  get moreItems() {
+    return [...this.channel.actions, this.memberListAction]
+      .filter(isCollapsible)
+      .map((action) => ({
+        id: action.id,
+        label: action.title,
+        icon: action.icon,
+        action: action.action,
+      }));
+  }
+
+  @action
+  openMore(event) {
+    this.menu.show(event.currentTarget, {
+      identifier: "discord-channel-header-more",
+      component: ActionMenu,
+      data: { items: this.moreItems },
+      placement: "bottom-end",
+      modalForMobile: true,
+    });
   }
 
   get memberListAction() {
@@ -264,13 +292,16 @@ export default class ChannelHeader extends Component {
         {{/if}}
 
         <div class="discord-channel-header__actions">
-          {{#each this.channel.actions as |action|}}
+          {{#each this.channel.actions as |headerAction|}}
             <DButton
-              @action={{action.action}}
-              @icon={{action.icon}}
-              @translatedTitle={{action.title}}
-              class="btn-flat"
-              data-action-id={{action.id}}
+              @action={{headerAction.action}}
+              @icon={{headerAction.icon}}
+              @translatedTitle={{headerAction.title}}
+              class={{dConcatClass
+                "btn-flat"
+                (if (isCollapsible headerAction) "--collapsible")
+              }}
+              data-action-id={{headerAction.id}}
             />
           {{/each}}
           <DButton
@@ -279,10 +310,16 @@ export default class ChannelHeader extends Component {
             @translatedTitle={{this.memberListAction.title}}
             aria-pressed={{if this.memberListAction.active "true" "false"}}
             class={{dConcatClass
-              "btn-flat"
+              "btn-flat --collapsible"
               (if this.memberListAction.active "--active")
             }}
             data-action-id={{this.memberListAction.id}}
+          />
+          <DButton
+            @icon="ellipsis"
+            @translatedTitle={{t "more"}}
+            class="btn-flat discord-channel-header__more"
+            {{on "click" this.openMore}}
           />
 
           <DButton

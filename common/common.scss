@@ -409,8 +409,15 @@ body.discord-header .d-header > .wrap {
 }
 
 .discord-channel-header__menu,
-.discord-channel-header__user {
+.discord-channel-header__user,
+.discord-channel-header__more {
   @include viewport.from(md) {
+    display: none;
+  }
+}
+
+.discord-channel-header__actions .--collapsible {
+  @include viewport.until(md) {
     display: none;
   }
 }
