@@ -2,6 +2,7 @@ import { setOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import { bind } from "discourse/lib/decorators";
 import { DirectMessageLink } from "./channel-links";
+import { DMS_PANEL } from "./constants";
 import dmMode from "./dm-mode";
 
 // Where the page belongs to the server rather than to someone's DMs.
@@ -39,8 +40,10 @@ export default class DirectMessages {
     return this.supported && !!this.chat.userCanAccessDirectMessages;
   }
 
+  // Only while the DMs are what's showing: another panel, like Discourse AI's
+  // conversations, can stand in for them without ending DM mode.
   get active() {
-    return dmMode.active;
+    return dmMode.active && this.sidebarState.currentPanelKey === DMS_PANEL;
   }
 
   get channels() {
@@ -72,7 +75,7 @@ export default class DirectMessages {
   }
 
   toggle() {
-    this.show(!dmMode.active);
+    this.show(!this.active);
   }
 
   show(active) {

@@ -325,6 +325,21 @@ RSpec.describe "Discord sidebar" do
       expect(channel_link("forum-#{category.slug}")).to be_present
     end
 
+    it "is never pressed at the same time as the DM button" do
+      visit("/latest")
+      find(".discord-server-header__dms").click
+      expect(page).to have_css(".discord-server-header__dms[aria-pressed='true']")
+
+      find(".discord-server-header__ai").click
+      expect(page).to have_css(".discord-server-header__ai[aria-pressed='true']")
+      expect(page).to have_css(".discord-server-header__dms[aria-pressed='false']")
+
+      # From the conversations, the DM button shows the DMs.
+      find(".discord-server-header__dms").click
+      expect(page).to have_css(".discord-server-header__dms[aria-pressed='true']")
+      expect(page).to have_css(".discord-server-header__ai[aria-pressed='false']")
+    end
+
     it "can be turned off" do
       theme.update_setting(:ai_conversations_link, false)
       theme.save!
