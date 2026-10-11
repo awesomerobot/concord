@@ -610,6 +610,21 @@ RSpec.describe "Discord sidebar" do
       screenshot("mobile-long-title")
     end
 
+    it "slides the member list in from the right on phones", mobile: true do
+      visit("/chat/c/hangout/#{chat_channel.id}")
+
+      expect(page).to have_no_css(".discord-member-list")
+      find(".discord-channel-header [data-action-id='member-list']").click
+      list = find(".discord-member-list.--slide-in")
+      expect(list).to have_css(".discord-member-list__member[data-username='#{admin.username}']")
+      expect(page).to have_no_css("body.discord-member-list-open")
+      sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
+      screenshot("mobile-member-list")
+
+      find(".discord-member-list__cloak").click(x: 10, y: 300)
+      expect(page).to have_no_css(".discord-member-list")
+    end
+
     it "opens the channel list from the header on phones", mobile: true do
       opens_channel_list_from_header { "mobile" }
     end

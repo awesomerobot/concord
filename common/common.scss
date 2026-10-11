@@ -314,8 +314,7 @@ body.discord-header .d-header > .wrap {
 
   .discord-channel-header {
     > .discord-server-header,
-    .discord-channel-header__description,
-    [data-action-id="member-list"] {
+    .discord-channel-header__description {
       display: none;
     }
   }
@@ -564,9 +563,45 @@ body.discord-header .d-header > .wrap {
   }
 }
 
-// Discord's member list: a third column on the main grid.
+// Discord's member list: a third column on the main grid, or on small
+// screens a panel sliding in from the right over a shade, like core's menus.
 .discord-member-list {
   display: none;
+
+  &.--slide-in {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: z("header") + 2;
+    width: min(18em, 85vw);
+    overflow-y: auto;
+    padding: 0.5em;
+    padding-top: calc(0.5em + env(safe-area-inset-top, 0px));
+    box-sizing: border-box;
+    background: var(--d-sidebar-background);
+    box-shadow: 0 0 30px -2px rgb(0, 0, 0, 0.5);
+
+    @include d-animation(discord-slide-in-right, 250ms, ease-out);
+  }
+}
+
+@keyframes discord-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.discord-member-list__cloak {
+  position: fixed;
+  inset: 0;
+  z-index: z("header") + 1;
+  background: rgb(0, 0, 0, 0.3);
 }
 
 @include viewport.from(md) {

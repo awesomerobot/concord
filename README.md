@@ -100,7 +100,9 @@ group page's name are hidden so it isn't said twice.
 ## Member list
 
 A panel down the right of the page, toggled by the people icon in the header
-row (the choice is remembered per browser). It shows:
+row (the choice is remembered per browser). Below the `md` breakpoint the same
+icon slides it in from the right over the page instead; it starts closed and
+closes on navigation or a tap beside it. It shows:
 
 - on a voice channel, who's in the call first
 - online members of each group in `member_list_roles` (admins and moderators

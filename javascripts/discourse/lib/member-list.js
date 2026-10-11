@@ -58,10 +58,14 @@ class MemberPager {
 export default class MemberList {
   @service currentUser;
   @service keyValueStore;
+  @service router;
   @service site;
   @service siteSettings;
 
   @tracked open;
+  // Small screens show the list as a slide-in instead, which starts closed
+  // and closes when the page changes.
+  @tracked slideOpen = false;
   @tracked roleMembers = new Map();
 
   #pagers = new Map();
@@ -73,9 +77,24 @@ export default class MemberList {
     this.chat = owner.lookup("service:chat");
     this.whosOnline = owner.lookup("service:whos-online");
     this.open = this.keyValueStore.get(OPEN_KEY) !== "false";
+    this.router.on("routeDidChange", () => (this.slideOpen = false));
+  }
+
+  // The same breakpoint core opens its sidebar as a slide-in below.
+  get compact() {
+    return this.site.mobileView || this.site.narrowDesktopView;
+  }
+
+  get active() {
+    return this.compact ? this.slideOpen : this.open;
   }
 
   toggle() {
+    if (this.compact) {
+      this.slideOpen = !this.slideOpen;
+      return;
+    }
+
     this.open = !this.open;
     this.keyValueStore.set({ key: OPEN_KEY, value: String(this.open) });
   }

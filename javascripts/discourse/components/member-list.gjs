@@ -1,4 +1,6 @@
 import Component from "@glimmer/component";
+import { on } from "@ember/modifier";
+import { action } from "@ember/object";
 import { service } from "@ember/service";
 import bodyClass from "discourse/helpers/body-class";
 import DLoadMore from "discourse/ui-kit/d-load-more";
@@ -9,16 +11,22 @@ import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { CHANNELS_PANEL } from "../lib/constants";
 
-// Discord's member list, down the right of the page.
+// Discord's member list, down the right of the page, or sliding in from the
+// right on small screens.
 export default class MemberList extends Component {
   @service sidebarState;
   @service siteSettings;
 
   get show() {
     return (
-      this.args.memberList.open &&
+      this.args.memberList.active &&
       this.sidebarState.currentPanelKey === CHANNELS_PANEL
     );
+  }
+
+  @action
+  close() {
+    this.args.memberList.slideOpen = false;
   }
 
   get onlineIds() {
@@ -38,10 +46,21 @@ export default class MemberList extends Component {
 
   <template>
     {{#if this.show}}
-      {{bodyClass "discord-member-list-open"}}
+      {{#if @memberList.compact}}
+        <div
+          class="discord-member-list__cloak"
+          role="presentation"
+          {{on "click" this.close}}
+        ></div>
+      {{else}}
+        {{bodyClass "discord-member-list-open"}}
+      {{/if}}
       <aside
         aria-label={{i18n (themePrefix "member_list.title")}}
-        class="discord-member-list"
+        class={{dConcatClass
+          "discord-member-list"
+          (if @memberList.compact "--slide-in")
+        }}
       >
         <DLoadMore
           @action={{@memberList.pager.loadMore}}

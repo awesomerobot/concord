@@ -96,7 +96,7 @@ export default class ChannelHeader extends Component {
       id: "member-list",
       icon: "users",
       title: t("member_list"),
-      active: this.args.memberList.open,
+      active: this.args.memberList.active,
       action: () => this.args.memberList.toggle(),
     };
   }
