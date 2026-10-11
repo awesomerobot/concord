@@ -463,12 +463,30 @@ RSpec.describe "Discord sidebar" do
       end
     end
 
+    it "goes back to the forum channel from a topic" do
+      topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
+      visit(topic.relative_url)
+
+      header.find(".discord-channel-header__back").click
+      expect(page).to have_current_path(%r{/c/#{category.slug}/#{category.id}})
+      expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
+    end
+
     it "shows a topic's title over its category" do
       topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
       visit(topic.relative_url)
 
-      expect(header).to have_css(".discord-channel-header__name", text: "Best campfire songs")
-      expect(header).to have_css(".discord-channel-header__description", text: "Lounge")
+      expect(header).to have_css(
+        ".discord-channel-header__name a[href='#{topic.relative_url}/1']",
+        text: "Best campfire songs",
+      )
+      expect(header).to have_css(
+        ".discord-channel-header__description a[href='#{category.url}']",
+        text: "Lounge",
+      )
+      expect(header).to have_css(
+        ".discord-channel-header__back[href='#{category.url}'][title='Back to Lounge']",
+      )
       screenshot("topic")
 
       expect(page).to have_css(

@@ -173,17 +173,27 @@ export default class ChannelHeader extends Component {
     };
   }
 
-  // A topic is a post in a forum channel: its title leads, with the
-  // category it's in underneath.
+  // A topic is a post in a forum channel: its title leads, back to its top,
+  // with the category it's in underneath, and the icon goes back to it.
   #topic(topic) {
     if (!topic) {
       return;
     }
 
+    const category = topic.category;
+
     return {
       icon: "fab-discourse",
       name: topic.title,
-      description: topic.category?.displayName,
+      nameHref: topic.firstPostUrl,
+      description: category?.displayName,
+      descriptionHref: category?.url,
+      back: category && {
+        href: category.url,
+        title: i18n(themePrefix("channel_header.back"), {
+          name: category.displayName,
+        }),
+      },
     };
   }
 
@@ -220,13 +230,35 @@ export default class ChannelHeader extends Component {
           class="btn-flat discord-channel-header__menu hamburger-dropdown"
         />
         {{#if this.channel.name}}
-          <span class="discord-channel-header__icon">
-            {{dIcon this.channel.icon}}
-          </span>
-          <h1 class="discord-channel-header__name">{{this.channel.name}}</h1>
+          {{#if this.channel.back}}
+            <a
+              class="discord-channel-header__icon discord-channel-header__back"
+              href={{this.channel.back.href}}
+              title={{this.channel.back.title}}
+            >
+              {{dIcon "arrow-left"}}
+            </a>
+          {{else}}
+            <span class="discord-channel-header__icon">
+              {{dIcon this.channel.icon}}
+            </span>
+          {{/if}}
+          <h1 class="discord-channel-header__name">
+            {{#if this.channel.nameHref}}
+              <a href={{this.channel.nameHref}}>{{this.channel.name}}</a>
+            {{else}}
+              {{this.channel.name}}
+            {{/if}}
+          </h1>
           {{#if this.channel.description}}
             <span class="discord-channel-header__description">
-              {{this.channel.description}}
+              {{#if this.channel.descriptionHref}}
+                <a
+                  href={{this.channel.descriptionHref}}
+                >{{this.channel.description}}</a>
+              {{else}}
+                {{this.channel.description}}
+              {{/if}}
             </span>
           {{/if}}
         {{/if}}

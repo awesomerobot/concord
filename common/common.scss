@@ -443,6 +443,28 @@ body.discord-header .d-header > .wrap {
   color: var(--primary-medium);
 }
 
+.discord-channel-header__back {
+  display: flex;
+  margin: -0.35em;
+  padding: 0.35em;
+  border-radius: var(--d-border-radius);
+
+  &:hover {
+    background: var(--primary-very-low);
+    color: var(--primary);
+  }
+}
+
+// Links in the row read as the row's text until hovered.
+.discord-channel-header__name a,
+.discord-channel-header__description a {
+  color: inherit;
+
+  &:hover {
+    color: var(--tertiary);
+  }
+}
+
 // A long name (a topic title, say) is cut off rather than pushing the actions
 // off the row; the description gives way first.
 .discord-channel-header__name {

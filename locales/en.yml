@@ -79,6 +79,7 @@ en:
     title: "Direct messages"
     new: "New DM or group chat"
   channel_header:
+    back: "Back to %{name}"
     threads: "Threads"
     pins: "Pinned messages"
     member_list: "Member list"

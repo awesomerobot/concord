@@ -65,7 +65,9 @@ button that opens core's search panel as a dropdown. Living inside core's
 header keeps every height calculation built on it (chat, composer, sticky
 elements) working. Chat's own channel bar is hidden; its threads, pins and
 settings are in the row. A forum channel's settings (core's wrench) are there
-too, for people who can edit the category. In a text channel the search
+too, for people who can edit the category. In a topic, the row's icon is a
+back arrow to its forum channel, the title links to the top of the topic, and
+the category under it links to the category. In a text channel the search
 button opens chat's own message search for that channel instead of site search.
 On phones it goes to core's full page search instead of the dropdown, as core's
 own header does.
