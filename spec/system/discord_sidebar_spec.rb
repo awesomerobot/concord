@@ -182,9 +182,11 @@ RSpec.describe "Discord sidebar" do
     link.hover
     link.find(".sidebar-section-hover-button").click
     find(".discord-action-menu [data-item-id='move-to-section']").click
-    expect(page).to have_css(".discord-action-menu__back")
+    # Beside the channel's menu, which stays open.
+    expect(page).to have_css(".discord-action-menu", count: 2)
     screenshot("channel-submenu")
     find(".discord-action-menu .btn", text: "Hangouts").click
+    expect(page).to have_no_css(".discord-action-menu")
 
     hangouts = sidebar.find(".sidebar-section[data-section-name='discord-section-hangouts']")
     expect(hangouts).to have_css(".sidebar-section-link[data-link-name='text-hangout']")

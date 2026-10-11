@@ -202,16 +202,17 @@
     font-size: var(--font-down-1);
   }
 
-  &__badge,
-  &__more {
+  // Clicks land on the button, so a submenu lines up with the whole row
+  // rather than the label inside it.
+  .btn > * {
+    pointer-events: none;
+  }
+
+  &__badge {
     margin-left: auto;
     padding-left: 1em;
     color: var(--primary-medium);
     font-size: var(--font-down-1);
-  }
-
-  &__back {
-    font-weight: 600;
   }
 
   .btn.--danger {
