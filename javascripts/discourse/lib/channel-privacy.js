@@ -117,6 +117,7 @@ export default class ChannelPrivacy {
           privateParent: parentIsPrivate
             ? {
                 name: category.parentCategory.displayName,
+                securityUrl: `/c/${Category.slugFor(category.parentCategory)}/edit/security`,
                 groupNames: parent.map((p) => p.group_name),
               }
             : null,

@@ -1,10 +1,13 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import { trustHTML } from "@ember/template";
 import Form from "discourse/components/form";
 import { extractError } from "discourse/lib/ajax-error";
 import DiscourseURL from "discourse/lib/url";
+import { escapeExpression } from "discourse/lib/utilities";
 import Category from "discourse/models/category";
 import GroupChooser from "discourse/select-kit/components/group-chooser";
 import { eq } from "discourse/truth-helpers";
@@ -54,6 +57,13 @@ export default class ChannelPrivacyModal extends Component {
     );
   }
 
+  // The parent's name links to its security settings, where what it allows
+  // can be changed.
+  get parentLink() {
+    const { name, securityUrl } = this.loaded.privateParent;
+    return `<a class="discord-channel-privacy-modal__parent" href="${escapeExpression(securityUrl)}">${escapeExpression(name)}</a>`;
+  }
+
   // Its parent decides as much as it does, so say which way and why.
   get privateDescription() {
     const { publicSubcategory, privateParent } = this.loaded || {};
@@ -62,7 +72,7 @@ export default class ChannelPrivacyModal extends Component {
       return t("public_subcategory", { name: publicSubcategory });
     }
     if (privateParent) {
-      return t("private_parent", { name: privateParent.name });
+      return trustHTML(t("private_parent", { name: this.parentLink }));
     }
     return i18n(themePrefix("create_channel.private_description"));
   }
@@ -78,15 +88,17 @@ export default class ChannelPrivacyModal extends Component {
     if (privateParent) {
       notes.push(
         t("parent_groups", {
-          name: privateParent.name,
-          groups: privateParent.groupNames.join(", "),
+          name: this.parentLink,
+          groups: escapeExpression(privateParent.groupNames.join(", ")),
         })
       );
     }
     if (required.length) {
       notes.push(
         t("required_groups", {
-          groups: required.map((group) => group.name).join(", "),
+          groups: escapeExpression(
+            required.map((group) => group.name).join(", ")
+          ),
         })
       );
     }
@@ -94,7 +106,7 @@ export default class ChannelPrivacyModal extends Component {
       notes.push(t("voice_note"));
     }
 
-    return notes.join(" ") || null;
+    return notes.length ? trustHTML(notes.join(" ")) : null;
   }
 
   get sharedCategoryName() {
@@ -144,6 +156,14 @@ export default class ChannelPrivacyModal extends Component {
     }
   }
 
+  // Following the parent's link leaves the dialog behind.
+  @action
+  closeOnParentLink(event) {
+    if (event.target.closest(".discord-channel-privacy-modal__parent")) {
+      this.args.closeModal();
+    }
+  }
+
   @action
   openCategorySecurity() {
     this.args.closeModal();
@@ -170,61 +190,64 @@ export default class ChannelPrivacyModal extends Component {
             class="btn-default"
           />
         {{else}}
-          <DConditionalLoadingSpinner @condition={{this.loading}}>
-            {{#if this.formData}}
-              <Form
-                @data={{this.formData}}
-                @onSubmit={{this.save}}
-                @validate={{this.validate}}
-                as |form data|
-              >
-                <form.Field
-                  @description={{this.privateDescription}}
-                  @disabled={{this.privacyLocked}}
-                  @format="full"
-                  @name="isPrivate"
-                  @title={{i18n (themePrefix "create_channel.private")}}
-                  @type="toggle"
-                  as |field|
+          {{! template-lint-disable no-invalid-interactive }}
+          <div {{on "click" this.closeOnParentLink}}>
+            <DConditionalLoadingSpinner @condition={{this.loading}}>
+              {{#if this.formData}}
+                <Form
+                  @data={{this.formData}}
+                  @onSubmit={{this.save}}
+                  @validate={{this.validate}}
+                  as |form data|
                 >
-                  <field.Control />
-                </form.Field>
-
-                {{#if data.isPrivate}}
                   <form.Field
-                    @description={{this.groupsDescription}}
+                    @description={{this.privateDescription}}
+                    @disabled={{this.privacyLocked}}
                     @format="full"
-                    @name="groupIds"
-                    @title={{if
-                      (eq this.privacy.kind "voice")
-                      (t "voice_groups")
-                      (i18n (themePrefix "create_channel.groups"))
-                    }}
-                    @type="custom"
+                    @name="isPrivate"
+                    @title={{i18n (themePrefix "create_channel.private")}}
+                    @type="toggle"
                     as |field|
                   >
-                    <field.Control>
-                      <GroupChooser
-                        @content={{this.groupOptions}}
-                        @labelProperty="name"
-                        @onChange={{field.set}}
-                        @value={{field.value}}
-                      />
-                    </field.Control>
+                    <field.Control />
                   </form.Field>
-                {{/if}}
 
-                <form.Actions>
-                  <form.Submit @label="save" class="btn-primary" />
-                  <form.Button
-                    @action={{@closeModal}}
-                    @label="cancel"
-                    class="btn-transparent"
-                  />
-                </form.Actions>
-              </Form>
-            {{/if}}
-          </DConditionalLoadingSpinner>
+                  {{#if data.isPrivate}}
+                    <form.Field
+                      @description={{this.groupsDescription}}
+                      @format="full"
+                      @name="groupIds"
+                      @title={{if
+                        (eq this.privacy.kind "voice")
+                        (t "voice_groups")
+                        (i18n (themePrefix "create_channel.groups"))
+                      }}
+                      @type="custom"
+                      as |field|
+                    >
+                      <field.Control>
+                        <GroupChooser
+                          @content={{this.groupOptions}}
+                          @labelProperty="name"
+                          @onChange={{field.set}}
+                          @value={{field.value}}
+                        />
+                      </field.Control>
+                    </form.Field>
+                  {{/if}}
+
+                  <form.Actions>
+                    <form.Submit @label="save" class="btn-primary" />
+                    <form.Button
+                      @action={{@closeModal}}
+                      @label="cancel"
+                      class="btn-transparent"
+                    />
+                  </form.Actions>
+                </Form>
+              {{/if}}
+            </DConditionalLoadingSpinner>
+          </div>
         {{/if}}
       </:body>
     </DModal>

@@ -314,6 +314,10 @@ RSpec.describe "Discord sidebar" do
         visible: :all,
       )
       screenshot("privacy-private-parent")
+
+      modal.first(".discord-channel-privacy-modal__parent", text: "Private events").click
+      expect(page).to have_current_path(%r{/c/#{parent.slug}/edit/security})
+      expect(page).to have_no_css(".discord-channel-privacy-modal")
     end
 
     it "makes a text channel private through the category backing it" do
