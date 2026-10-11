@@ -1019,6 +1019,41 @@ RSpec.describe "Discord sidebar" do
       screenshot("mobile-sticky-name")
     end
 
+    it "slides the channel list in on a slow phone", mobile: true do
+      20.times { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
+      visit("/latest")
+      menu = find(".discord-channel-header__menu")
+      page.driver.with_playwright_page do |pw|
+        pw.context.new_cdp_session(pw).send_message(
+          "Emulation.setCPUThrottlingRate",
+          params: {
+            rate: 6,
+          },
+        )
+      end
+
+      # Where the list is drawn each frame once its channels are in it.
+      page.execute_script(<<~JS, menu)
+        window.__dcckFrames = [];
+        const record = () => {
+          const panel = document.querySelector(".hamburger-panel .menu-panel");
+          if (panel?.querySelector(".sidebar-section-link")) {
+            window.__dcckFrames.push(Math.round(panel.getBoundingClientRect().left));
+          }
+          if (window.__dcckFrames.at(-1) !== 0) {
+            requestAnimationFrame(record);
+          }
+        };
+        arguments[0].click();
+        requestAnimationFrame(record);
+      JS
+
+      expect(page).to have_css(".hamburger-panel .sidebar-section-link")
+      try_until_success { expect(page.evaluate_script("window.__dcckFrames.at(-1)")).to eq(0) }
+      frames = page.evaluate_script("window.__dcckFrames")
+      expect(frames.count { |left| left < 0 }).to be > 3
+    end
+
     it "opens a channel's menu with a long press on phones", mobile: true do
       visit("/latest")
       find(".discord-channel-header__menu").click
