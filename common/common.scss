@@ -590,6 +590,29 @@
   color: var(--primary);
 }
 
+// A topic is centred in the space beside the channel list rather than
+// hugging its left edge: the posts at core's width, then the timeline. The
+// outlet keeps its full width and pads the topic in, so it still fills
+// narrower screens. The composer, fixed to the window, starts where the topic
+// does (measured by the TopicLayout component).
+body.discord-topic {
+  --discord-topic-width: calc(
+    var(--topic-avatar-width) + var(--topic-body-width) +
+      (var(--topic-body-width-padding) * 2) + 1em + 10em
+  );
+
+  #main-outlet {
+    padding-inline: max(0px, calc((100% - var(--discord-topic-width)) / 2));
+  }
+
+  @include viewport.from(md) {
+    &.has-sidebar-page #reply-control:not(.fullscreen).hide-preview {
+      left: 0;
+      margin-left: var(--discord-topic-left, var(--d-sidebar-width));
+    }
+  }
+}
+
 // The channel list and header row already say where you are, a channel's
 // notifications are in its menu, and its settings are in the header row.
 // Topic, group and chat bells share the button's class, so only the list

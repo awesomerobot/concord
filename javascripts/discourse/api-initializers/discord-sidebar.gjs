@@ -1,6 +1,7 @@
 import { apiInitializer } from "discourse/lib/api";
 import { getOwnerWithFallback } from "discourse/lib/get-owner";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
+import { eq } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
 import CreateChannelModal from "../components/modal/create-channel";
 import ChannelActions from "../lib/channel-actions";
@@ -17,6 +18,7 @@ import SidebarSections from "../lib/sidebar-sections";
 import ChannelHeader from "../components/channel-header";
 import MemberList from "../components/member-list";
 import ServerHeader from "../components/server-header";
+import TopicLayout from "../components/topic-layout";
 import UserPanel from "../components/user-panel";
 
 export default apiInitializer((api) => {
@@ -152,6 +154,15 @@ export default apiInitializer((api) => {
   api.renderInOutlet(
     "after-main-outlet",
     <template><MemberList @memberList={{memberList}} /></template>
+  );
+
+  api.renderInOutlet(
+    "after-main-outlet",
+    <template>
+      {{#if (eq currentChannel.value.type "topic")}}
+        <TopicLayout />
+      {{/if}}
+    </template>
   );
 
   // The state patch redirects these to the channel panel.

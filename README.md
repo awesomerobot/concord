@@ -75,9 +75,14 @@ core's own.
 The foot of the sidebar shows the current user; clicking opens the user
 menu's profile tab on its own (status, presence, summary, activity,
 preferences, log out). The bell beside it, carrying the unread badge, opens
-core's user menu (notifications, messages, bookmarks) without that tab. Signed-out
-visitors get
-log in and sign up buttons there. Core's sidebar footer is hidden.
+core's user menu (notifications, messages, bookmarks) without that tab.
+Signed-out visitors get log in and sign up buttons there. Core's sidebar
+footer is hidden.
+
+The main column fills the window beside the channel list. Topics are the
+exception: the posts stay at core's reading width, with the timeline beside
+them, and are centred in the space. The composer (when its preview is hidden)
+starts where the topic does.
 
 ## Server menu
 

@@ -368,6 +368,36 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_current_path(%r{/c/#{category.slug}/edit})
     end
 
+    it "centres a topic in the space beside the channel list" do
+      topic = Fabricate(:topic, category:, title: "Best campfire songs")
+      20.times { Fabricate(:post, topic:) }
+
+      resize_window(width: 1920) do
+        visit(topic.relative_url)
+        expect(page).to have_css(".timeline-container")
+
+        outlet, posts = page.evaluate_script(<<~JS)
+          ["#main-outlet", ".container.posts"].map((s) => {
+            const r = document.querySelector(s).getBoundingClientRect();
+            return { left: r.left, right: r.right };
+          })
+        JS
+        expect(posts["left"] - outlet["left"]).to be > 100
+        expect(posts["left"] - outlet["left"]).to be_within(1).of(outlet["right"] - posts["right"])
+        screenshot("topic-centred")
+
+        find(".topic-footer-main-buttons .create").click
+        expect(page).to have_css("#reply-control.open")
+        find("#reply-control .toggle-preview").click if page.has_no_css?("#reply-control.hide-preview", wait: 0)
+        expect(page).to have_css("#reply-control.hide-preview")
+        composer_left = page.evaluate_script(
+          "document.querySelector('#reply-control').getBoundingClientRect().left",
+        )
+        expect(composer_left).to be_within(1).of(posts["left"])
+        screenshot("topic-centred-composer")
+      end
+    end
+
     it "shows a topic's title over its category" do
       topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
       visit(topic.relative_url)
