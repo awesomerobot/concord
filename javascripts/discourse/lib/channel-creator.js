@@ -132,26 +132,9 @@ export default class ChannelCreator {
       data: { room: { name, public: !isPrivate } },
     });
 
-    let notice;
-
-    if (isPrivate) {
-      const { userIds, capped } = await this.#groupMemberIds(groupIds);
-
-      for (const userId of userIds) {
-        if (userId !== this.currentUser.id) {
-          await ajax(`/voice/rooms/${room.id}/memberships`, {
-            type: "POST",
-            data: { user_id: userId },
-          });
-        }
-      }
-
-      if (capped) {
-        notice = i18n(themePrefix("create_channel.voice_members_capped"), {
-          count: VOICE_MEMBER_LIMIT,
-        });
-      }
-    }
+    const notice = isPrivate
+      ? await this.addGroupMembersToRoom(room, groupIds)
+      : undefined;
 
     this.voiceRooms.handleDirectoryEvent({ type: "created", room });
 
@@ -161,6 +144,31 @@ export default class ChannelCreator {
       models: [room.slug],
       notice,
     };
+  }
+
+  /**
+   * Adds the groups' current members to a voice room, which only knows
+   * individual members.
+   *
+   * @returns {Promise<string|undefined>} A notice when only some were added.
+   */
+  async addGroupMembersToRoom(room, groupIds) {
+    const { userIds, capped } = await this.#groupMemberIds(groupIds);
+
+    for (const userId of userIds) {
+      if (userId !== this.currentUser.id) {
+        await ajax(`/voice/rooms/${room.id}/memberships`, {
+          type: "POST",
+          data: { user_id: userId },
+        });
+      }
+    }
+
+    if (capped) {
+      return i18n(themePrefix("create_channel.voice_members_capped"), {
+        count: VOICE_MEMBER_LIMIT,
+      });
+    }
   }
 
   async #createCategory(attributes) {

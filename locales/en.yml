@@ -73,8 +73,17 @@ en:
     move_to_section: "Move to section"
     no_section: "No section"
     close_dm: "Close conversation"
+    privacy: "Privacy"
     new_section: "New section…"
     create_section: "Create section"
+  channel_privacy:
+    title: "Privacy for %{name}"
+    shared: "This channel takes who can see it from the %{category} category, which its forum channel uses too. Change it in that category's security settings."
+    open_category: "Open category security"
+    voice_groups: "Add members of these groups"
+    required_groups: "Always included, since its subcategories use them: %{groups}"
+    public_subcategory: "Can't be private while its %{name} subcategory is open to everyone."
+    voice_note: "Adds their current members. People who join a group later won't get access, and to remove someone use the room's member list."
   direct_messages:
     title: "Direct messages"
     new: "New DM or group chat"

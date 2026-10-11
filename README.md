@@ -47,6 +47,15 @@ next to its `+`. Items depend on the channel's kind and what the user may do:
 - Text: mark as read, notifications (all messages / only mentions / nothing),
   mute, rename and delete for staff
 - Voice: rename and delete for the room's managers
+- Privacy, for whoever can edit the channel: the create modal's private
+  switch and groups, filled in from the channel. A forum changes its
+  category's permissions (groups keep the access level they had), a text
+  channel made from the create modal changes its backing category, and a text
+  channel on a regular category links to that category's security settings
+  instead, since a forum channel shares it. A voice room becomes public or
+  private, and can add groups' current members. Since core requires a
+  subcategory's groups to see its parent, a forum keeps the groups its
+  subcategories use and can't go private while one is public.
 - DMs: mark as read, notifications (all messages / only mentions / nothing),
   mute, and close conversation
 - All: copy link, and for admins, move to section (including a new one,

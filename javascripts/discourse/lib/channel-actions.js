@@ -6,6 +6,7 @@ import { clipboardCopy } from "discourse/lib/utilities";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
 import ActionMenu from "../components/action-menu";
+import ChannelPrivacyModal from "../components/modal/channel-privacy";
 import RenameModal from "../components/modal/rename";
 
 const CATEGORY_LEVELS = { muted: 0, regular: 1, watching: 3 };
@@ -29,9 +30,11 @@ export default class ChannelActions {
   @service router;
   @service toasts;
 
-  constructor(owner, sidebarSections) {
+  constructor(owner, sidebarSections, privacy, creator) {
     setOwner(this, owner);
     this.sidebarSections = sidebarSections;
+    this.privacy = privacy;
+    this.creator = creator;
     this.chat = owner.lookup("service:chat");
     this.chatApi = owner.lookup("service:chat-api");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
@@ -130,6 +133,7 @@ export default class ChannelActions {
     return [
       sections.markRead,
       sections.rename,
+      this.#privacyItem(link),
       {
         label: t("copy_link"),
         icon: "link",
@@ -249,6 +253,28 @@ export default class ChannelActions {
           }),
       },
     ];
+  }
+
+  #privacyItem(link) {
+    const privacy = this.privacy.forLink(link);
+
+    if (!privacy) {
+      return;
+    }
+
+    return {
+      id: "privacy",
+      label: t("privacy"),
+      icon: "lock",
+      action: () =>
+        this.modal.show(ChannelPrivacyModal, {
+          model: {
+            privacy,
+            name: link.sortName,
+            groups: this.creator.groups,
+          },
+        }),
+    };
   }
 
   #chatMarkRead(channel) {

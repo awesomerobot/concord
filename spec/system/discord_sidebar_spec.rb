@@ -188,7 +188,7 @@ RSpec.describe "Discord sidebar" do
     link.hover
     link.find(".sidebar-section-hover-button").click
     labels = all(".discord-action-menu .btn").map(&:text)
-    expect(labels.first(3)).to eq(["Mark as read", "Rename", "Copy link"])
+    expect(labels.first(4)).to eq(["Mark as read", "Rename", "Privacy", "Copy link"])
     expect(labels.last).to eq("Delete")
     expect(labels).not_to include("Hangouts")
     screenshot("channel-menu")
@@ -235,6 +235,110 @@ RSpec.describe "Discord sidebar" do
     expect(theme.reload.settings[:sidebar_sections].value).to eq(
       [{ "name" => "Hangouts", "channels" => [{ "type" => "text", "id" => chat_channel.id }] }],
     )
+  end
+
+  describe "privacy" do
+    let(:privacy_form) { PageObjects::Components::FormKit.new(".discord-channel-privacy-modal form") }
+
+    def open_privacy(name)
+      link = channel_link(name)
+      link.hover
+      link.find(".sidebar-section-hover-button").click
+      find(".discord-action-menu [data-item-id='privacy']").click
+    end
+
+    it "makes a forum channel private, and public again" do
+      visit("/latest")
+
+      open_privacy("forum-lounge")
+      expect(privacy_form.field("isPrivate")).to have_value(false)
+      privacy_form.field("isPrivate").toggle
+      group_chooser.expand
+      group_chooser.search(group.name)
+      group_chooser.select_row_by_name(group.name)
+      group_chooser.collapse
+      screenshot("privacy")
+      privacy_form.submit
+
+      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(category.reload.read_restricted).to eq(true)
+      expect(category.category_groups.pluck(:group_id)).to contain_exactly(group.id)
+
+      open_privacy("forum-lounge")
+      expect(privacy_form.field("isPrivate")).to have_value(true)
+      privacy_form.field("isPrivate").toggle
+      privacy_form.submit
+
+      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(category.reload.read_restricted).to eq(false)
+    end
+
+    it "keeps the groups a forum's subcategories use" do
+      designers = Fabricate(:group, name: "designers")
+      Fabricate(:private_category, group: designers, parent_category: category, name: "Mockups")
+      visit("/latest")
+
+      open_privacy("forum-lounge")
+      privacy_form.field("isPrivate").toggle
+      expect(page).to have_css(".discord-channel-privacy-modal", text: "designers")
+      privacy_form.submit
+
+      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(category.reload.read_restricted).to eq(true)
+      expect(category.category_groups.pluck(:group_id)).to contain_exactly(designers.id)
+    end
+
+    it "can't make a forum private while a subcategory is public" do
+      Fabricate(:category, parent_category: category, name: "Campfire stories")
+      visit("/latest")
+
+      open_privacy("forum-lounge")
+      expect(page).to have_css(
+        ".form-kit__field[data-name='isPrivate'] button[role='switch'][disabled]",
+        visible: :all,
+      )
+      expect(page).to have_css(".discord-channel-privacy-modal", text: "Campfire stories")
+    end
+
+    it "makes a text channel private through the category backing it" do
+      container = Fabricate(:category, name: "Chat channels", slug: "chat-channels")
+      backing = Fabricate(:category, name: "plans", parent_category: container)
+      channel = Fabricate(:category_channel, chatable: backing, name: "plans")
+      channel.add(admin)
+      visit("/latest")
+
+      open_privacy("text-plans")
+      privacy_form.field("isPrivate").toggle
+      group_chooser.expand
+      group_chooser.search(group.name)
+      group_chooser.select_row_by_name(group.name)
+      group_chooser.collapse
+      privacy_form.submit
+
+      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(backing.reload.read_restricted).to eq(true)
+      expect(container.reload.read_restricted).to eq(false)
+    end
+
+    it "points a chat channel on a shared category at that category" do
+      visit("/latest")
+
+      open_privacy("text-hangout")
+      expect(page).to have_css(".discord-channel-privacy-modal__shared", text: "Lounge")
+      find(".discord-channel-privacy-modal .btn", text: "Open category security").click
+      expect(page).to have_current_path(%r{/c/#{category.slug}/edit/security})
+    end
+
+    it "makes a voice channel private" do
+      visit("/latest")
+
+      open_privacy("voice-room-#{voice_room.id}")
+      privacy_form.field("isPrivate").toggle
+      privacy_form.submit
+
+      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(voice_room.reload.public).to eq(false)
+    end
   end
 
   it "renames a section from its heading menu" do

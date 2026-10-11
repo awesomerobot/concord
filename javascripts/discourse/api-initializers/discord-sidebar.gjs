@@ -6,6 +6,7 @@ import { i18n } from "discourse-i18n";
 import CreateChannelModal from "../components/modal/create-channel";
 import ChannelActions from "../lib/channel-actions";
 import ChannelCreator from "../lib/channel-creator";
+import ChannelPrivacy from "../lib/channel-privacy";
 import CurrentChannel from "../lib/current-channel";
 import MemberListData from "../lib/member-list";
 import ChannelDirectory from "../lib/channel-directory";
@@ -28,13 +29,18 @@ import UserPanel from "../components/user-panel";
 export default apiInitializer((api) => {
   const owner = getOwnerWithFallback(api);
   const sidebarSections = new SidebarSections(api.getCurrentUser());
-  const channelActions = new ChannelActions(owner, sidebarSections);
+  const creator = new ChannelCreator(owner);
+  const channelActions = new ChannelActions(
+    owner,
+    sidebarSections,
+    new ChannelPrivacy(owner, creator),
+    creator
+  );
   const directory = new ChannelDirectory(
     owner,
     sidebarSections,
     channelActions
   );
-  const creator = new ChannelCreator(owner);
   const modal = owner.lookup("service:modal");
   const currentChannel = new CurrentChannel(owner);
   const memberList = new MemberListData(owner, currentChannel);
