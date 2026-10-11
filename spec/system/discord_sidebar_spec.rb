@@ -76,6 +76,7 @@ RSpec.describe "Discord sidebar" do
     group_chooser.search(group.name)
     group_chooser.select_row_by_name(group.name)
     group_chooser.collapse
+    screenshot("create-modal")
     form.submit
 
     expect(page).to have_current_path(%r{/c/secret-plans/\d+})

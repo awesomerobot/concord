@@ -90,8 +90,39 @@
 
 // Channel types as Discord's stacked cards.
 .discord-create-channel-modal {
+  .form-kit__control-radio-group,
   .form-kit__field-radio {
     width: 100%;
+  }
+
+  // The private switch: its title over its description, the switch beside
+  // both, rather than all three in a row. A switch is always on or off, so
+  // it isn't "optional".
+  .form-kit__field-toggle {
+    display: grid;
+    grid-template-areas:
+      "title control"
+      "description control";
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 1em;
+    width: 100%;
+
+    .form-kit__container-title {
+      grid-area: title;
+    }
+
+    .form-kit__container-optional {
+      display: none;
+    }
+
+    .form-kit__container-description {
+      grid-area: description;
+    }
+
+    .form-kit__container-content {
+      grid-area: control;
+    }
   }
 
   .form-kit__control-radio-label {
@@ -164,6 +195,10 @@
 .discord-action-menu {
   // The same as the user menu's icons.
   --d-button-transparent-icon-color: var(--primary-500);
+
+  .btn .d-icon {
+    font-size: var(--font-down-1);
+  }
 
   &__badge {
     margin-left: auto;
