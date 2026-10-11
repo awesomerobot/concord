@@ -300,6 +300,22 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_css(".discord-channel-privacy-modal", text: "Campfire stories")
     end
 
+    it "explains what a private parent allows a subcategory" do
+      parent = Fabricate(:private_category, group: Group[:staff], name: "Private events")
+      design = Fabricate(:private_category, group: Group[:staff], parent_category: parent, name: "Design")
+      visit("/c/#{parent.slug}/#{design.slug}/#{design.id}")
+
+      open_privacy("forum-#{design.slug}")
+      modal = find(".discord-channel-privacy-modal")
+      expect(modal).to have_text("Stays private, since its Private events parent category is private.")
+      expect(modal).to have_text("Only groups that can see Private events can be added: staff.")
+      expect(page).to have_css(
+        ".form-kit__field[data-name='isPrivate'] button[role='switch'][disabled]",
+        visible: :all,
+      )
+      screenshot("privacy-private-parent")
+    end
+
     it "makes a text channel private through the category backing it" do
       container = Fabricate(:category, name: "Chat channels", slug: "chat-channels")
       backing = Fabricate(:category, name: "plans", parent_category: container)

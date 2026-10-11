@@ -54,24 +54,47 @@ export default class ChannelPrivacyModal extends Component {
     );
   }
 
-  get requiredGroupsNote() {
-    const names = (this.loaded?.required || []).map((group) => group.name);
-    return names.length
-      ? t("required_groups", { groups: names.join(", ") })
-      : null;
+  // Its parent decides as much as it does, so say which way and why.
+  get privateDescription() {
+    const { publicSubcategory, privateParent } = this.loaded || {};
+
+    if (publicSubcategory) {
+      return t("public_subcategory", { name: publicSubcategory });
+    }
+    if (privateParent) {
+      return t("private_parent", { name: privateParent.name });
+    }
+    return i18n(themePrefix("create_channel.private_description"));
   }
 
-  get privateDescription() {
-    return this.loaded?.publicSubcategory
-      ? t("public_subcategory", { name: this.loaded.publicSubcategory })
-      : i18n(themePrefix("create_channel.private_description"));
+  get privacyLocked() {
+    return !!(this.loaded?.publicSubcategory || this.loaded?.privateParent);
   }
 
   get groupsDescription() {
-    return (
-      this.requiredGroupsNote ||
-      (this.privacy.kind === "voice" ? t("voice_note") : null)
-    );
+    const { required = [], privateParent } = this.loaded || {};
+    const notes = [];
+
+    if (privateParent) {
+      notes.push(
+        t("parent_groups", {
+          name: privateParent.name,
+          groups: privateParent.groupNames.join(", "),
+        })
+      );
+    }
+    if (required.length) {
+      notes.push(
+        t("required_groups", {
+          groups: required.map((group) => group.name).join(", "),
+        })
+      );
+    }
+    if (this.privacy.kind === "voice") {
+      notes.push(t("voice_note"));
+    }
+
+    return notes.join(" ") || null;
   }
 
   get sharedCategoryName() {
@@ -157,7 +180,7 @@ export default class ChannelPrivacyModal extends Component {
               >
                 <form.Field
                   @description={{this.privateDescription}}
-                  @disabled={{if this.loaded.publicSubcategory true false}}
+                  @disabled={{this.privacyLocked}}
                   @format="full"
                   @name="isPrivate"
                   @title={{i18n (themePrefix "create_channel.private")}}

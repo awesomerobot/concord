@@ -114,6 +114,12 @@ export default class ChannelPrivacy {
           allowedGroupIds: parentIsPrivate
             ? new Set(parent.map((p) => p.group_id))
             : null,
+          privateParent: parentIsPrivate
+            ? {
+                name: category.parentCategory.displayName,
+                groupNames: parent.map((p) => p.group_name),
+              }
+            : null,
         };
       },
 

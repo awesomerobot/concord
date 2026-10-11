@@ -83,6 +83,8 @@ en:
     voice_groups: "Add members of these groups"
     required_groups: "Always included, since its subcategories use them: %{groups}"
     public_subcategory: "Can't be private while its %{name} subcategory is open to everyone."
+    private_parent: "Stays private, since its %{name} parent category is private."
+    parent_groups: "Only groups that can see %{name} can be added: %{groups}."
     voice_note: "Adds their current members. People who join a group later won't get access, and to remove someone use the room's member list."
   direct_messages:
     title: "Direct messages"
