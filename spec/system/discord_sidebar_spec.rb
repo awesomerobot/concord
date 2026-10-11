@@ -749,8 +749,7 @@ RSpec.describe "Discord sidebar" do
       visit("/chat/c/hangout/#{chat_channel.id}")
 
       expect(page).to have_no_css(".discord-member-list")
-      find(".discord-channel-header__more").click
-      find(".discord-action-menu [data-item-id='member-list']").click
+      find(".discord-channel-header [data-action-id='member-list']").click
       list = find(".discord-member-list.--slide-in")
       expect(list).to have_css(".discord-member-list__member[data-username='#{admin.username}']")
       expect(page).to have_no_css("body.discord-member-list-open")
@@ -777,17 +776,29 @@ RSpec.describe "Discord sidebar" do
       header = find(".discord-channel-header")
       expect(header).to have_css(".discord-channel-header__name", text: "hangout")
       expect(header).to have_no_css("[data-action-id='pins']", visible: :visible)
-      expect(header).to have_no_css("[data-action-id='member-list']", visible: :visible)
-      expect(header).to have_css("[data-action-id='settings']", visible: :visible)
+      expect(header).to have_no_css("[data-action-id='settings']", visible: :visible)
+      expect(header).to have_css("[data-action-id='member-list']", visible: :visible)
+      # The menu leads the row's buttons.
+      expect(
+        header.first(".discord-channel-header__actions > .btn", visible: :visible)[:class],
+      ).to include("discord-channel-header__more")
 
       header.find(".discord-channel-header__more").click
       menu = find(".discord-action-menu")
       expect(menu).to have_css("[data-item-id='pins']")
-      expect(menu).to have_css("[data-item-id='member-list']")
+      expect(menu).to have_css("[data-item-id='settings']")
       screenshot("mobile-more-menu")
 
       menu.find("[data-item-id='pins']").click
       expect(page).to have_current_path(%r{/chat/c/hangout/#{chat_channel.id}/pins})
+    end
+
+    it "keeps a lone action in the header row on phones", mobile: true do
+      visit("/c/#{category.slug}/#{category.id}")
+
+      header = find(".discord-channel-header")
+      expect(header).to have_css("[data-action-id='settings']", visible: :visible)
+      expect(header).to have_no_css(".discord-channel-header__more")
     end
 
     it "keeps the server name at the top of the channel list on phones", mobile: true do
