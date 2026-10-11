@@ -5,12 +5,13 @@ A theme component that makes Discourse feel like Discord.
 It replaces the sidebar with one section where everything is a channel:
 
 - **Categories** are forum channels: every category the user can see
-- **Chat channels** are text channels, grouped under their category by default
+- **Chat channels** are text channels
 - **Voice rooms** (voice plugin) are voice channels; clicking one joins it
 - **Tags** can be tag channels, with the `include_tags` setting (off by
   default for now)
 
-Channels can be sorted into collapsible sections, kept in the
+Channels not in a section are listed together at the top, whatever their
+kind, alphabetically. Channels can be sorted into collapsible sections, kept in the
 `sidebar_sections` setting. Anything not in a section is listed at the top with
 no heading, like Discord. Each section heading has its own `+`, which opens the
 modal with that section picked; admins can also pick the section in the modal.

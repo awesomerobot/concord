@@ -4,7 +4,6 @@ en:
     settings:
       include_tags: "List the user's sidebar tags as channels. Off by default for now."
       include_chat_channels: "List followed chat channels as channels (requires chat)."
-      group_chat_with_category: "Place each category's chat channels directly after that category, instead of after all categories."
       sidebar_sections:
         description: "Headed sections the channel list is split into, and the channels in each. The create-channel modal adds to these; channels in no section are listed at the top, without a heading."
         schema:

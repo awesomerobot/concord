@@ -65,6 +65,16 @@ RSpec.describe "Discord sidebar" do
     expect(sidebar).to have_no_css(".sidebar-section[data-section-name='chat-channels']")
   end
 
+  it "lists channels outside a section together, alphabetically" do
+    visit("/latest")
+
+    top = sidebar.find(".sidebar-section[data-section-name='discord-channels']")
+    expect(top).to have_css(".sidebar-section-link", count: 4)
+    expect(top.all(".sidebar-section-link-content-text").map(&:text)).to eq(
+      %w[Campfire hangout Lounge Uncategorized],
+    )
+  end
+
   it "keeps channels with long names to the same width" do
     Fabricate(:category, name: "A really quite remarkably long channel name")
     visit("/latest")

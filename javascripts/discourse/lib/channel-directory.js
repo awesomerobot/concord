@@ -66,30 +66,24 @@ export default class ChannelDirectory {
         .filter(Boolean),
     }));
 
+    // Sections keep the order they were arranged in; the rest are one list,
+    // whatever their kind, by name.
     return {
-      top: links.filter((link) => !placed.has(link.channelKey)),
+      top: links
+        .filter((link) => !placed.has(link.channelKey))
+        .sort((a, b) =>
+          a.sortName.localeCompare(b.sortName, undefined, {
+            sensitivity: "base",
+          })
+        ),
       sections,
     };
   }
 
   get #allLinks() {
-    const textChannels = this.#textChannels;
-    const links = [];
+    const links = this.categories.map((category) => this.#forumLink(category));
 
-    for (const category of this.categories) {
-      links.push(this.#forumLink(category));
-
-      if (settings.group_chat_with_category) {
-        for (const channel of textChannels.filter(
-          (c) => c.chatableId === category.id
-        )) {
-          links.push(this.#textLink(channel));
-          textChannels.splice(textChannels.indexOf(channel), 1);
-        }
-      }
-    }
-
-    links.push(...textChannels.map((channel) => this.#textLink(channel)));
+    links.push(...this.#textChannels.map((channel) => this.#textLink(channel)));
     links.push(...this.#voiceRooms.map((room) => this.#voiceLink(room)));
 
     if (settings.include_tags) {

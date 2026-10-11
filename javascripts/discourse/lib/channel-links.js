@@ -23,6 +23,10 @@ function channelClasses(kind, unread) {
 export class ForumChannelLink extends CategorySectionLink {
   keywords = { navigation: [] };
 
+  get sortName() {
+    return this.category.name;
+  }
+
   get channelKey() {
     return channelKey("forum", this.category.id);
   }
@@ -50,6 +54,10 @@ export class ForumChannelLink extends CategorySectionLink {
 
 export class TagChannelLink extends TagSectionLink {
   keywords = { navigation: [] };
+
+  get sortName() {
+    return this.tag.name;
+  }
 
   get channelKey() {
     return channelKey("tag", this.tag.id);
@@ -96,6 +104,10 @@ export class TextChannelLink {
 
   get name() {
     return `text-${this.channel.slugifiedTitle}`;
+  }
+
+  get sortName() {
+    return this.channel.title;
   }
 
   get classNames() {
@@ -232,6 +244,10 @@ export class VoiceChannelLink {
 
   get name() {
     return `voice-room-${this.room.id}`;
+  }
+
+  get sortName() {
+    return this.room.name;
   }
 
   get text() {
