@@ -65,6 +65,16 @@ RSpec.describe "Discord sidebar" do
     expect(sidebar).to have_no_css(".sidebar-section[data-section-name='chat-channels']")
   end
 
+  it "keeps channels with long names to the same width" do
+    Fabricate(:category, name: "A really quite remarkably long channel name")
+    visit("/latest")
+
+    widths = page.evaluate_script(<<~JS)
+      [...document.querySelectorAll(".discord-channel")].map((link) => link.getBoundingClientRect().width)
+    JS
+    expect(widths.uniq.size).to eq(1)
+  end
+
   it "creates a private forum channel limited to the chosen groups" do
     visit("/latest")
     open_create_modal

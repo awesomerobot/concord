@@ -130,7 +130,7 @@ export default class ChannelHeader extends Component {
   // here like a text channel's, rather than in the list's controls.
   #forum(category) {
     return {
-      icon: "far-comments",
+      icon: "fab-discourse",
       name: category.displayName,
       description: category.description_text,
       actions: [
@@ -153,7 +153,7 @@ export default class ChannelHeader extends Component {
     }
 
     return {
-      icon: "far-comments",
+      icon: "fab-discourse",
       name: topic.title,
       description: topic.category?.displayName,
     };

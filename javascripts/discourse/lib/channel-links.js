@@ -39,7 +39,7 @@ export class ForumChannelLink extends CategorySectionLink {
   }
 
   get prefixValue() {
-    return "far-comments";
+    return "fab-discourse";
   }
 
   get prefixColor() {

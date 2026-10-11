@@ -21,6 +21,8 @@
   }
 
   .discord-channel {
+    // Shrinks to the row, so long names are cut off rather than widening it.
+    min-width: 0;
     margin: 1px 0.5em;
     padding-inline: 0.5em;
     border-radius: var(--d-border-radius);

@@ -15,7 +15,7 @@ import { i18n } from "discourse-i18n";
 const TYPE_ICONS = {
   text: "hashtag",
   voice: "volume-high",
-  forum: "far-comments",
+  forum: "fab-discourse",
 };
 
 export default class CreateChannelModal extends Component {
