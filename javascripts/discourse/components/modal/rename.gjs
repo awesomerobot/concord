@@ -6,6 +6,7 @@ import { extractError } from "discourse/lib/ajax-error";
 import DModal from "discourse/ui-kit/d-modal";
 import { i18n } from "discourse-i18n";
 
+// Asks for a name: renaming something, or naming something new.
 export default class RenameModal extends Component {
   @tracked flash;
 
@@ -42,7 +43,10 @@ export default class RenameModal extends Component {
           </form.Field>
 
           <form.Actions>
-            <form.Submit @label="save" />
+            <form.Submit
+              @label={{unless @model.submitLabel "save"}}
+              @translatedLabel={{@model.submitLabel}}
+            />
             <form.Button
               @action={{@closeModal}}
               @label="cancel"

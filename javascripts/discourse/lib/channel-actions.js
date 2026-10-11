@@ -295,6 +295,18 @@ export default class ChannelActions {
         checked: current === -1,
         action: () => this.#run(() => sections.moveChannel(key, null)),
       },
+      // Moving into a section that doesn't exist yet creates it.
+      {
+        label: t("new_section"),
+        icon: "plus",
+        action: () =>
+          this.#rename(
+            t("new_section"),
+            "",
+            (name) => sections.moveChannel(key, name),
+            t("create_section")
+          ),
+      },
     ];
   }
 
@@ -360,8 +372,10 @@ export default class ChannelActions {
     });
   }
 
-  #rename(title, value, save) {
-    this.modal.show(RenameModal, { model: { title, value, save } });
+  #rename(title, value, save, submitLabel) {
+    this.modal.show(RenameModal, {
+      model: { title, value, save, submitLabel },
+    });
   }
 
   #confirmDelete(name, destroy) {

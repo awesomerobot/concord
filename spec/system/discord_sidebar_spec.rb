@@ -175,6 +175,25 @@ RSpec.describe "Discord sidebar" do
     expect(hangouts).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
   end
 
+  it "moves a channel into a new section from its menu" do
+    visit("/latest")
+
+    link = channel_link("text-hangout")
+    link.hover
+    link.find(".sidebar-section-hover-button").click
+    find(".discord-action-menu .btn", text: "New section…").click
+
+    name_form = PageObjects::Components::FormKit.new(".discord-rename-modal form")
+    name_form.field("name").fill_in("Hangouts")
+    name_form.submit
+
+    hangouts = sidebar.find(".sidebar-section[data-section-name='discord-section-hangouts']")
+    expect(hangouts).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
+    expect(theme.reload.settings[:sidebar_sections].value).to eq(
+      [{ "name" => "Hangouts", "channels" => [{ "type" => "text", "id" => chat_channel.id }] }],
+    )
+  end
+
   it "renames a section from its heading menu" do
     theme.update_setting(:sidebar_sections, [{ "name" => "Old", "channels" => [] }].to_json)
     theme.save!

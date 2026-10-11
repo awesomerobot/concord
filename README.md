@@ -44,7 +44,8 @@ next to its `+`. Items depend on the channel's kind and what the user may do:
 - Text: mark as read, notifications (all messages / only mentions / nothing),
   mute, rename and delete for staff
 - Voice: rename and delete for the room's managers
-- All: copy link, and for admins, move to section
+- All: copy link, and for admins, move to section (including a new one,
+  named on the spot)
 - Section headings (admins): rename, move up, move down, delete
 
 A channel's menu leads with mark as read, rename and copy link, then
