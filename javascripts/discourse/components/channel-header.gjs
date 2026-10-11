@@ -51,7 +51,13 @@ export default class ChannelHeader extends Component {
   // handled the event by now, so its menu is closed again and ours opened.
   @bind
   onKeyboardTrigger({ type }) {
-    if (type === "search" && !this.site.mobileView) {
+    // Like core, it leaves / to the welcome banner's search when that's on
+    // screen.
+    if (
+      type === "search" &&
+      !this.site.mobileView &&
+      !this.search.welcomeBannerSearchInViewport
+    ) {
       this.search.visible = false;
       this.#toggleSearch(
         document.querySelector(".discord-channel-header__search")

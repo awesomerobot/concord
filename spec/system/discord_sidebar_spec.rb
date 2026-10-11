@@ -429,13 +429,20 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_no_css(".discord-search-panel")
     end
 
-    it "opens search and the user menu from their keyboard shortcuts" do
-      visit("/latest")
+    # Not on the latest page, where / goes to the welcome banner's search.
+    it "opens search from its keyboard shortcut" do
+      visit("/c/#{category.slug}/#{category.id}")
+      expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
 
-      send_keys("/")
+      find("body").send_keys("/")
       expect(page).to have_css(".discord-search-panel #discord-search-input:focus")
       send_keys(:escape)
       expect(page).to have_no_css(".discord-search-panel")
+    end
+
+    it "opens the user menu from its keyboard shortcut" do
+      visit("/c/#{category.slug}/#{category.id}")
+      expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
 
       find("body").send_keys("p")
       expect(page).to have_css(".discord-user-menu .user-menu")
