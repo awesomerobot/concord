@@ -1,8 +1,8 @@
 en:
   theme_metadata:
-    description: "Replaces the sidebar with a single Discord-style channel list made of categories, tags and chat channels."
+    description: "Replaces the sidebar with a single Discord-style channel list made of categories, chat channels and voice rooms."
     settings:
-      include_tags: "List the user's sidebar tags as channels."
+      include_tags: "List the user's sidebar tags as channels. Off by default for now."
       include_chat_channels: "List followed chat channels as channels (requires chat)."
       group_chat_with_category: "Place each category's chat channels directly after that category, instead of after all categories."
       sidebar_sections:

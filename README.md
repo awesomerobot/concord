@@ -7,7 +7,8 @@ It replaces the sidebar with one section where everything is a channel:
 - **Categories** are forum channels: every category the user can see
 - **Chat channels** are text channels, grouped under their category by default
 - **Voice rooms** (voice plugin) are voice channels; clicking one joins it
-- **Tags** are tag channels
+- **Tags** can be tag channels, with the `include_tags` setting (off by
+  default for now)
 
 Channels can be sorted into collapsible sections, kept in the
 `sidebar_sections` setting. Anything not in a section is listed at the top with

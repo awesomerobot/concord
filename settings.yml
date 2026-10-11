@@ -1,6 +1,6 @@
 include_tags:
   type: bool
-  default: true
+  default: false
 include_chat_channels:
   type: bool
   default: true
