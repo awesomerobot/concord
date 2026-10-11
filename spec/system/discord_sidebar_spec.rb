@@ -445,6 +445,10 @@ RSpec.describe "Discord sidebar" do
             sidebar: rect(".sidebar-wrapper").left,
             server: rect(".discord-channel-header .discord-server-header").right,
             sidebarRight: rect(".sidebar-wrapper").right,
+            content: rect("#main-outlet").left,
+            channel:
+              rect(".discord-channel-header__channel").left +
+              parseFloat(getComputedStyle(document.querySelector(".discord-channel-header__channel")).paddingLeft),
           };
         })()
       JS
@@ -452,6 +456,7 @@ RSpec.describe "Discord sidebar" do
       expect(widths["outlet"]).to be_within(20).of(widths["window"])
       expect(widths["sidebar"]).to eq(0)
       expect(widths["sidebarRight"]).to be_within(1).of(widths["server"])
+      expect(widths["content"]).to be_within(1).of(widths["channel"])
     end
   end
 

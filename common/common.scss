@@ -369,7 +369,9 @@ body.discord-header .d-header > .wrap {
 
   // Flush to the left edge, so the sidebar lines up with the server name
   // above it.
+  // The page starts where the header row's channel name does.
   body.has-sidebar-page #main-outlet-wrapper {
+    --d-main-content-gap: 1em;
     padding-left: 0;
   }
 
