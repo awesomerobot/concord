@@ -463,6 +463,38 @@ RSpec.describe "Discord sidebar" do
       end
     end
 
+    it "cuts the description short before the title" do
+      long_category =
+        Fabricate(
+          :category,
+          name: "The lounge by the fire where everyone sings",
+        )
+      topic =
+        Fabricate(
+          :post,
+          topic:
+            Fabricate(
+              :topic,
+              category: long_category,
+              title: "What are the very best campfire songs to know",
+            ),
+        ).topic
+
+      resize_window(width: 1000) do
+        visit(topic.relative_url)
+        expect(header).to have_css(".discord-channel-header__name")
+
+        title_cut, description_cut = page.evaluate_script(<<~JS)
+          [".discord-channel-header__name", ".discord-channel-header__description"].map((s) => {
+            const el = document.querySelector(s);
+            return el.scrollWidth > el.clientWidth;
+          })
+        JS
+        expect(title_cut).to eq(false)
+        expect(description_cut).to eq(true)
+      end
+    end
+
     it "goes back to the forum channel from a topic" do
       topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
       visit(topic.relative_url)

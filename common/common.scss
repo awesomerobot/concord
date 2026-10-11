@@ -472,7 +472,7 @@ body.discord-header .d-header > .wrap {
 }
 
 // A long name (a topic title, say) is cut off rather than pushing the actions
-// off the row; the description gives way first.
+// off the row, but only once there's no description left to cut.
 .discord-channel-header__name {
   flex: 0 1 auto;
   min-width: 3em;
@@ -484,8 +484,9 @@ body.discord-header .d-header > .wrap {
   white-space: nowrap;
 }
 
+// Takes only the room the name leaves.
 .discord-channel-header__description {
-  flex: 0 100 auto;
+  flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
   padding-left: 0.75em;
