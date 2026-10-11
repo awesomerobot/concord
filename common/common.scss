@@ -171,6 +171,14 @@
   border-bottom: 1px solid var(--primary-low);
 }
 
+// Opened from the header row's search button, chat focuses this before the
+// input's own focus tracking starts, so it never gets its focus ring.
+.chat-channel__filter-bar .filter-input-container:focus-within {
+  border-color: var(--d-input-focused-color);
+  outline: 2px solid var(--d-input-focused-color);
+  outline-offset: -2px;
+}
+
 // Chat's own channel bar; the row above covers it. Thread and pin panes keep
 // theirs.
 .c-routes.--channel {

@@ -268,6 +268,9 @@ RSpec.describe "Discord sidebar" do
 
       header.find(".discord-channel-header__search").click
       expect(page).to have_css(".chat-channel__filter-bar input:focus")
+      expect(page.evaluate_script(<<~JS)).to eq("solid")
+        getComputedStyle(document.querySelector(".chat-channel__filter-bar .filter-input-container")).outlineStyle
+      JS
       expect(page).to have_no_css(".discord-search-panel")
       screenshot("chat-search")
 
