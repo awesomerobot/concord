@@ -35,7 +35,12 @@ export default class ActionMenu extends Component {
                 (if item.checked "--checked")
                 (unless (or item.icon item.checked) "--no-icon")
               }}
-            />
+              data-item-id={{item.id}}
+            >
+              {{#if item.badge}}
+                <span class="discord-action-menu__badge">{{item.badge}}</span>
+              {{/if}}
+            </DButton>
           </dropdown.item>
         {{/if}}
       {{/each}}

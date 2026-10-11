@@ -78,6 +78,14 @@ core's user menu (notifications, messages, bookmarks) without that tab. Signed-o
 visitors get
 log in and sign up buttons there. Core's sidebar footer is hidden.
 
+## Server menu
+
+The site name at the top of the channel list opens a menu of the site-wide
+pages core's header and sidebar used to link to: invite, admin, review (with
+its pending count), about, FAQ or guidelines, groups, users, badges, and
+keyboard shortcuts. The links are core's own community section links, so who
+sees each one follows core's rules.
+
 ## Member list
 
 A panel down the right of the page, toggled by the people icon in the header

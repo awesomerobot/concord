@@ -128,6 +128,29 @@
   font-weight: 700;
 
   &__name {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    gap: 0.35em;
+    min-width: 0;
+    margin: -0.25em 0.5em -0.25em -0.5em;
+    padding: 0.25em 0.5em;
+    border-radius: var(--d-border-radius);
+    font-weight: 700;
+
+    // The site name's colours, rather than a link's, even while its menu has
+    // focus.
+    --d-button-transparent-text-color--hover: var(--primary);
+    --d-button-transparent-icon-color: var(--primary-medium);
+    --d-button-transparent-icon-color--hover: var(--primary-medium);
+
+    &.btn-transparent:hover,
+    &.btn-transparent:focus-visible {
+      background: var(--primary-very-low);
+    }
+  }
+
+  &__title {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -139,6 +162,13 @@
 }
 
 .discord-action-menu {
+  &__badge {
+    margin-left: auto;
+    padding-left: 1em;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
   .btn.--danger {
     color: var(--danger);
 
@@ -171,12 +201,42 @@
   border-bottom: 1px solid var(--primary-low);
 }
 
-// Opened from the header row's search button, chat focuses this before the
-// input's own focus tracking starts, so it never gets its focus ring.
-.chat-channel__filter-bar .filter-input-container:focus-within {
-  border-color: var(--d-input-focused-color);
-  outline: 2px solid var(--d-input-focused-color);
-  outline-offset: -2px;
+// Chat's message search, under the header row: a search icon over the
+// messages' avatars and the typed text in line with theirs. Chat's messages
+// are inset 1rem, with avatars 28px wide in a --message-left-width column.
+.chat-channel__filter-bar {
+  --discord-filter-inset: 0.5rem;
+  padding-left: var(--discord-filter-inset);
+
+  .filter-input-container {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: calc(1rem + 14px - var(--discord-filter-inset) - 1px - 0.5em);
+      width: 1em;
+      height: 1em;
+      background: var(--primary-medium);
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+      pointer-events: none;
+    }
+
+    // Opened from the header row's search button, chat focuses this before
+    // the input's own focus tracking starts, so it never gets its focus ring.
+    &:focus-within {
+      border-color: var(--d-input-focused-color);
+      outline: 2px solid var(--d-input-focused-color);
+      outline-offset: -2px;
+    }
+  }
+
+  .filter-input {
+    padding-left: calc(
+      1rem + var(--message-left-width) - var(--discord-filter-inset) - 1px
+    );
+  }
 }
 
 // Chat's own channel bar; the row above covers it. Thread and pin panes keep

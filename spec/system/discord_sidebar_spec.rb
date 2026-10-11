@@ -225,6 +225,21 @@ RSpec.describe "Discord sidebar" do
   describe "header" do
     let(:header) { find(".discord-channel-header") }
 
+    it "opens the site's pages from the server name" do
+      Fabricate(:reviewable)
+      visit("/latest")
+
+      header.find(".discord-server-header__name").click
+      menu = find(".discord-action-menu")
+      expect(menu).to have_css("[data-item-id='admin']")
+      expect(menu).to have_css("[data-item-id='review'] .discord-action-menu__badge")
+      expect(menu).to have_css("[data-item-id='keyboard-shortcuts']")
+      screenshot("server-menu")
+
+      menu.find("[data-item-id='about']").click
+      expect(page).to have_current_path("/about")
+    end
+
     it "replaces core's header and chat's channel bar with the channel's own" do
       visit("/chat/c/hangout/#{chat_channel.id}")
 
@@ -264,9 +279,20 @@ RSpec.describe "Discord sidebar" do
 
     it "searches the channel's messages from a chat channel" do
       chat_channel.add(admin)
+      Fabricate(:chat_message, chat_channel: chat_channel, user: admin, message: "hello there")
       visit("/chat/c/-/#{chat_channel.id}")
 
       header.find(".discord-channel-header__search").click
+      text_left, input_text_left = page.evaluate_script(<<~JS)
+        (() => {
+          const input = document.querySelector(".chat-channel__filter-bar input");
+          return [
+            document.querySelector(".chat-message-text").getBoundingClientRect().left,
+            input.getBoundingClientRect().left + parseFloat(getComputedStyle(input).paddingLeft),
+          ];
+        })()
+      JS
+      expect(input_text_left).to be_within(1).of(text_left)
       expect(page).to have_css(".chat-channel__filter-bar input:focus")
       expect(page.evaluate_script(<<~JS)).to eq("solid")
         getComputedStyle(document.querySelector(".chat-channel__filter-bar .filter-input-container")).outlineStyle
