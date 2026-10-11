@@ -49,7 +49,8 @@ next to its `+`. Items depend on the channel's kind and what the user may do:
 - Section headings (admins): rename, move up, move down, delete
 
 A channel's menu leads with mark as read, rename and copy link, then
-notifications and move to section, with delete on its own at the end.
+notifications and move to section (a submenu of the sections, so it doesn't
+lengthen the menu), with delete on its own at the end.
 
 Core hides the row button on narrow touch screens, so phones don't get these
 yet.

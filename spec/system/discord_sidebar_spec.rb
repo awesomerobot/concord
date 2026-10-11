@@ -169,6 +169,7 @@ RSpec.describe "Discord sidebar" do
     labels = all(".discord-action-menu .btn").map(&:text)
     expect(labels.first(3)).to eq(["Mark as read", "Rename", "Copy link"])
     expect(labels.last).to eq("Delete")
+    expect(labels).not_to include("Hangouts")
     screenshot("channel-menu")
     find(".discord-action-menu .btn", text: "Mute").click
 
@@ -180,6 +181,9 @@ RSpec.describe "Discord sidebar" do
     link = channel_link("text-hangout")
     link.hover
     link.find(".sidebar-section-hover-button").click
+    find(".discord-action-menu [data-item-id='move-to-section']").click
+    expect(page).to have_css(".discord-action-menu__back")
+    screenshot("channel-submenu")
     find(".discord-action-menu .btn", text: "Hangouts").click
 
     hangouts = sidebar.find(".sidebar-section[data-section-name='discord-section-hangouts']")
@@ -192,6 +196,7 @@ RSpec.describe "Discord sidebar" do
     link = channel_link("text-hangout")
     link.hover
     link.find(".sidebar-section-hover-button").click
+    find(".discord-action-menu [data-item-id='move-to-section']").click
     find(".discord-action-menu .btn", text: "New section…").click
 
     name_form = PageObjects::Components::FormKit.new(".discord-rename-modal form")

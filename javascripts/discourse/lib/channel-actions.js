@@ -17,7 +17,8 @@ const t = (key, opts) => i18n(themePrefix(`channel_menu.${key}`), opts);
  * shows only when the user may do it.
  *
  * An item is `{ label, icon, action, checked?, danger? }`, `{ heading }` to
- * label the items after it, or `{ divider: true }`.
+ * label the items after it, or `{ divider: true }`. One with `items` instead
+ * of an action opens them as a submenu.
  */
 export default class ChannelActions {
   @service currentUser;
@@ -282,8 +283,22 @@ export default class ChannelActions {
 
     const current = sections.sectionIndexOf(key);
 
+    // A submenu, so the sections don't lengthen every channel's menu.
     return [
-      { heading: t("move_to_section") },
+      { divider: true },
+      {
+        id: "move-to-section",
+        label: t("move_to_section"),
+        icon: "right-left",
+        items: this.#sectionChoices(key, current),
+      },
+    ];
+  }
+
+  #sectionChoices(key, current) {
+    const sections = this.sidebarSections;
+
+    return [
       ...sections.sections.map((section, index) => ({
         label: section.name,
         checked: index === current,
