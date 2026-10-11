@@ -1,4 +1,5 @@
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
+import { schedule } from "@ember/runloop";
 import { apiInitializer } from "discourse/lib/api";
 import { getOwnerWithFallback } from "discourse/lib/get-owner";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
@@ -21,6 +22,7 @@ import {
 import DirectMessages from "../lib/direct-messages";
 import installLongPress from "../lib/long-press";
 import replaySlideIn from "../lib/replay-slide-in";
+import scrollToActive from "../lib/scroll-to-active";
 import SidebarSections from "../lib/sidebar-sections";
 import ChannelHeader from "../components/channel-header";
 import MemberList from "../components/member-list";
@@ -185,6 +187,18 @@ export default apiInitializer((api) => {
     );
   }
 
+  // The list is rendered afresh each time the slide-in opens, and once for
+  // the sidebar on wide screens.
+  const onListInserted = (element) => {
+    // A frame later, since core focuses the slide-in's first link (scrolling
+    // it to the top) once it renders. That's still before it's first drawn.
+    const list = element.closest(
+      ".sidebar-hamburger-dropdown, .sidebar-wrapper"
+    );
+    requestAnimationFrame(() => scrollToActive(list));
+    replaySlideIn(element);
+  };
+
   api.renderInOutlet(
     "before-sidebar-sections",
     <template>
@@ -193,7 +207,7 @@ export default apiInitializer((api) => {
         @directMessages={{directMessages}}
         @onCreate={{openCreateChannel}}
       />
-      <span hidden {{didInsert replaySlideIn}}></span>
+      <span hidden {{didInsert onListInserted}}></span>
     </template>
   );
 
@@ -242,6 +256,12 @@ export default apiInitializer((api) => {
         .lookup("service:app-events")
         .trigger("header:keyboard-trigger", { type: "hamburger" });
     }
+
+    // Arriving somewhere from outside the list, like search or a link in a
+    // post, keeps the channel's row in sight.
+    schedule("afterRender", () =>
+      scrollToActive(document.querySelector(".sidebar-wrapper"))
+    );
   });
 
   // Chat only updates presence on its own routes, so a visit that starts on a

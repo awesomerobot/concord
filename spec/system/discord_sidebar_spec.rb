@@ -27,6 +27,24 @@ RSpec.describe "Discord sidebar" do
     page.save_screenshot(File.join(dir, "#{name}.png")) if dir
   end
 
+  # Whether the current channel's row is inside its list's scrolled view, and
+  # not under the list's sticky server name.
+  def row_in_view?(list)
+    page.evaluate_script(<<~JS)
+      (() => {
+        const row = document.querySelector("#{list} .sidebar-section-link.active").getBoundingClientRect();
+        let scroller = document.querySelector("#{list} .sidebar-section-link.active").parentElement;
+        while (!["auto", "scroll"].includes(getComputedStyle(scroller).overflowY)) {
+          scroller = scroller.parentElement;
+        }
+        const view = scroller.getBoundingClientRect();
+        const header = document.querySelector("#{list} .discord-server-header");
+        const covered = header && getComputedStyle(header).position === "sticky" ? header.offsetHeight : 0;
+        return scroller.scrollTop > 0 && row.top >= view.top + covered && row.bottom <= view.bottom;
+      })()
+    JS
+  end
+
   def channel_link(name)
     sidebar.find(".sidebar-section-link[data-link-name='#{name}']")
   end
@@ -242,6 +260,24 @@ RSpec.describe "Discord sidebar" do
     expect(theme.reload.settings[:sidebar_sections].value).to eq(
       [{ "name" => "Hangouts", "channels" => [{ "type" => "text", "id" => chat_channel.id }] }],
     )
+  end
+
+  it "scrolls the current channel into view in the sidebar" do
+    campsites = 40.times.map { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
+    resize_window(height: 600) do
+      visit(campsites.last.url)
+      expect(page).to have_css(".sidebar-wrapper .sidebar-section-link.active")
+      expect(row_in_view?(".sidebar-wrapper")).to eq(true)
+
+      # And when arriving from outside the list.
+      page.execute_script(<<~JS)
+        document.querySelectorAll(".sidebar-wrapper *").forEach((el) => (el.scrollTop = 0));
+      JS
+      expect(row_in_view?(".sidebar-wrapper")).to eq(false)
+      page.execute_script("Discourse.visit(arguments[0])", campsites[30].url)
+      expect(page).to have_css(".sidebar-wrapper .sidebar-section-link.active[data-link-name='forum-#{campsites[30].slug}']")
+      try_until_success { expect(row_in_view?(".sidebar-wrapper")).to eq(true) }
+    end
   end
 
   describe "privacy" do
@@ -1063,6 +1099,17 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_current_path("/about")
       expect(page).to have_no_css(".hamburger-panel")
       expect(page.evaluate_script("document.documentElement.classList.contains('scroll-lock')")).to eq(false)
+    end
+
+    it "scrolls the current channel into view in the channel list on phones", mobile: true do
+      campsites = 40.times.map { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
+      visit(campsites.last.url)
+      find(".discord-channel-header__menu").click
+
+      expect(page).to have_css(".hamburger-panel .sidebar-section-link.active")
+      sleep 0.5
+      expect(row_in_view?(".hamburger-panel")).to eq(true)
+      screenshot("mobile-active-in-view")
     end
 
     it "opens a channel's menu with a long press on phones", mobile: true do
