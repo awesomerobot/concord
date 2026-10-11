@@ -10,10 +10,10 @@ It replaces the sidebar with one section where everything is a channel:
 - **Tags** can be tag channels, with the `include_tags` setting (off by
   default for now)
 
-Channels not in a section are listed together at the top, whatever their
-kind, alphabetically. Channels can be sorted into collapsible sections, kept in the
-`sidebar_sections` setting. Anything not in a section is listed at the top with
-no heading, like Discord. Each section heading has its own `+`, which opens the
+Channels can be sorted into collapsible sections, kept in the
+`sidebar_sections` setting. Anything not in a section is listed at the top
+with no heading, like Discord, all kinds together, alphabetically. Each section
+heading has its own `+`, which opens the
 modal with that section picked; admins can also pick the section in the modal.
 Sections are saved through the admin theme-setting endpoint, so only admins can
 change them, and others see changes on their next page load. (The setting used
@@ -35,7 +35,8 @@ The default panels (forum, chat) are both redirected to this one, so moving
 between topics and chat doesn't swap the sidebar out. The admin and user
 panels are left alone.
 
-Not yet covered: a chat home page (DMs, friends list). That's coming to core.
+Not yet covered: a friends list, or a chat home page beyond the DM list
+below. A chat home page is coming to core.
 
 ## Menus
 
@@ -62,7 +63,7 @@ next to its `+`. Items depend on the channel's kind and what the user may do:
   named on the spot)
 - Section headings (admins): rename, move up, move down, delete
 
-A channel's menu leads with mark as read, rename and copy link, then
+A channel's menu leads with mark as read, rename, privacy and copy link, then
 notifications and move to section (a submenu of the sections, so it doesn't
 lengthen the menu), with delete on its own at the end.
 
@@ -83,17 +84,21 @@ back arrow to its forum channel, the title links to the top of the topic, and
 the category under it links to the category. In a text channel the search
 button opens chat's own message search for that channel instead of site search.
 On phones it goes to core's full page search instead of the dropdown, as core's
-own header does.
+own header does. Core's `/` (search) and `p` (user menu) shortcuts open the
+row's search and the user panel's notifications, since core's own menus would
+open in the hidden header; `/` still goes to the welcome banner's search when
+that's on screen.
 
 Below the `md` breakpoint (phones, and narrow desktop windows) the row starts
 with a hamburger button that opens the channel list as core's slide-in panel,
 with the server name and user panel in it. The button asks core's header to
 toggle the panel, so its animation, scroll lock and close-on-tap-outside are
-core's own. A channel's threads, pins and settings fold into a `…` menu
-there, ahead of the row's other buttons. The row ends with the user's avatar (with its unread badge), which
-opens core's user menu as a slide-in from the right, as core's mobile header
-does; the user panel at the foot of the channel list is then only for signing
-in.
+core's own, and the server name stays at the top of it as the channels
+scroll. A channel's threads, pins and settings fold into a `…` menu there,
+ahead of the row's other buttons (a lone action stays a button). The row ends
+with the user's avatar (with its unread badge), which opens core's user menu
+as a slide-in from the right, as core's mobile header does; the user panel at
+the foot of the channel list is then only for signing in.
 
 The foot of the sidebar shows the current user; clicking opens the user
 menu's profile tab on its own (status, presence, summary, activity,
@@ -142,4 +147,4 @@ On a chat channel it covers the channel's members; elsewhere, everyone in the
 user directory. "Online" means active in the last few minutes, from chat's
 presence channel plus the who's-online plugin when installed. Members load 50
 at a time as you scroll; a chat channel's first 250 load up front so its online
-members can be found.
+members can be found. Names open user cards, as they do on the page.
