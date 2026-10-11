@@ -175,6 +175,7 @@
   font-weight: 700;
 
   &__name {
+    position: relative;
     display: flex;
     flex: 0 1 auto;
     align-items: center;
@@ -224,8 +225,11 @@
     }
   }
 
+  // Over the button's corner, so it doesn't move or resize anything.
   &__review-badge {
-    flex-shrink: 0;
+    position: absolute;
+    top: -0.35em;
+    right: -0.5em;
     min-width: 1.4em;
     padding: 0 0.35em;
     box-sizing: border-box;

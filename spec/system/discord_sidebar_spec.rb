@@ -488,6 +488,9 @@ RSpec.describe "Discord sidebar" do
       visit("/latest")
 
       expect(header).to have_css(".discord-server-header__review-badge", text: "1")
+      expect(page.evaluate_script(<<~JS)).to eq("absolute")
+        getComputedStyle(document.querySelector(".discord-server-header__review-badge")).position
+      JS
       header.find(".discord-server-header__name").click
       menu = find(".discord-action-menu")
       expect(menu).to have_css("[data-item-id='admin']")
