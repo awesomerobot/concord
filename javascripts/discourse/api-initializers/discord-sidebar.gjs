@@ -231,6 +231,19 @@ export default apiInitializer((api) => {
     owner.lookup("service:router").on("routeWillChange", preferFullPage);
   }
 
+  // Core closes the slide-in channel list when one of its sidebar links is
+  // tapped, but not when the server menu or a channel's menu navigates from
+  // inside it, so close it on any navigation. Through core's header, so it
+  // slides out and the page scrolls again.
+  const header = owner.lookup("service:header");
+  owner.lookup("service:router").on("routeDidChange", () => {
+    if (header.hamburgerVisible) {
+      owner
+        .lookup("service:app-events")
+        .trigger("header:keyboard-trigger", { type: "hamburger" });
+    }
+  });
+
   // Chat only updates presence on its own routes, so a visit that starts on a
   // forum page wouldn't count as online until chat was opened.
   owner.lookup("service:chat")?.updatePresence?.();

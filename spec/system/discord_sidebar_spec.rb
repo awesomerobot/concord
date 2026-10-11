@@ -1054,6 +1054,17 @@ RSpec.describe "Discord sidebar" do
       expect(frames.count { |left| left < 0 }).to be > 3
     end
 
+    it "closes the channel list when the server menu navigates on phones", mobile: true do
+      visit("/latest")
+      find(".discord-channel-header__menu").click
+      find(".hamburger-panel .discord-server-header__name").click
+      find(".discord-action-menu .btn", text: "About").click
+
+      expect(page).to have_current_path("/about")
+      expect(page).to have_no_css(".hamburger-panel")
+      expect(page.evaluate_script("document.documentElement.classList.contains('scroll-lock')")).to eq(false)
+    end
+
     it "opens a channel's menu with a long press on phones", mobile: true do
       visit("/latest")
       find(".discord-channel-header__menu").click
