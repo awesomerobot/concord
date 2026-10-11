@@ -54,6 +54,11 @@ export default class ChannelActions {
     return link;
   }
 
+  /** Opens a channel's menu from somewhere other than its `…` button. */
+  showChannelMenu(anchor, link) {
+    this.#showAt(anchor, this.channelItems(link));
+  }
+
   /** The `…` button on a section heading. */
   sectionAction(index) {
     if (!this.sidebarSections.canEdit) {
@@ -326,7 +331,15 @@ export default class ChannelActions {
   }
 
   #show(event, items, onClose) {
-    this.menu.show(event.target.closest("a, button") || event.target, {
+    this.#showAt(
+      event.target.closest("a, button") || event.target,
+      items,
+      onClose
+    );
+  }
+
+  #showAt(anchor, items, onClose) {
+    this.menu.show(anchor, {
       identifier: "discord-channel-menu",
       component: ActionMenu,
       data: { items },

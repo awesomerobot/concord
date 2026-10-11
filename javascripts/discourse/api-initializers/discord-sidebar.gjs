@@ -17,6 +17,7 @@ import {
   TOP_SECTION,
 } from "../lib/constants";
 import DirectMessages from "../lib/direct-messages";
+import installLongPress from "../lib/long-press";
 import SidebarSections from "../lib/sidebar-sections";
 import ChannelHeader from "../components/channel-header";
 import MemberList from "../components/member-list";
@@ -195,6 +196,20 @@ export default apiInitializer((api) => {
   );
 
   api.renderInOutlet("after-sidebar-sections", UserPanel);
+
+  // Touch screens have no hover for the rows' `…` button, so a long press
+  // opens the channel's menu, as in Discord.
+  if (api.getCurrentUser()) {
+    installLongPress(
+      `.sidebar-section[data-section-name^="discord-"] .sidebar-section-link`,
+      (row) => {
+        const link = directory.linkNamed(row.dataset.linkName);
+        if (link?.channelKey) {
+          channelActions.showChannelMenu(row, link);
+        }
+      }
+    );
+  }
 
   // Names in the member list open user cards, as they do on the page.
   api.addCardClickListenerSelector(".discord-member-list-host");

@@ -54,8 +54,8 @@ A channel's menu leads with mark as read, rename and copy link, then
 notifications and move to section (a submenu of the sections, so it doesn't
 lengthen the menu), with delete on its own at the end.
 
-Core hides the row button on narrow touch screens, so phones don't get these
-yet.
+Core hides the row button on narrow touch screens, so there a long press on a
+channel opens its menu instead, as in Discord.
 
 ## Layout
 

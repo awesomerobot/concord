@@ -20,6 +20,12 @@
     position: relative;
   }
 
+  // A long press opens the channel's menu, not the browser's link preview.
+  .sidebar-section-link {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
   .discord-channel {
     // Shrinks to the row, so long names are cut off rather than widening it.
     min-width: 0;
@@ -263,8 +269,12 @@
     }
   }
 
-  .btn.--no-icon {
-    padding-left: 2.25em;
+  // An icon-sized gap, so items without one line up with those beside them in
+  // the dropdown and the phone sheet alike.
+  .btn.--no-icon::before {
+    content: "";
+    flex-shrink: 0;
+    width: 1.5em;
   }
 }
 

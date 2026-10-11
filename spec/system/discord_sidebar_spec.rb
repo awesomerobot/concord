@@ -181,6 +181,10 @@ RSpec.describe "Discord sidebar" do
     expect(labels.last).to eq("Delete")
     expect(labels).not_to include("Hangouts")
     screenshot("channel-menu")
+    labels_left = page.evaluate_script(<<~JS)
+      [...document.querySelectorAll(".discord-action-menu .btn .d-button-label")].map((l) => Math.round(l.getBoundingClientRect().left))
+    JS
+    expect(labels_left.uniq.size).to eq(1)
     find(".discord-action-menu .btn", text: "Mute").click
 
     expect(sidebar).to have_css(
@@ -764,6 +768,33 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_current_path(%r{^/search})
       expect(page).to have_css(".full-page-search")
       expect(page).to have_no_css(".discord-search-panel")
+    end
+
+    it "opens a channel's menu with a long press on phones", mobile: true do
+      visit("/latest")
+      find(".discord-channel-header__menu").click
+      row = find(".hamburger-panel .sidebar-section-link[data-link-name='text-hangout']")
+
+      page.execute_script(<<~JS, row)
+        const row = arguments[0];
+        const rect = row.getBoundingClientRect();
+        const at = { bubbles: true, pointerType: "touch", clientX: rect.left + 20, clientY: rect.top + 10 };
+        row.dispatchEvent(new PointerEvent("pointerdown", at));
+        window.__dcckRelease = () => {
+          row.dispatchEvent(new PointerEvent("pointerup", at));
+          row.click();
+        };
+      JS
+      expect(page).to have_css(".discord-action-menu .btn", text: "Mark as read")
+      page.execute_script("window.__dcckRelease()")
+
+      expect(page).to have_current_path("/latest")
+      expect(page).to have_css(".discord-action-menu .btn", text: "Mark as read")
+      screenshot("mobile-long-press")
+      labels_left = page.evaluate_script(<<~JS)
+        [...document.querySelectorAll(".discord-action-menu .btn .d-button-label")].map((l) => Math.round(l.getBoundingClientRect().left))
+      JS
+      expect(labels_left.uniq.size).to eq(1)
     end
 
     it "opens the channel list from the header on phones", mobile: true do
