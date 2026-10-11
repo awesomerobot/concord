@@ -555,7 +555,7 @@ RSpec.describe "Discord sidebar" do
       panel = find(".hamburger-panel")
       expect(panel).to have_css(".sidebar-section-link[data-link-name='forum-#{category.slug}']")
       expect(panel).to have_css(".discord-server-header")
-      expect(panel).to have_css(".discord-user-panel")
+      expect(panel).to have_no_css(".discord-user-panel", visible: :visible)
       # Let the slide-in finish before the screenshot.
       expect(page).to have_css(".hamburger-panel .discord-server-header__name", visible: :visible)
       sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
@@ -564,6 +564,16 @@ RSpec.describe "Discord sidebar" do
       panel.find(".sidebar-section-link[data-link-name='forum-#{category.slug}']").click
       expect(page).to have_current_path(%r{/c/#{category.slug}/#{category.id}})
       expect(page).to have_no_css(".hamburger-panel")
+
+      header.find(".discord-channel-header__user").click
+      menu = find(".user-menu-dropdown-wrapper .user-menu", visible: :visible)
+      expect(menu).to have_css("#user-menu-button-profile")
+      sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
+      screenshot("#{yield}-user-menu")
+
+      # It covers the header, so it closes from the shade beside it.
+      find(".header-cloak").click(x: 10, y: 300)
+      expect(page).to have_no_css(".user-menu-dropdown-wrapper")
     end
 
     it "opens the channel list from the header on phones", mobile: true do

@@ -302,7 +302,12 @@
     padding: 0;
 
     .contents > :not(.panel),
-    .panel > :not(.hamburger-dropdown-wrapper, .header-cloak) {
+    .panel
+      > :not(
+        .hamburger-dropdown-wrapper,
+        .user-menu-dropdown-wrapper,
+        .header-cloak
+      ) {
       display: none;
     }
   }
@@ -315,9 +320,13 @@
     }
   }
 
-  // The slide-in panel's own footer, like the sidebar's.
-  .sidebar-hamburger-dropdown .sidebar-footer-wrapper {
-    display: none;
+  // The slide-in panel's own footer, like the sidebar's. The user panel's
+  // job is done by the avatar in the header row, except for signing in.
+  .sidebar-hamburger-dropdown {
+    .sidebar-footer-wrapper,
+    .discord-user-panel:has(.discord-user-panel__me) {
+      display: none;
+    }
   }
 
   // Core lays the slide-in panel's links in two columns from sm up; channels
@@ -329,9 +338,20 @@
   }
 }
 
-.discord-channel-header__menu {
+.discord-channel-header__menu,
+.discord-channel-header__user {
   @include viewport.from(md) {
     display: none;
+  }
+}
+
+.discord-channel-header__user {
+  position: relative;
+  padding: 0 0.25em;
+
+  .avatar {
+    width: 1.75em;
+    height: 1.75em;
   }
 }
 

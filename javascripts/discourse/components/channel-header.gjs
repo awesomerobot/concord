@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import Notifications from "discourse/components/header/user-dropdown/notifications";
 import DiscourseURL from "discourse/lib/url";
 import Category from "discourse/models/category";
 import DButton from "discourse/ui-kit/d-button";
@@ -20,6 +21,7 @@ const t = (key) => i18n(themePrefix(`channel_header.${key}`));
  */
 export default class ChannelHeader extends Component {
   @service appEvents;
+  @service currentUser;
   @service menu;
   @service router;
 
@@ -28,6 +30,13 @@ export default class ChannelHeader extends Component {
   @action
   toggleChannelList() {
     this.appEvents.trigger("header:keyboard-trigger", { type: "hamburger" });
+  }
+
+  // On small screens, core's user menu slides in from the right, as it does
+  // from core's own header.
+  @action
+  toggleUserMenu() {
+    this.appEvents.trigger("header:keyboard-trigger", { type: "user" });
   }
 
   // In a text channel this is chat's message search, which chat keeps behind
@@ -228,6 +237,19 @@ export default class ChannelHeader extends Component {
             class="btn-flat discord-channel-header__search"
             {{on "click" this.openSearch}}
           />
+
+          {{#if this.currentUser}}
+            {{! "user-menu-panel" makes core's close-on-click-outside leave
+                this button to toggle the menu itself. }}
+            <button
+              class="btn-transparent discord-channel-header__user user-menu-panel"
+              title={{i18n "user.avatar.header_title"}}
+              type="button"
+              {{on "click" this.toggleUserMenu}}
+            >
+              <Notifications />
+            </button>
+          {{/if}}
         </div>
       </div>
     </div>

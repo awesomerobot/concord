@@ -70,7 +70,10 @@ Below the `md` breakpoint (phones, and narrow desktop windows) the row starts
 with a hamburger button that opens the channel list as core's slide-in panel,
 with the server name and user panel in it. The button asks core's header to
 toggle the panel, so its animation, scroll lock and close-on-tap-outside are
-core's own.
+core's own. The row ends with the user's avatar (with its unread badge), which
+opens core's user menu as a slide-in from the right, as core's mobile header
+does; the user panel at the foot of the channel list is then only for signing
+in.
 
 The foot of the sidebar shows the current user; clicking opens the user
 menu's profile tab on its own (status, presence, summary, activity,
