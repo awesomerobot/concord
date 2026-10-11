@@ -240,6 +240,31 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_current_path("/about")
     end
 
+    it "titles the server menu's pages" do
+      SiteSetting.enable_badges = true
+      SiteSetting.enable_group_directory = true
+      badge = Badge.find(Badge::FirstLike)
+
+      {
+        "/about" => "About",
+        "/g" => "Groups",
+        "/g/#{group.name}" => group.name,
+        "/u" => "Users",
+        "/badges" => "Badges",
+        "/badges/#{badge.id}/#{badge.slug}" => badge.display_name,
+        "/review" => "Review",
+        "/admin" => "Admin",
+      }.each do |path, title|
+        visit(path)
+        expect(header).to have_css(".discord-channel-header__name", exact_text: title)
+        expect(page).to have_no_css(
+          ".badges > h1, .show-badge > h1, .group-info-names .group-info-details",
+          visible: :visible,
+        )
+        screenshot("page#{path.tr("/", "-")}")
+      end
+    end
+
     it "replaces core's header and chat's channel bar with the channel's own" do
       visit("/chat/c/hangout/#{chat_channel.id}")
 

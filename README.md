@@ -84,7 +84,9 @@ The site name at the top of the channel list opens a menu of the site-wide
 pages core's header and sidebar used to link to: invite, admin, review (with
 its pending count), about, FAQ or guidelines, groups, users, badges, and
 keyboard shortcuts. The links are core's own community section links, so who
-sees each one follows core's rules.
+sees each one follows core's rules. Those pages (and each group and badge)
+get their title in the header row, and the badges pages' own headings and the
+group page's name are hidden so it isn't said twice.
 
 ## Member list
 

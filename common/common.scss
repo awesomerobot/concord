@@ -162,6 +162,9 @@
 }
 
 .discord-action-menu {
+  // The same as the user menu's icons.
+  --d-button-transparent-icon-color: var(--primary-500);
+
   &__badge {
     margin-left: auto;
     padding-left: 1em;
@@ -597,4 +600,11 @@
   .edit-category {
     display: none;
   }
+}
+
+// The header row titles the server menu's pages, so their own titles go.
+.badges > h1,
+.show-badge > h1,
+.group-info-names .group-info-details {
+  display: none;
 }

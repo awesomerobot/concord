@@ -73,6 +73,9 @@ export default class ChannelHeader extends Component {
       case "tag":
         channel = { icon: "tag", name: current.tag.name };
         break;
+      case "page":
+        channel = current;
+        break;
     }
 
     return { actions: [], ...channel };
