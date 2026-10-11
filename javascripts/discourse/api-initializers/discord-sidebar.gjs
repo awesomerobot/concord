@@ -35,7 +35,6 @@ export default apiInitializer((api) => {
   const memberList = new MemberListData(owner, currentChannel);
   const directMessages = new DirectMessages(owner, currentChannel);
   const sidebarState = owner.lookup("service:sidebar-state");
-  const router = owner.lookup("service:router");
 
   const openCreateChannel = (sectionIndex = null) =>
     modal.show(CreateChannelModal, {
@@ -131,6 +130,16 @@ export default apiInitializer((api) => {
 
   // Discord's Home: the user's DMs, swapped in for the channels by the DM
   // button beside the server name, or by opening a DM.
+  const newDirectMessageLink = {
+    name: "new-dm",
+    route: "chat.new-message",
+    text: i18n(themePrefix("direct_messages.new")),
+    title: i18n("sidebar.start_new_dm.title"),
+    prefixType: "icon",
+    prefixValue: "plus",
+    classNames: "discord-channel discord-channel--new-dm",
+  };
+
   if (directMessages.available) {
     api.addSidebarPanel(
       (BaseCustomSidebarPanel) =>
@@ -145,36 +154,12 @@ export default apiInitializer((api) => {
       (BaseSection) =>
         class extends BaseSection {
           name = DMS_SECTION;
-          actionsInline = true;
+          text = "";
+          hideSectionHeader = true;
 
-          get text() {
-            return i18n(themePrefix("direct_messages.title"));
-          }
-
+          // Starting a conversation leads the list, as in Discord's Home.
           get links() {
-            const links = directMessages.links;
-            return links.length
-              ? links
-              : [
-                  {
-                    name: "new-dm",
-                    route: "chat.new-message",
-                    text: i18n("sidebar.start_new_dm.text"),
-                    prefixType: "icon",
-                    prefixValue: "plus",
-                  },
-                ];
-          }
-
-          get actions() {
-            return [
-              {
-                id: "newDirectMessage",
-                icon: "plus",
-                title: i18n("sidebar.start_new_dm.title"),
-                action: () => router.transitionTo("chat.new-message"),
-              },
-            ];
+            return [newDirectMessageLink, ...directMessages.links];
           }
         },
       DMS_PANEL

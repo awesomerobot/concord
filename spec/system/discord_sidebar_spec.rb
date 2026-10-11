@@ -273,6 +273,8 @@ RSpec.describe "Discord sidebar" do
       dms_button.click
 
       dms = sidebar.find(".sidebar-section[data-section-name='discord-dms']")
+      expect(dms).to have_no_css(".sidebar-section-header")
+      expect(dms.all(".sidebar-section-link").first["data-link-name"]).to eq("new-dm")
       expect(dms).to have_css(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
       expect(sidebar).to have_no_css(".sidebar-section-link[data-link-name='text-hangout']")
       screenshot("dms")
@@ -281,6 +283,12 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_current_path(%r{/chat/c/.+/#{dm_channel.id}})
       expect(sidebar).to have_css("[data-section-name='discord-dms']")
       screenshot("dm-channel")
+
+      new_dm = sidebar.find(".sidebar-section-link[data-link-name='new-dm']")
+      expect(new_dm).to have_text("New DM or group chat")
+      new_dm.click
+      expect(page).to have_css(".chat-modal-new-message")
+      send_keys(:escape)
 
       find(".discord-channel-header .discord-server-header__dms").click
       expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")

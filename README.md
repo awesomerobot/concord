@@ -104,8 +104,8 @@ group page's name are hidden so it isn't said twice.
 
 Discord keeps DMs out of the server's channel list, in its Home view. Here a
 button beside the server name (with the DMs' unread count) swaps the channel
-list for a "Direct messages" list: every DM and group chat the user follows,
-with avatars and unread counts, and a `+` for a new message. Opening a DM
+list for the user's DMs: a button to start a new one at the top, then every DM
+and group chat they follow, with avatars and unread counts. Opening a DM
 switches to the list on its own, and going to any of the server's channels
 switches back.
 

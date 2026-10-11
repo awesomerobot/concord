@@ -77,6 +77,7 @@ en:
     create_section: "Create section"
   direct_messages:
     title: "Direct messages"
+    new: "New DM or group chat"
   channel_header:
     threads: "Threads"
     pins: "Pinned messages"
