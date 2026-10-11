@@ -70,7 +70,8 @@
     }
   }
 
-  .sidebar-section-link-content-badge {
+  // White on red on every row, the active one included.
+  .discord-channel .sidebar-section-link-content-badge {
     min-width: 1.4em;
     padding: 0 0.4em;
     border-radius: 1em;
@@ -84,6 +85,13 @@
   .sidebar-section-link--muted {
     opacity: 0.5;
   }
+}
+
+// DM avatars sit where a channel's icon does.
+.discord-channel--dm .sidebar-section-link-prefix.image img {
+  width: 1.25em;
+  height: 1.25em;
+  border-radius: 50%;
 }
 
 .discord-channel--connecting {
@@ -191,6 +199,38 @@
 
   &__create {
     padding: 0.25em;
+  }
+
+  &__dms {
+    position: relative;
+    flex-shrink: 0;
+    // Pushes it and the create button to the right, the name staying left.
+    margin: -0.25em 0.25em -0.25em auto;
+    padding: 0.25em 0.5em;
+
+    &.--active {
+      background: var(--primary-low);
+
+      .d-icon {
+        color: var(--primary);
+      }
+    }
+  }
+
+  &__dms-badge {
+    position: absolute;
+    top: -0.25em;
+    right: -0.25em;
+    min-width: 1.4em;
+    padding: 0 0.35em;
+    box-sizing: border-box;
+    border-radius: 1em;
+    background: var(--danger);
+    color: var(--secondary);
+    font-size: var(--font-down-3);
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
   }
 }
 

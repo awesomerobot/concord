@@ -75,6 +75,8 @@ en:
     no_section: "No section"
     new_section: "New section…"
     create_section: "Create section"
+  direct_messages:
+    title: "Direct messages"
   channel_header:
     threads: "Threads"
     pins: "Pinned messages"

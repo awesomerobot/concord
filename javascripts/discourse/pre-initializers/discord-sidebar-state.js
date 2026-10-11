@@ -1,9 +1,11 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { MAIN_PANEL, SEPARATED_MODE } from "discourse/lib/sidebar/panels";
-import { CHANNELS_PANEL } from "../lib/constants";
+import { CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
+import dmMode from "../lib/dm-mode";
 
-// The panels our channel list stands in for. Chat's panel is listed by key so
-// this works whether or not the chat plugin is installed.
+// The panels our channel list (or the DM list, when that's showing) stands in
+// for. Chat's panel is listed by key so this works whether or not the chat
+// plugin is installed.
 const REPLACED_PANELS = [MAIN_PANEL, "chat"];
 
 // Core and chat both move the sidebar between the forum and chat panels, on
@@ -22,7 +24,7 @@ export default {
           class extends Superclass {
             setPanel(name) {
               super.setPanel(
-                REPLACED_PANELS.includes(name) ? CHANNELS_PANEL : name
+                REPLACED_PANELS.includes(name) ? dmMode.panel : name
               );
             }
 
@@ -31,12 +33,12 @@ export default {
             setCombinedMode() {
               super.setCombinedMode();
               this.mode = SEPARATED_MODE;
-              this.currentPanelKey = CHANNELS_PANEL;
+              this.currentPanelKey = dmMode.panel;
             }
 
-            // There's nothing to switch to from the channel list.
+            // Our panels switch between themselves.
             showSwitchPanelButtons() {
-              if (this.currentPanelKey === CHANNELS_PANEL) {
+              if ([CHANNELS_PANEL, DMS_PANEL].includes(this.currentPanelKey)) {
                 this.hideSwitchPanelButtons();
               } else {
                 super.showSwitchPanelButtons();

@@ -5,14 +5,17 @@ import { action } from "@ember/object";
 import { getOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import DButton from "discourse/ui-kit/d-button";
+import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
-import { CHANNELS_PANEL } from "../lib/constants";
+import { i18n } from "discourse-i18n";
+import { CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
 import { serverMenuItems } from "../lib/server-menu";
 import ActionMenu from "./action-menu";
 
 // The bar above Discord's channel list: the server's name, opening the
-// site-wide pages core's header used to link to, and where you make channels
-// that don't belong to a section.
+// site-wide pages core's header used to link to, the switch to the user's DMs
+// (Discord's Home), and where you make channels that don't belong to a
+// section.
 export default class ServerHeader extends Component {
   @service menu;
   @service siteSettings;
@@ -20,8 +23,14 @@ export default class ServerHeader extends Component {
 
   get show() {
     return (
-      this.args.always || this.sidebarState.currentPanelKey === CHANNELS_PANEL
+      this.args.always ||
+      [CHANNELS_PANEL, DMS_PANEL].includes(this.sidebarState.currentPanelKey)
     );
+  }
+
+  @action
+  toggleDirectMessages() {
+    this.args.directMessages.toggle();
   }
 
   @action
@@ -48,6 +57,25 @@ export default class ServerHeader extends Component {
           </span>
           {{dIcon "angle-down"}}
         </button>
+
+        {{#if @directMessages.available}}
+          <DButton
+            @action={{this.toggleDirectMessages}}
+            @icon="comments"
+            @translatedTitle={{i18n (themePrefix "direct_messages.title")}}
+            aria-pressed={{if @directMessages.active "true" "false"}}
+            class={{dConcatClass
+              "btn-flat discord-server-header__dms"
+              (if @directMessages.active "--active")
+            }}
+          >
+            {{#if @directMessages.unreadCount}}
+              <span
+                class="discord-server-header__dms-badge"
+              >{{@directMessages.unreadCount}}</span>
+            {{/if}}
+          </DButton>
+        {{/if}}
 
         {{#if @canCreate}}
           <DButton

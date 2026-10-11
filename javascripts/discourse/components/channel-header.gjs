@@ -128,7 +128,7 @@ export default class ChannelHeader extends Component {
     const go = (route) => () => this.router.transitionTo(route, ...models);
 
     return {
-      icon: "hashtag",
+      icon: channel.isDirectMessageChannel ? "at" : "hashtag",
       name: channel.title,
       description: channel.description,
       actions: [
@@ -206,6 +206,7 @@ export default class ChannelHeader extends Component {
       <ServerHeader
         @always={{true}}
         @canCreate={{@canCreate}}
+        @directMessages={{@directMessages}}
         @onCreate={{@onCreate}}
       />
 

@@ -11,9 +11,12 @@ import MemberListData from "../lib/member-list";
 import ChannelDirectory from "../lib/channel-directory";
 import {
   CHANNELS_PANEL,
+  DMS_PANEL,
+  DMS_SECTION,
   SECTION_PREFIX,
   TOP_SECTION,
 } from "../lib/constants";
+import DirectMessages from "../lib/direct-messages";
 import SidebarSections from "../lib/sidebar-sections";
 import ChannelHeader from "../components/channel-header";
 import MemberList from "../components/member-list";
@@ -30,7 +33,9 @@ export default apiInitializer((api) => {
   const modal = owner.lookup("service:modal");
   const currentChannel = new CurrentChannel(owner);
   const memberList = new MemberListData(owner, currentChannel);
+  const directMessages = new DirectMessages(owner, currentChannel);
   const sidebarState = owner.lookup("service:sidebar-state");
+  const router = owner.lookup("service:router");
 
   const openCreateChannel = (sectionIndex = null) =>
     modal.show(CreateChannelModal, {
@@ -124,11 +129,64 @@ export default apiInitializer((api) => {
   syncSections();
   sidebarSections.onChange = syncSections;
 
+  // Discord's Home: the user's DMs, swapped in for the channels by the DM
+  // button beside the server name, or by opening a DM.
+  if (directMessages.available) {
+    api.addSidebarPanel(
+      (BaseCustomSidebarPanel) =>
+        class extends BaseCustomSidebarPanel {
+          key = DMS_PANEL;
+          hidden = true;
+          scrollActiveLinkIntoView = true;
+        }
+    );
+
+    api.addSidebarSection(
+      (BaseSection) =>
+        class extends BaseSection {
+          name = DMS_SECTION;
+          actionsInline = true;
+
+          get text() {
+            return i18n(themePrefix("direct_messages.title"));
+          }
+
+          get links() {
+            const links = directMessages.links;
+            return links.length
+              ? links
+              : [
+                  {
+                    name: "new-dm",
+                    route: "chat.new-message",
+                    text: i18n("sidebar.start_new_dm.text"),
+                    prefixType: "icon",
+                    prefixValue: "plus",
+                  },
+                ];
+          }
+
+          get actions() {
+            return [
+              {
+                id: "newDirectMessage",
+                icon: "plus",
+                title: i18n("sidebar.start_new_dm.title"),
+                action: () => router.transitionTo("chat.new-message"),
+              },
+            ];
+          }
+        },
+      DMS_PANEL
+    );
+  }
+
   api.renderInOutlet(
     "before-sidebar-sections",
     <template>
       <ServerHeader
         @canCreate={{creator.types.length}}
+        @directMessages={{directMessages}}
         @onCreate={{openCreateChannel}}
       />
     </template>
@@ -143,6 +201,7 @@ export default apiInitializer((api) => {
         <ChannelHeader
           @canCreate={{creator.types.length}}
           @currentChannel={{currentChannel}}
+          @directMessages={{directMessages}}
           @memberList={{memberList}}
           @onCreate={{openCreateChannel}}
         />

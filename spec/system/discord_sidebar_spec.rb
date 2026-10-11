@@ -259,6 +259,45 @@ RSpec.describe "Discord sidebar" do
     expect(centres.first).to be_within(1).of(centres.last)
   end
 
+  describe "direct messages" do
+    fab!(:friend) { Fabricate(:user, username: "campmate") }
+    fab!(:dm_channel) { Fabricate(:direct_message_channel, users: [admin, friend]) }
+
+    let(:dms_button) { find(".discord-channel-header .discord-server-header__dms") }
+
+    it "swaps the channel list for DMs from beside the server name" do
+      Fabricate(:chat_message, chat_channel: dm_channel, user: friend, message: "hi there")
+      visit("/latest")
+
+      expect(dms_button).to have_css(".discord-server-header__dms-badge", text: "1")
+      dms_button.click
+
+      dms = sidebar.find(".sidebar-section[data-section-name='discord-dms']")
+      expect(dms).to have_css(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
+      expect(sidebar).to have_no_css(".sidebar-section-link[data-link-name='text-hangout']")
+      screenshot("dms")
+
+      dms.find(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']").click
+      expect(page).to have_current_path(%r{/chat/c/.+/#{dm_channel.id}})
+      expect(sidebar).to have_css("[data-section-name='discord-dms']")
+      screenshot("dm-channel")
+
+      find(".discord-channel-header .discord-server-header__dms").click
+      expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
+      expect(sidebar).to have_no_css("[data-section-name='discord-dms']")
+    end
+
+    it "follows the page between DMs and the server's channels" do
+      visit("/chat/c/-/#{dm_channel.id}")
+      expect(sidebar).to have_css(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
+      expect(dms_button["aria-pressed"]).to eq("true")
+
+      visit("/c/#{category.slug}/#{category.id}")
+      expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
+      expect(sidebar).to have_no_css("[data-section-name='discord-dms']")
+    end
+  end
+
   describe "header" do
     let(:header) { find(".discord-channel-header") }
 

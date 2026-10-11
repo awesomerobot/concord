@@ -1,4 +1,5 @@
 import { trustHTML } from "@ember/template";
+import { avatarUrl } from "discourse/lib/avatar-utils";
 import { emojiUnescape } from "discourse/lib/text";
 import CategorySectionLink from "discourse/lib/sidebar/user/categories-section/category-section-link";
 import TagSectionLink from "discourse/lib/sidebar/user/tags-section/tag-section-link";
@@ -149,6 +150,66 @@ export class TextChannelLink {
     if (tracking.unreadCount > 0 || tracking.watchedThreadsUnreadCount > 0) {
       return "circle";
     }
+  }
+}
+
+// A direct message, in the DM list: the other person's avatar (or a group
+// icon), and their unread count as a badge, as Discord counts DMs.
+export class DirectMessageLink {
+  route = "chat.channel";
+  keywords = { navigation: [] };
+
+  constructor({ channel }) {
+    this.channel = channel;
+  }
+
+  get name() {
+    return `dm-${this.channel.id}`;
+  }
+
+  get #users() {
+    return this.channel.chatable?.users || [];
+  }
+
+  get classNames() {
+    const { tracking } = this.channel;
+    const classes = [
+      channelClasses("dm", tracking.unreadCount > 0),
+      `channel-${this.channel.id}`,
+    ];
+
+    if (this.channel.currentUserMembership?.muted) {
+      classes.push("sidebar-section-link--muted");
+    }
+
+    return classes.join(" ");
+  }
+
+  get models() {
+    return this.channel.routeModels;
+  }
+
+  get text() {
+    return trustHTML(emojiUnescape(this.channel.escapedTitle));
+  }
+
+  get title() {
+    return this.channel.escapedTitle;
+  }
+
+  get prefixType() {
+    return this.#users.length === 1 ? "image" : "icon";
+  }
+
+  get prefixValue() {
+    return this.#users.length === 1
+      ? avatarUrl(this.#users[0].avatar_template, "tiny")
+      : "user-group";
+  }
+
+  get badgeText() {
+    const unread = this.channel.tracking.unreadCount;
+    return unread > 0 ? unread.toString() : null;
   }
 }
 

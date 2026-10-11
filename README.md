@@ -100,6 +100,15 @@ sees each one follows core's rules. Those pages (and each group and badge)
 get their title in the header row, and the badges pages' own headings and the
 group page's name are hidden so it isn't said twice.
 
+## Direct messages
+
+Discord keeps DMs out of the server's channel list, in its Home view. Here a
+button beside the server name (with the DMs' unread count) swaps the channel
+list for a "Direct messages" list: every DM and group chat the user follows,
+with avatars and unread counts, and a `+` for a new message. Opening a DM
+switches to the list on its own, and going to any of the server's channels
+switches back.
+
 ## Member list
 
 A panel down the right of the page, toggled by the people icon in the header

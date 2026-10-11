@@ -9,7 +9,7 @@ import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import { not } from "discourse/truth-helpers";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
-import { CHANNELS_PANEL } from "../lib/constants";
+import { CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
 
 // Discord's member list, down the right of the page, or sliding in from the
 // right on small screens.
@@ -20,7 +20,7 @@ export default class MemberList extends Component {
   get show() {
     return (
       this.args.memberList.active &&
-      this.sidebarState.currentPanelKey === CHANNELS_PANEL
+      [CHANNELS_PANEL, DMS_PANEL].includes(this.sidebarState.currentPanelKey)
     );
   }
 
