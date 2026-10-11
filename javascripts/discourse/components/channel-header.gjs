@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import { bind } from "discourse/lib/decorators";
 import Notifications from "discourse/components/header/user-dropdown/notifications";
 import bodyClass from "discourse/helpers/body-class";
 import DiscourseURL from "discourse/lib/url";
@@ -29,10 +30,41 @@ const isCollapsible = (action) => COLLAPSIBLE.includes(action.id);
 export default class ChannelHeader extends Component {
   @service appEvents;
   @service currentUser;
+  @service header;
   @service menu;
   @service router;
   @service search;
   @service site;
+
+  constructor() {
+    super(...arguments);
+    this.appEvents.on("header:keyboard-trigger", this.onKeyboardTrigger);
+  }
+
+  willDestroy() {
+    super.willDestroy(...arguments);
+    this.appEvents.off("header:keyboard-trigger", this.onKeyboardTrigger);
+  }
+
+  // Core's search (/) and user menu (p) shortcuts open menus in core's header,
+  // which is hidden where this row stands in for it. Core has already
+  // handled the event by now, so its menu is closed again and ours opened.
+  @bind
+  onKeyboardTrigger({ type }) {
+    if (type === "search" && !this.site.mobileView) {
+      this.search.visible = false;
+      this.#toggleSearch(
+        document.querySelector(".discord-channel-header__search")
+      );
+    } else if (
+      type === "user" &&
+      !this.site.mobileView &&
+      !this.site.narrowDesktopView
+    ) {
+      this.header.userVisible = false;
+      document.querySelector(".discord-user-panel__notifications")?.click();
+    }
+  }
 
   // Core's header owns the slide-in channel list and everything around it
   // (animation, scroll lock, closing on a tap outside), so ask it to toggle.
@@ -53,6 +85,10 @@ export default class ChannelHeader extends Component {
   // off, and then it's site search like anywhere else.
   @action
   openSearch(event) {
+    this.#toggleSearch(event.currentTarget);
+  }
+
+  #toggleSearch(anchor) {
     const chatFilter = document.querySelector(
       ".c-routes.--channel .c-navbar__filter"
     );
@@ -77,7 +113,12 @@ export default class ChannelHeader extends Component {
       return;
     }
 
-    this.menu.show(event.currentTarget, {
+    if (this.menu.getByIdentifier("discord-search")) {
+      this.menu.close("discord-search");
+      return;
+    }
+
+    this.menu.show(anchor, {
       identifier: "discord-search",
       component: SearchPopover,
       placement: "bottom-end",

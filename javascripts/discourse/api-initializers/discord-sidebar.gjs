@@ -141,7 +141,9 @@ export default apiInitializer((api) => {
     classNames: "discord-channel discord-channel--new-dm",
   };
 
-  if (directMessages.available) {
+  // Registered even before the user can DM, since a first DM from someone
+  // else makes the list available without a page load.
+  if (directMessages.supported) {
     api.addSidebarPanel(
       (BaseCustomSidebarPanel) =>
         class extends BaseCustomSidebarPanel {

@@ -28,8 +28,14 @@ export default class DirectMessages {
     this.router.on("routeDidChange", this.follow);
   }
 
+  /** Whether the DM panel exists, which is whenever chat can hold DMs. */
+  get supported() {
+    return !!this.chat && !!this.chat.currentUser;
+  }
+
+  /** Whether to offer the DM list: the user can DM, or has been DMed. */
   get available() {
-    return !!this.chat?.userCanAccessDirectMessages;
+    return this.supported && !!this.chat.userCanAccessDirectMessages;
   }
 
   get active() {
@@ -67,6 +73,10 @@ export default class DirectMessages {
 
   @bind
   follow() {
+    if (!this.available) {
+      return;
+    }
+
     const name = this.router.currentRouteName || "";
     let active;
 

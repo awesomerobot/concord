@@ -3,6 +3,7 @@ import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { clipboardCopy } from "discourse/lib/utilities";
+import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
 import ActionMenu from "../components/action-menu";
 import RenameModal from "../components/modal/rename";
@@ -239,6 +240,7 @@ export default class ChannelActions {
           this.#confirmDelete(channel.title, async () => {
             await this.chatApi.destroyChannel(channel.id);
             this.chatChannelsManager.remove(channel);
+            await this.#deleteBackingCategory(channel);
             await this.sidebarSections.removeChannel(`text:${channel.id}`);
             this.router.transitionTo("discovery.latest");
           }),
@@ -411,6 +413,24 @@ export default class ChannelActions {
       message: t("delete_confirm", { name }),
       didConfirm: () => this.#run(destroy),
     });
+  }
+
+  // A channel made from the create modal has a category of its own, under the
+  // chat container, that only exists to give it permissions; it goes with
+  // the channel. Any other category is left alone.
+  async #deleteBackingCategory(channel) {
+    const category = Category.findById(channel.chatableId);
+    const container = category?.parentCategory;
+
+    if (container?.slug !== settings.chat_container_category) {
+      return;
+    }
+
+    try {
+      await ajax(`/categories/${category.id}`, { type: "DELETE" });
+    } catch {
+      // Something was posted in it after all; it stays, still hidden.
+    }
   }
 
   #goHomeIfOn(url) {

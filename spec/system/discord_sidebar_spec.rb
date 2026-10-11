@@ -136,6 +136,17 @@ RSpec.describe "Discord sidebar" do
     expect(sidebar).to have_no_css(
       ".sidebar-section-link[data-link-name='forum-#{created.chatable.slug}']",
     )
+
+    # Deleting it takes the category that only existed to back it.
+    link = channel_link("text-lfg")
+    link.hover
+    link.find(".sidebar-section-hover-button").click
+    find(".discord-action-menu .btn", text: "Delete").click
+    find(".dialog-footer .btn-danger").click
+    expect(page).to have_no_css(".sidebar-section-link[data-link-name='text-lfg']")
+    # It moves on to the latest page once everything's deleted.
+    expect(page).to have_current_path("/latest")
+    expect(Category.exists?(created.chatable_id)).to eq(false)
   end
 
   it "opens chat full page even when the drawer was preferred" do
@@ -398,6 +409,18 @@ RSpec.describe "Discord sidebar" do
 
       send_keys(:escape)
       expect(page).to have_no_css(".discord-search-panel")
+    end
+
+    it "opens search and the user menu from their keyboard shortcuts" do
+      visit("/latest")
+
+      send_keys("/")
+      expect(page).to have_css(".discord-search-panel #discord-search-input:focus")
+      send_keys(:escape)
+      expect(page).to have_no_css(".discord-search-panel")
+
+      find("body").send_keys("p")
+      expect(page).to have_css(".discord-user-menu .user-menu")
     end
 
     it "searches the channel's messages from a chat channel" do

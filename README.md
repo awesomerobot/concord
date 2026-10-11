@@ -27,6 +27,7 @@ the channel to selected groups:
 - Text: a chat channel. Chat takes its access from a category, so each one
   gets its own backing category under the `chat_container_category` category
   (created if missing, and hidden from the list). Its members are auto-joined.
+  Deleting the channel from its menu deletes that category too.
 - Voice: a private room with the groups' current members added (up to 200).
   Later group members don't get access, since rooms have no group access.
 
