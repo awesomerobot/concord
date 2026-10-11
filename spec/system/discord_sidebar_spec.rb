@@ -392,6 +392,9 @@ RSpec.describe "Discord sidebar" do
       menu = find(".discord-profile-menu #quick-access-profile")
       expect(menu).to have_css("li.preferences")
       expect(menu).to have_css("li.logout")
+      expect(page.evaluate_script(<<~JS)).to eq("400")
+        getComputedStyle(document.querySelector(".discord-profile-menu li.summary .item-label")).fontWeight
+      JS
       screenshot("profile-menu")
 
       menu.find("li.preferences a").click

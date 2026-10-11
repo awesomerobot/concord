@@ -31,7 +31,12 @@ export default class ProfileMenuPopover extends Component {
         <div class="panel-body">
           <div class="panel-body-contents">
             <div class="quick-access-panel" id="quick-access-profile">
-              <UserMenuProfileTabContent @closeUserMenu={{@close}} />
+              {{! Core styles the tab's items by the class the full menu
+                  gives them. }}
+              <UserMenuProfileTabContent
+                @class="user-menu-button-profile"
+                @closeUserMenu={{@close}}
+              />
             </div>
           </div>
         </div>

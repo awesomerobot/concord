@@ -382,6 +382,9 @@
   background: var(--d-sidebar-background);
 
   &__me {
+    // Plain text colours, rather than a link's, even while its menu has focus.
+    --d-button-transparent-text-color--hover: var(--primary);
+
     display: flex;
     flex: 1 1 auto;
     align-items: center;
