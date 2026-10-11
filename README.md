@@ -148,3 +148,16 @@ user directory. "Online" means active in the last few minutes, from chat's
 presence channel plus the who's-online plugin when installed. Members load 50
 at a time as you scroll; a chat channel's first 250 load up front so its online
 members can be found. Names open user cards, as they do on the page.
+
+## Tests
+
+System specs (`spec/system`) drive the whole thing in a browser, against a
+Discourse checkout with the chat and voice plugins:
+
+    LOAD_PLUGINS=1 bin/rspec /path/to/this/theme/spec/system/discord_sidebar_spec.rb
+
+Unit tests (`test/unit`) cover the logic on its own: sections, privacy
+permissions, member list sorting, long press, link badges and the settings
+migration. With the theme installed on a running development site:
+
+    bin/qunit --theme-id <id> --qunit-path /theme-qunit --rails-env development
