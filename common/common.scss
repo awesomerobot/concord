@@ -210,6 +210,7 @@
   &__dms {
     position: relative;
     flex-shrink: 0;
+
     // Pushes it and the create button to the right, the name staying left.
     margin: -0.25em 0.25em -0.25em auto;
     padding: 0.25em 0.5em;
@@ -534,6 +535,7 @@ body.discord-header .d-header > .wrap {
 // Core's header search panel, in a popover rather than hanging off the header.
 .discord-search-panel.menu-panel {
   position: static;
+
   // Core's header search width; the menu around it allows up to 600px.
   width: min(550px, calc(100vw - 2em));
   max-height: 70vh;
@@ -556,7 +558,6 @@ body.discord-header .d-header > .wrap {
   &__me {
     // Plain text colours, rather than a link's, even while its menu has focus.
     --d-button-transparent-text-color--hover: var(--primary);
-
     display: flex;
     flex: 1 1 auto;
     align-items: center;
@@ -652,8 +653,7 @@ body.discord-header .d-header > .wrap {
 
   .quick-access-panel {
     border-right: none;
-    border-left: var(--user-menu-border-width) solid
-      var(--content-border-color);
+    border-left: var(--user-menu-border-width) solid var(--content-border-color);
   }
 }
 

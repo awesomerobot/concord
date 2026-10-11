@@ -80,9 +80,7 @@ export default class SidebarSections {
   async moveChannel(key, sectionName) {
     const sections = this.#without(key);
     await this.#save(
-      sectionName === null
-        ? sections
-        : this.#with(sections, sectionName, key)
+      sectionName === null ? sections : this.#with(sections, sectionName, key)
     );
   }
 

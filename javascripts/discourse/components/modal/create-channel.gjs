@@ -52,8 +52,7 @@ export default class CreateChannelModal extends Component {
   formData = {
     type: this.creator.types[0],
     section:
-      this.sidebarSections.sections[this.args.model.sectionIndex]?.name ??
-      null,
+      this.sidebarSections.sections[this.args.model.sectionIndex]?.name ?? null,
     name: "",
     isPrivate: false,
     groupIds: [],

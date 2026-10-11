@@ -41,6 +41,10 @@ export default class TopicLayout extends Component {
 
   <template>
     {{bodyClass "discord-topic"}}
-    <div hidden {{didInsert this.observe}} {{willDestroy this.disconnect}}></div>
+    <div
+      hidden
+      {{didInsert this.observe}}
+      {{willDestroy this.disconnect}}
+    ></div>
   </template>
 }
