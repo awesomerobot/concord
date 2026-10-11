@@ -6,10 +6,11 @@ import { service } from "@ember/service";
 import Notifications from "discourse/components/header/user-dropdown/notifications";
 import DButton from "discourse/ui-kit/d-button";
 import { i18n } from "discourse-i18n";
+import ProfileMenuPopover from "./profile-menu-popover";
 import UserMenuPopover from "./user-menu-popover";
 
 // Discord's panel at the foot of the channel list: who you are, with your
-// notifications behind the avatar.
+// notifications behind the avatar and the profile menu behind the gear.
 export default class UserPanel extends Component {
   @service currentUser;
   @service menu;
@@ -31,6 +32,16 @@ export default class UserPanel extends Component {
       identifier: "discord-user-menu",
       component: UserMenuPopover,
       placement: "top-start",
+      modalForMobile: true,
+    });
+  }
+
+  @action
+  openProfileMenu(event) {
+    this.menu.show(event.currentTarget, {
+      identifier: "discord-profile-menu",
+      component: ProfileMenuPopover,
+      placement: "top-end",
       modalForMobile: true,
     });
   }
@@ -63,10 +74,10 @@ export default class UserPanel extends Component {
           </span>
         </button>
         <DButton
-          @href="/my/preferences"
           @icon="gear"
           @title="user.preferences.title"
           class="btn-flat discord-user-panel__settings"
+          {{on "click" this.openProfileMenu}}
         />
       {{else}}
         <DButton

@@ -289,7 +289,8 @@
 // Core's header search panel, in a popover rather than hanging off the header.
 .discord-search-panel.menu-panel {
   position: static;
-  width: min(32em, 90vw);
+  // Core's header search width; the menu around it allows up to 600px.
+  width: min(550px, calc(100vw - 2em));
   max-height: 70vh;
   border: none;
   box-shadow: none;
@@ -361,11 +362,29 @@
 }
 
 // The user menu normally hangs off the header, so it's absolutely placed.
-.discord-user-menu .user-menu.revamped {
+.discord-user-menu .user-menu.revamped,
+.discord-profile-menu .user-menu.revamped {
   position: static;
-  height: min(32em, 70vh);
   border: none;
   box-shadow: none;
+}
+
+.discord-user-menu .user-menu.revamped {
+  height: min(32em, 70vh);
+
+  // The gear in the user panel opens the profile tab.
+  .bottom-tabs {
+    display: none;
+  }
+}
+
+.discord-profile-menu .user-menu.revamped {
+  height: auto;
+  max-height: 70vh;
+
+  .quick-access-panel {
+    border-right: none;
+  }
 }
 
 // Discord's member list: a third column on the main grid.

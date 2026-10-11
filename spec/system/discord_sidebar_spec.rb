@@ -291,7 +291,22 @@ RSpec.describe "Discord sidebar" do
 
       panel.find(".discord-user-panel__me").click
       expect(page).to have_css(".discord-user-menu .user-menu .quick-access-panel")
+      expect(page).to have_no_css(".discord-user-menu #user-menu-button-profile", visible: :visible)
       screenshot("user-menu")
+    end
+
+    it "opens the profile menu from the gear" do
+      visit("/latest")
+
+      find(".discord-user-panel__settings").click
+      menu = find(".discord-profile-menu #quick-access-profile")
+      expect(menu).to have_css("li.preferences")
+      expect(menu).to have_css("li.logout")
+      screenshot("profile-menu")
+
+      menu.find("li.preferences a").click
+      expect(page).to have_current_path(%r{/u/#{admin.username}/preferences})
+      expect(page).to have_no_css(".discord-profile-menu")
     end
 
     it "offers log in and sign up when signed out" do

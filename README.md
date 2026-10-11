@@ -66,7 +66,10 @@ toggle the panel, so its animation, scroll lock and close-on-tap-outside are
 core's own.
 
 The foot of the sidebar shows the current user; clicking opens core's user
-menu (notifications, messages, bookmarks, profile). Signed-out visitors get
+menu (notifications, messages, bookmarks). The gear beside it opens the user
+menu's profile tab on its own (status, presence, summary, activity,
+preferences, log out), so that tab is hidden from the user menu. Signed-out
+visitors get
 log in and sign up buttons there. Core's sidebar footer is hidden.
 
 ## Member list
