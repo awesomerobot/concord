@@ -213,6 +213,21 @@ export default apiInitializer((api) => {
 
   api.renderInOutlet("after-sidebar-sections", UserPanel);
 
+  // Discord opens a channel in the main area, never a floating panel, so chat
+  // runs full page. That's chat's own per-browser preference, so it's set at
+  // boot, and again ahead of every route change: chat's drawer shortcut (-)
+  // switches it to the drawer just before navigating, and chat's routes read
+  // it once the transition is under way.
+  // (Reading the preference first would touch the mobile view too early in
+  // boot, and setting it is one small local storage write.)
+  const chatStateManager = owner.lookup("service:chat-state-manager");
+  if (chatStateManager) {
+    const preferFullPage = () => chatStateManager.prefersFullPage();
+
+    preferFullPage();
+    owner.lookup("service:router").on("routeWillChange", preferFullPage);
+  }
+
   // Chat only updates presence on its own routes, so a visit that starts on a
   // forum page wouldn't count as online until chat was opened.
   owner.lookup("service:chat")?.updatePresence?.();

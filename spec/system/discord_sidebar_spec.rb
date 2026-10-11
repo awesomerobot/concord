@@ -160,6 +160,13 @@ RSpec.describe "Discord sidebar" do
     expect(page).to have_current_path(%r{/chat/c/hangout/#{chat_channel.id}})
     expect(page).to have_no_css(".chat-drawer.is-expanded")
     expect(page).to have_no_css(".c-navbar__open-drawer-button", visible: :visible)
+
+    # Chat's drawer shortcut switches to the drawer just before it navigates.
+    visit("/c/#{category.slug}/#{category.id}")
+    expect(page).to have_css(".discord-channel-header__name", text: "Lounge")
+    find("body").send_keys("-")
+    expect(page).to have_current_path(%r{/chat/c/})
+    expect(page).to have_no_css(".chat-drawer.is-expanded")
   end
 
   it "creates a public voice channel" do

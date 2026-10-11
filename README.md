@@ -77,7 +77,9 @@ takes their place inside the same header: the server name over the channel
 list, then the current channel's icon, name, description, actions and a search
 button that opens core's search panel as a dropdown. Living inside core's
 header keeps every height calculation built on it (chat, composer, sticky
-elements) working. Chat's own channel bar is hidden; its threads, pins and
+elements) working. Chat always opens full page, never in the drawer, through
+chat's own preference for it (set again before each navigation, since chat's
+`-` shortcut switches it to the drawer). Chat's own channel bar is hidden; its threads, pins and
 settings are in the row. A forum channel's settings (core's wrench) are there
 too, for people who can edit the category. In a topic, the row's icon is a
 back arrow to its forum channel, the title links to the top of the topic, and

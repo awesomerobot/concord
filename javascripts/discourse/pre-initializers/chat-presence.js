@@ -8,34 +8,12 @@ const ONLINE_OPTIONS = {
   browserHiddenTime: 300000,
 };
 
-// Discord opens a channel in the main area, never a floating panel, so chat
-// always runs full page. Everything that would switch to the drawer goes
-// through `prefersDrawer`, and the chat routes only open the drawer when it's
-// preferred.
 export default {
-  name: "discord-chat-full-page",
+  name: "discord-chat-presence",
   before: "inject-discourse-objects",
 
   initialize() {
     withPluginApi((api) => {
-      api.modifyClass(
-        "service:chat-state-manager",
-        (Superclass) =>
-          class extends Superclass {
-            get isFullPagePreferred() {
-              return true;
-            }
-
-            get isDrawerPreferred() {
-              return false;
-            }
-
-            prefersDrawer() {
-              this.prefersFullPage();
-            }
-          }
-      );
-
       // Chat counts someone online only while chat is open. Here chat is one
       // kind of channel among many, so being anywhere on the site counts, as
       // in Discord; hiding one's presence still does.
