@@ -30,8 +30,19 @@ export default class ChannelHeader extends Component {
     this.appEvents.trigger("header:keyboard-trigger", { type: "hamburger" });
   }
 
+  // In a text channel this is chat's message search, which chat keeps behind
+  // its own (hidden) bar's button; that button is missing when chat search is
+  // off, and then it's site search like anywhere else.
   @action
   openSearch(event) {
+    const chatFilter = document.querySelector(
+      ".c-routes.--channel .c-navbar__filter"
+    );
+    if (this.args.currentChannel.value?.type === "text" && chatFilter) {
+      chatFilter.click();
+      return;
+    }
+
     this.menu.show(event.currentTarget, {
       identifier: "discord-search",
       component: SearchPopover,

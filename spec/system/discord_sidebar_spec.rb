@@ -262,6 +262,19 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_no_css(".discord-search-panel")
     end
 
+    it "searches the channel's messages from a chat channel" do
+      chat_channel.add(admin)
+      visit("/chat/c/-/#{chat_channel.id}")
+
+      header.find(".discord-channel-header__search").click
+      expect(page).to have_css(".chat-channel__filter-bar input:focus")
+      expect(page).to have_no_css(".discord-search-panel")
+      screenshot("chat-search")
+
+      header.find(".discord-channel-header__search").click
+      expect(page).to have_no_css(".chat-channel__filter-bar")
+    end
+
     it "shows the category" do
       category.update!(description: "Sit by the fire")
       visit("/c/#{category.slug}/#{category.id}")
