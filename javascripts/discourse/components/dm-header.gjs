@@ -7,8 +7,7 @@ import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 
 // Laid out like Discourse AI's conversations sidebar: a way back, then a
-// button to start something new. Discord calls the DM view Home, so the way
-// back is to the channels rather than "home".
+// button to start something new.
 export default class DmHeader extends Component {
   @service router;
 
@@ -31,7 +30,7 @@ export default class DmHeader extends Component {
           {{on "click" this.back}}
         >
           {{dIcon "arrow-left"}}
-          <span>{{i18n (themePrefix "direct_messages.back")}}</span>
+          <span>{{i18n (themePrefix "back_to_channels")}}</span>
         </button>
         <DButton
           @action={{this.newMessage}}

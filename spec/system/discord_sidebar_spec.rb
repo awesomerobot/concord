@@ -333,9 +333,13 @@ RSpec.describe "Discord sidebar" do
       find(".discord-server-header__ai").click
       expect(page).to have_css(".discord-server-header__ai[aria-pressed='true']")
       expect(page).to have_css(".discord-server-header__dms[aria-pressed='false']")
+      expect(sidebar).to have_css(".sidebar-sections__back-to-forum", text: "Back to all channels")
 
-      # From the conversations, the DM button shows the DMs.
+      # From the conversations, the DM button shows the DMs, laid out as they
+      # are from the channels.
       find(".discord-server-header__dms").click
+      back = sidebar.find(".discord-dm-header__back", text: "Back to all channels")
+      expect(back.evaluate_script("getComputedStyle(this).paddingTop")).to eq("0px")
       expect(page).to have_css(".discord-server-header__dms[aria-pressed='true']")
       expect(page).to have_css(".discord-server-header__ai[aria-pressed='false']")
     end
@@ -412,6 +416,11 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_css(".topic-list")
       expect(page).to have_current_path("/")
     end
+  end
+
+  it "labels the admin sidebar's way back for the channels" do
+    visit("/admin")
+    expect(sidebar).to have_css(".sidebar-sections__back-to-forum", text: "Back to all channels")
   end
 
   describe "privacy" do
@@ -624,7 +633,7 @@ RSpec.describe "Discord sidebar" do
       dms_button.click
 
       expect(sidebar.find(".discord-dm-header")).to have_css(".discord-dm-header__back + .discord-dm-header__new")
-      sidebar.find(".discord-dm-header__back", text: "Back to channels").click
+      sidebar.find(".discord-dm-header__back", text: "Back to all channels").click
       expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
       expect(dms_button["aria-pressed"]).to eq("false")
     end

@@ -129,9 +129,10 @@ group page's name are hidden so it isn't said twice.
 
 Discord keeps DMs out of the server's channel list, in its Home view. Here a
 button beside the server name (with the DMs' unread count) swaps the channel
-list for the user's DMs: a "Back to channels" link and a button to start a new
-one at the top, laid out like Discourse AI's conversations, then every DM and
-group chat they follow, with avatars and unread counts. Opening a DM
+list for the user's DMs: a "Back to all channels" link and a button to start a
+new one at the top, laid out like Discourse AI's conversations, then every DM
+and group chat they follow, with avatars and unread counts. Core's "Back to
+Forum" link, atop the admin and AI sidebars, reads "Back to all channels" too. Opening a DM
 switches to the list on its own, and going to any of the server's channels
 switches back.
 

@@ -109,7 +109,10 @@
   gap: var(--space-3);
   padding: var(--space-6) var(--space-4) var(--space-1);
 
-  &__back {
+  // Discourse AI pads its own back link while its page is open, which it
+  // still is when the DM button is pressed from there.
+  & .sidebar-sections__back-to-forum.discord-dm-header__back {
+    order: 0;
     align-self: flex-start;
     padding: 0;
     border: none;

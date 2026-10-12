@@ -27,12 +27,14 @@ import DirectMessages from "../lib/direct-messages";
 import LastChannel from "../lib/last-channel";
 import installLongPress from "../lib/long-press";
 import MemberListData from "../lib/member-list";
+import relabelBackLink from "../lib/relabel-back-link";
 import replaySlideIn from "../lib/replay-slide-in";
 import scrollToActive from "../lib/scroll-to-active";
 import SidebarSections from "../lib/sidebar-sections";
 
 export default apiInitializer((api) => {
   const owner = getOwnerWithFallback(api);
+  relabelBackLink();
   const sidebarSections = new SidebarSections(api.getCurrentUser());
   const creator = new ChannelCreator(owner);
   const channelActions = new ChannelActions(
