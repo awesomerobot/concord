@@ -5,6 +5,7 @@ import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-
 import { eq } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
 import ChannelHeader from "../components/channel-header";
+import DmHeader from "../components/dm-header";
 import MemberList from "../components/member-list";
 import CreateChannelModal from "../components/modal/create-channel";
 import ServerHeader from "../components/server-header";
@@ -147,18 +148,6 @@ export default apiInitializer((api) => {
   syncSections();
   sidebarSections.onChange = syncSections;
 
-  // Discord's Home: the user's DMs, swapped in for the channels by the DM
-  // button beside the server name, or by opening a DM.
-  const newDirectMessageLink = {
-    name: "new-dm",
-    route: "chat.new-message",
-    text: i18n(themePrefix("direct_messages.new")),
-    title: i18n("sidebar.start_new_dm.title"),
-    prefixType: "icon",
-    prefixValue: "plus",
-    classNames: "discord-channel discord-channel--new-dm",
-  };
-
   // Registered even before the user can DM, since a first DM from someone
   // else makes the list available without a page load.
   if (directMessages.supported) {
@@ -179,7 +168,7 @@ export default apiInitializer((api) => {
           hideSectionHeader = true;
 
           get links() {
-            return [newDirectMessageLink, ...directMessages.links];
+            return directMessages.links;
           }
         },
       DMS_PANEL
@@ -206,6 +195,7 @@ export default apiInitializer((api) => {
         @directMessages={{directMessages}}
         @onCreate={{openCreateChannel}}
       />
+      <DmHeader @directMessages={{directMessages}} />
       <span hidden {{didInsert onListInserted}}></span>
     </template>
   );

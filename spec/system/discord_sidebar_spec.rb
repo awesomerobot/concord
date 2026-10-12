@@ -600,7 +600,6 @@ RSpec.describe "Discord sidebar" do
 
       dms = sidebar.find(".sidebar-section[data-section-name='discord-dms']")
       expect(dms).to have_no_css(".sidebar-section-header")
-      expect(dms.all(".sidebar-section-link").first["data-link-name"]).to eq("new-dm")
       expect(dms).to have_css(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
       expect(sidebar).to have_no_css(".sidebar-section-link[data-link-name='text-hangout']")
       screenshot("dms")
@@ -610,15 +609,24 @@ RSpec.describe "Discord sidebar" do
       expect(sidebar).to have_css("[data-section-name='discord-dms']")
       screenshot("dm-channel")
 
-      new_dm = sidebar.find(".sidebar-section-link[data-link-name='new-dm']")
-      expect(new_dm).to have_text("New DM or group chat")
-      new_dm.click
+      sidebar.find(".discord-dm-header__new.btn-default", text: "New DM or group chat").click
       expect(page).to have_css(".chat-modal-new-message")
       send_keys(:escape)
 
       find(".discord-channel-header .discord-server-header__dms").click
       expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
       expect(sidebar).to have_no_css("[data-section-name='discord-dms']")
+      expect(sidebar).to have_no_css(".discord-dm-header")
+    end
+
+    it "goes back to the channels from the top of the DMs" do
+      visit("/latest")
+      dms_button.click
+
+      expect(sidebar.find(".discord-dm-header")).to have_css(".discord-dm-header__back + .discord-dm-header__new")
+      sidebar.find(".discord-dm-header__back", text: "Back to channels").click
+      expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
+      expect(dms_button["aria-pressed"]).to eq("false")
     end
 
     it "closes a DM from its menu" do
