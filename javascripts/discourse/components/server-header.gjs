@@ -8,10 +8,7 @@ import DButton from "discourse/ui-kit/d-button";
 import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
-import { CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
-
-// Discourse AI's panel, which it shows on its conversation pages.
-const AI_PANEL = "ai-conversations";
+import { AI_PANEL, CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
 import { serverMenuItems } from "../lib/server-menu";
 import ActionMenu from "./action-menu";
 

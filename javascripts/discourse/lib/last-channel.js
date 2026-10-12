@@ -1,7 +1,12 @@
+import { ajax } from "discourse/lib/ajax";
 import getURL from "discourse/lib/get-url";
 import Category from "discourse/models/category";
 
 const STORAGE_KEY = "discord-last-channel";
+
+// How long the homepage waits on a channel being checked before giving up on
+// it for this visit.
+const CHECK_TIMEOUT = 5000;
 
 /**
  * Reopens the channel someone was last in when they come back to the site's
@@ -13,81 +18,108 @@ const STORAGE_KEY = "discord-last-channel";
  * other's channels. A topic counts as being in its category's channel.
  */
 export default class LastChannel {
+  #saved;
+
   constructor(owner, currentChannel, user) {
     this.router = owner.lookup("service:router");
+    this.keyValueStore = owner.lookup("service:key-value-store");
+    this.chat = owner.lookup("service:chat");
     this.chatApi = owner.lookup("service:chat-api");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
+    this.voiceRooms = owner.lookup("service:voice-rooms");
     this.currentChannel = currentChannel;
     this.key = `${STORAGE_KEY}:${user.id}`;
   }
 
   install() {
-    let first = true;
-
-    this.router.on("routeWillChange", (transition) => {
-      if (first) {
-        first = false;
-        this.#reopen(transition);
-      }
-    });
+    this.#saved = this.keyValueStore.getObject(this.key);
+    this.router.one("routeWillChange", (transition) =>
+      this.#reopen(transition)
+    );
     this.router.on("routeDidChange", () => this.#remember());
   }
 
-  async #reopen(transition) {
-    if (transition.from || !isHomepageAddress()) {
-      return;
-    }
-
-    const saved = this.#read();
-    if (!saved?.url) {
-      return;
-    }
-
-    // Held while a chat channel is checked, so one that's gone doesn't end
-    // up on chat's "not found" error instead of the homepage.
-    const held = saved.type === "text";
-    if (held) {
-      transition.abort();
-    }
-
-    if (!(await this.#exists(saved))) {
-      this.#forget();
-      if (held) {
-        transition.retry();
-      }
+  #reopen(transition) {
+    const saved = this.#saved;
+    if (transition.from || !saved?.type || !isHomepageAddress()) {
       return;
     }
 
     // Starting another transition aborts the homepage's, so it's never drawn
     // or left in the history.
-    this.router.replaceWith(saved.url);
+    const category = saved.type === "forum" && Category.findById(saved.id);
+    if (category) {
+      this.router.replaceWith(category.path);
+      return;
+    }
+
+    // Anything else is checked first, so a channel that's gone, or can't be
+    // reached right now, falls back to the homepage rather than an error.
+    transition.abort();
+
+    let timer;
+    const timeout = new Promise((resolve) => {
+      timer = setTimeout(resolve, CHECK_TIMEOUT);
+    });
+
+    Promise.race([this.#find(saved), timeout])
+      .then((url) => {
+        if (url) {
+          this.router.replaceWith(url);
+        } else {
+          transition.retry();
+        }
+      })
+      .finally(() => clearTimeout(timer));
   }
 
-  async #exists({ type, id }) {
-    if (type === "forum") {
-      return !!Category.findById(id);
-    }
-
-    if (type === "text") {
-      try {
-        const { channel } = await this.chatApi.channel(id);
-        this.chatChannelsManager.store(channel);
-      } catch {
-        return false;
+  // The channel's current address, or nothing if it can't be opened. Only a
+  // channel that's definitely gone is forgotten, not one that failed to load.
+  async #find(saved) {
+    try {
+      const url = await this.#urlFor(saved);
+      if (!url) {
+        this.#forget();
+      }
+      return url;
+    } catch (error) {
+      if ([403, 404].includes(error?.jqXHR?.status)) {
+        this.#forget();
       }
     }
+  }
 
-    return true;
+  async #urlFor({ type, id, slug, url }) {
+    switch (type) {
+      case "forum": {
+        const [category] = await Category.asyncFindByIds([id]);
+        return category?.path;
+      }
+      case "text": {
+        await this.chat?.loadChannels();
+        let channel = await this.chatChannelsManager?.find(id, {
+          fetchIfNotFound: false,
+        });
+        if (!channel) {
+          const result = await this.chatApi.channel(id);
+          channel = this.chatChannelsManager.store(result.channel);
+        }
+        return `/chat/c/${channel.slugifiedTitle}/${channel.id}`;
+      }
+      case "tag":
+        await ajax(`/tag/${id}/info.json`);
+        return url;
+      case "voice":
+        await this.voiceRooms?.ready;
+        return this.voiceRooms?.roomBySlug(slug) && url;
+    }
   }
 
   #remember() {
     const saved = this.#channel();
-    if (saved) {
-      try {
-        localStorage.setItem(this.key, JSON.stringify(saved));
-      } catch {
-        // Storage is unavailable, so there's nothing to come back to.
-      }
+    if (saved && JSON.stringify(saved) !== JSON.stringify(this.#saved)) {
+      this.#saved = saved;
+      this.keyValueStore.setObject({ key: this.key, value: saved });
     }
   }
 
@@ -96,14 +128,8 @@ export default class LastChannel {
     const path = (this.router.currentURL || "").split(/[?#]/)[0];
 
     switch (current?.type) {
-      case "text": {
-        const { channel } = current;
-        return {
-          type: "text",
-          id: channel.id,
-          url: `/chat/c/${channel.slugifiedTitle}/${channel.id}`,
-        };
-      }
+      case "text":
+        return { type: "text", id: current.channel.id };
       case "forum":
         return categoryChannel(current.category);
       case "topic":
@@ -112,30 +138,20 @@ export default class LastChannel {
           categoryChannel(current.topic.category)
         );
       case "tag":
+        return { type: "tag", id: current.tag.id, url: path };
       case "voice":
-        return { type: current.type, url: path };
-    }
-  }
-
-  #read() {
-    try {
-      return JSON.parse(localStorage.getItem(this.key));
-    } catch {
-      return null;
+        return { type: "voice", slug: current.room.slug, url: path };
     }
   }
 
   #forget() {
-    try {
-      localStorage.removeItem(this.key);
-    } catch {
-      // Nothing was stored.
-    }
+    this.#saved = null;
+    this.keyValueStore.remove(this.key);
   }
 }
 
 function categoryChannel(category) {
-  return category && { type: "forum", id: category.id, url: category.path };
+  return category && { type: "forum", id: category.id };
 }
 
 function isHomepageAddress() {

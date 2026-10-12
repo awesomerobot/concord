@@ -388,7 +388,18 @@ RSpec.describe "Discord sidebar" do
       visit("/")
       expect(page).to have_css(".topic-list")
       expect(page).to have_current_path("/")
-      expect(page.evaluate_script("String(localStorage.getItem('discord-last-channel:#{admin.id}'))")).to eq("null")
+      expect(page.evaluate_script("String(localStorage.getItem('discourse_discord-last-channel:#{admin.id}'))")).to eq("null")
+    end
+
+    it "falls back to the homepage when a tag channel's gone" do
+      tag = Fabricate(:tag, name: "campfire-songs")
+      visit("/tag/#{tag.name}")
+      expect(page).to have_css(".discord-channel-header")
+      tag.destroy!
+
+      visit("/")
+      expect(page).to have_css(".topic-list")
+      expect(page).to have_current_path("/")
     end
 
     it "can be turned off" do

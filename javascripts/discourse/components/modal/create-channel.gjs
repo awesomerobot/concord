@@ -24,6 +24,7 @@ export default class CreateChannelModal extends Component {
   @service toasts;
 
   @tracked flash;
+  @tracked submitting = false;
   formApi;
 
   get creator() {
@@ -112,8 +113,13 @@ export default class CreateChannelModal extends Component {
 
   // The buttons sit in the modal's fixed footer, outside the form.
   @action
-  submit() {
-    this.formApi.submit();
+  async submit() {
+    this.submitting = true;
+    try {
+      await this.formApi.submit();
+    } finally {
+      this.submitting = false;
+    }
   }
 
   <template>
@@ -235,6 +241,7 @@ export default class CreateChannelModal extends Component {
       <:footer>
         <DButton
           @action={{this.submit}}
+          @isLoading={{this.submitting}}
           @label={{themePrefix "create_channel.submit"}}
           class="btn-primary"
         />

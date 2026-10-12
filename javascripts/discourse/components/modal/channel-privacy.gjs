@@ -27,9 +27,10 @@ export default class ChannelPrivacyModal extends Component {
   @service toasts;
 
   @tracked flash;
-  formApi;
   @tracked formData;
   @tracked loaded;
+  @tracked submitting = false;
+  formApi;
 
   constructor() {
     super(...arguments);
@@ -181,8 +182,13 @@ export default class ChannelPrivacyModal extends Component {
   // The buttons sit in the modal's fixed footer, outside the form, which
   // only renders once the permissions have loaded.
   @action
-  submit() {
-    this.formApi?.submit();
+  async submit() {
+    this.submitting = true;
+    try {
+      await this.formApi?.submit();
+    } finally {
+      this.submitting = false;
+    }
   }
 
   <template>
@@ -260,6 +266,7 @@ export default class ChannelPrivacyModal extends Component {
         {{else}}
           <DButton
             @action={{this.submit}}
+            @isLoading={{this.submitting}}
             @disabled={{this.loading}}
             @label="save"
             class="btn-primary"
