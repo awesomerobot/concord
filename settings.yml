@@ -7,6 +7,9 @@ include_chat_channels:
 ai_conversations_link:
   type: bool
   default: true
+remember_last_channel:
+  type: bool
+  default: true
 chat_container_category:
   type: string
   default: "chat-channels"

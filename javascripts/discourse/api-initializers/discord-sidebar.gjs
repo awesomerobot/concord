@@ -19,6 +19,7 @@ import {
   TOP_SECTION,
 } from "../lib/constants";
 import DirectMessages from "../lib/direct-messages";
+import LastChannel from "../lib/last-channel";
 import installLongPress from "../lib/long-press";
 import replaySlideIn from "../lib/replay-slide-in";
 import scrollToActive from "../lib/scroll-to-active";
@@ -256,6 +257,10 @@ export default apiInitializer((api) => {
         .trigger("header:keyboard-trigger", { type: "hamburger" });
     }
   });
+
+  if (settings.remember_last_channel && api.getCurrentUser()) {
+    new LastChannel(owner, currentChannel, api.getCurrentUser()).install();
+  }
 
   // Chat only updates presence on its own routes, so a visit that starts on a
   // forum page wouldn't count as online until chat was opened.

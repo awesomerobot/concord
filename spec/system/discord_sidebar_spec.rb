@@ -350,6 +350,59 @@ RSpec.describe "Discord sidebar" do
     end
   end
 
+  describe "coming back" do
+    fab!(:topic) { Fabricate(:topic, category: category) }
+    fab!(:post) { Fabricate(:post, topic: topic) }
+
+    it "reopens the last channel on the site's address" do
+      visit("/chat/c/#{chat_channel.slug}/#{chat_channel.id}")
+      expect(page).to have_css(".chat-channel[data-id='#{chat_channel.id}']")
+
+      visit("/")
+      expect(page).to have_current_path(%r{\A/chat/c/[^/]+/#{chat_channel.id}})
+      expect(page).to have_css(".chat-channel[data-id='#{chat_channel.id}']")
+    end
+
+    it "reopens a topic's channel" do
+      visit(topic.relative_url)
+      expect(page).to have_css("#topic-title")
+      visit("/")
+
+      expect(page).to have_current_path(category.relative_url)
+    end
+
+    it "leaves links to other pages alone" do
+      visit("/chat/c/#{chat_channel.slug}/#{chat_channel.id}")
+      expect(page).to have_css(".chat-channel[data-id='#{chat_channel.id}']")
+
+      visit("/latest")
+      expect(page).to have_css(".topic-list")
+      expect(page).to have_current_path("/latest")
+    end
+
+    it "falls back to the homepage when the channel's gone" do
+      visit("/chat/c/#{chat_channel.slug}/#{chat_channel.id}")
+      expect(page).to have_css(".chat-channel[data-id='#{chat_channel.id}']")
+      chat_channel.trash!
+
+      visit("/")
+      expect(page).to have_css(".topic-list")
+      expect(page).to have_current_path("/")
+      expect(page.evaluate_script("String(localStorage.getItem('discord-last-channel:#{admin.id}'))")).to eq("null")
+    end
+
+    it "can be turned off" do
+      theme.update_setting(:remember_last_channel, false)
+      theme.save!
+      visit(category.relative_url)
+      expect(page).to have_css(".topic-list")
+
+      visit("/")
+      expect(page).to have_css(".topic-list")
+      expect(page).to have_current_path("/")
+    end
+  end
+
   describe "privacy" do
     let(:privacy_form) { PageObjects::Components::FormKit.new(".discord-channel-privacy-modal form") }
 

@@ -142,6 +142,14 @@ button it's a toggle: it opens the conversations, with Discourse AI's own
 list beneath the server name, and from there goes back to the last forum
 page. The `ai_conversations_link` setting turns it off.
 
+## Coming back
+
+Like Discord, the site reopens the channel someone was last in (a topic counts
+as its category's channel) when they come back to the site's address. Links to
+any other page go where they say, the home link still goes home, and a channel
+that's gone or private falls back to the homepage. It's per user and per
+browser, for signed-in people only; `remember_last_channel` turns it off.
+
 ## Member list
 
 A panel down the right of the page, toggled by the people icon in the header
