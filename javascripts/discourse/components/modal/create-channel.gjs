@@ -27,6 +27,22 @@ export default class CreateChannelModal extends Component {
   @tracked submitting = false;
   formApi;
 
+  formData = {
+    type: this.creator.types[0],
+    section:
+      this.sidebarSections.sections[this.args.model.sectionIndex]?.name ?? null,
+    name: "",
+    isPrivate: false,
+    groupIds: [],
+  };
+
+  // A name typed into the picker isn't a section yet, and select-kit only
+  // shows a selection that's among its options.
+  sectionOptions = (value) => {
+    const names = this.sidebarSections.names;
+    return value && !names.includes(value) ? [...names, value] : names;
+  };
+
   get creator() {
     return this.args.model.creator;
   }
@@ -51,22 +67,6 @@ export default class CreateChannelModal extends Component {
       ),
     }));
   }
-
-  formData = {
-    type: this.creator.types[0],
-    section:
-      this.sidebarSections.sections[this.args.model.sectionIndex]?.name ?? null,
-    name: "",
-    isPrivate: false,
-    groupIds: [],
-  };
-
-  // A name typed into the picker isn't a section yet, and select-kit only
-  // shows a selection that's among its options.
-  sectionOptions = (value) => {
-    const names = this.sidebarSections.names;
-    return value && !names.includes(value) ? [...names, value] : names;
-  };
 
   @action
   validate(data, { addError }) {

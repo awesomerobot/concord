@@ -2,9 +2,9 @@ import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { bind } from "discourse/lib/decorators";
 import Notifications from "discourse/components/header/user-dropdown/notifications";
 import bodyClass from "discourse/helpers/body-class";
+import { bind } from "discourse/lib/decorators";
 import DiscourseURL from "discourse/lib/url";
 import Category from "discourse/models/category";
 import DButton from "discourse/ui-kit/d-button";
@@ -20,7 +20,7 @@ const t = (key) => i18n(themePrefix(`channel_header.${key}`));
 // Folded into the "…" menu on small screens, where the row has no room.
 const COLLAPSIBLE = ["threads", "pins", "settings"];
 
-const isCollapsible = (action) => COLLAPSIBLE.includes(action.id);
+const isCollapsible = (headerAction) => COLLAPSIBLE.includes(headerAction.id);
 
 /**
  * Discord's top row: the server's name over the channel list, then the
@@ -35,6 +35,9 @@ export default class ChannelHeader extends Component {
   @service router;
   @service search;
   @service site;
+
+  isFolded = (headerAction) =>
+    this.moreItems.length > 0 && isCollapsible(headerAction);
 
   constructor() {
     super(...arguments);
@@ -169,15 +172,12 @@ export default class ChannelHeader extends Component {
     return items.length > 1 ? items : [];
   }
 
-  isFolded = (headerAction) =>
-    this.moreItems.length > 0 && isCollapsible(headerAction);
-
   get moreMenuItems() {
-    return this.moreItems.map((action) => ({
-      id: action.id,
-      label: action.title,
-      icon: action.icon,
-      action: action.action,
+    return this.moreItems.map((headerAction) => ({
+      id: headerAction.id,
+      label: headerAction.title,
+      icon: headerAction.icon,
+      action: headerAction.action,
     }));
   }
 

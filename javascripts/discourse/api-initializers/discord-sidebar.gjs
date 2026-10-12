@@ -4,13 +4,16 @@ import { getOwnerWithFallback } from "discourse/lib/get-owner";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
 import { eq } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
+import ChannelHeader from "../components/channel-header";
+import MemberList from "../components/member-list";
 import CreateChannelModal from "../components/modal/create-channel";
+import ServerHeader from "../components/server-header";
+import TopicLayout from "../components/topic-layout";
+import UserPanel from "../components/user-panel";
 import ChannelActions from "../lib/channel-actions";
 import ChannelCreator from "../lib/channel-creator";
-import ChannelPrivacy from "../lib/channel-privacy";
-import CurrentChannel from "../lib/current-channel";
-import MemberListData from "../lib/member-list";
 import ChannelDirectory from "../lib/channel-directory";
+import ChannelPrivacy from "../lib/channel-privacy";
 import {
   CHANNELS_PANEL,
   DMS_PANEL,
@@ -18,17 +21,14 @@ import {
   SECTION_PREFIX,
   TOP_SECTION,
 } from "../lib/constants";
+import CurrentChannel from "../lib/current-channel";
 import DirectMessages from "../lib/direct-messages";
 import LastChannel from "../lib/last-channel";
 import installLongPress from "../lib/long-press";
+import MemberListData from "../lib/member-list";
 import replaySlideIn from "../lib/replay-slide-in";
 import scrollToActive from "../lib/scroll-to-active";
 import SidebarSections from "../lib/sidebar-sections";
-import ChannelHeader from "../components/channel-header";
-import MemberList from "../components/member-list";
-import ServerHeader from "../components/server-header";
-import TopicLayout from "../components/topic-layout";
-import UserPanel from "../components/user-panel";
 
 export default apiInitializer((api) => {
   const owner = getOwnerWithFallback(api);

@@ -3,13 +3,13 @@ import { setOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import { canDisplayCategory } from "discourse/lib/sidebar/helpers";
 import Category from "discourse/models/category";
-import { channelKey } from "./sidebar-sections";
 import {
   ForumChannelLink,
   TagChannelLink,
   TextChannelLink,
   VoiceChannelLink,
 } from "./channel-links";
+import { channelKey } from "./sidebar-sections";
 
 /**
  * Builds the one list of channels the sidebar shows, out of categories, tags

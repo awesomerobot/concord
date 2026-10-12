@@ -1,8 +1,8 @@
 import { trustHTML } from "@ember/template";
 import { avatarUrl } from "discourse/lib/avatar-utils";
-import { emojiUnescape } from "discourse/lib/text";
 import CategorySectionLink from "discourse/lib/sidebar/user/categories-section/category-section-link";
 import TagSectionLink from "discourse/lib/sidebar/user/tags-section/tag-section-link";
+import { emojiUnescape } from "discourse/lib/text";
 import { channelKey } from "./sidebar-sections";
 
 // Every link is prefixed by its kind, since a category, a tag and a chat

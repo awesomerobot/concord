@@ -18,11 +18,6 @@ class MemberPager {
   @tracked loading = false;
   @tracked done = false;
 
-  constructor(fetchPage) {
-    this.fetchPage = fetchPage;
-    this.page = 0;
-  }
-
   loadMore = async () => {
     if (this.loading || this.done) {
       return;
@@ -40,6 +35,11 @@ class MemberPager {
     }
   };
 
+  constructor(fetchPage) {
+    this.fetchPage = fetchPage;
+    this.page = 0;
+  }
+
   async loadPages(count) {
     for (let i = 0; i < count && !this.done; i++) {
       await this.loadMore();
@@ -56,11 +56,9 @@ class MemberPager {
  * presence channel, plus the who's-online plugin when it's there.
  */
 export default class MemberList {
-  @service currentUser;
   @service keyValueStore;
   @service router;
   @service site;
-  @service siteSettings;
 
   @tracked open;
   // Small screens show the list as a slide-in instead, which starts closed

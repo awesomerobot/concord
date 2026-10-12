@@ -204,7 +204,7 @@ export default class ChannelPrivacyModal extends Component {
             {{t "shared" category=this.sharedCategoryName}}
           </p>
         {{else}}
-          {{! template-lint-disable no-invalid-interactive }}
+          {{! eslint-disable ember/template-no-invalid-interactive }}
           <div {{on "click" this.closeOnParentLink}}>
             <DConditionalLoadingSpinner @condition={{this.loading}}>
               {{#if this.formData}}

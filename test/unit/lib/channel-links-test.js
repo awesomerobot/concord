@@ -25,12 +25,12 @@ module("Unit | Lib | channel-links", function () {
     const quiet = new TextChannelLink({ channel: channel() });
     assert.strictEqual(quiet.badgeText, null);
     assert.strictEqual(quiet.suffixValue, undefined);
-    assert.notOk(quiet.classNames.includes("discord-channel--unread"));
+    assert.false(quiet.classNames.includes("discord-channel--unread"));
 
     const unread = new TextChannelLink({ channel: channel({ unread: 3 }) });
     assert.strictEqual(unread.badgeText, null);
     assert.strictEqual(unread.suffixValue, "circle");
-    assert.ok(unread.classNames.includes("discord-channel--unread"));
+    assert.true(unread.classNames.includes("discord-channel--unread"));
 
     const mentioned = new TextChannelLink({
       channel: channel({ unread: 3, mentions: 2 }),

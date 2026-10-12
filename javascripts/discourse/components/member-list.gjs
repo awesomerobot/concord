@@ -3,10 +3,10 @@ import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import bodyClass from "discourse/helpers/body-class";
+import { not } from "discourse/truth-helpers";
 import DLoadMore from "discourse/ui-kit/d-load-more";
 import DUserAvatar from "discourse/ui-kit/d-user-avatar";
 import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
-import { not } from "discourse/truth-helpers";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
@@ -16,6 +16,17 @@ import { CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
 export default class MemberList extends Component {
   @service sidebarState;
   @service siteSettings;
+
+  sectionTitle = (section) =>
+    ["online", "offline"].includes(section.title)
+      ? i18n(themePrefix(`member_list.${section.title}`))
+      : section.title;
+
+  displayName = (user) =>
+    (this.siteSettings.prioritize_full_name_in_ux && user.name) ||
+    user.username;
+
+  isOnline = (user) => this.onlineIds.has(user.id);
 
   get show() {
     return (
@@ -33,22 +44,12 @@ export default class MemberList extends Component {
     return new Set(this.args.memberList.onlineUsers.map((user) => user.id));
   }
 
-  sectionTitle = (section) =>
-    ["online", "offline"].includes(section.title)
-      ? i18n(themePrefix(`member_list.${section.title}`))
-      : section.title;
-
-  displayName = (user) =>
-    (this.siteSettings.prioritize_full_name_in_ux && user.name) ||
-    user.username;
-
-  isOnline = (user) => this.onlineIds.has(user.id);
-
   <template>
     {{! Always there, so core's user cards can listen for clicks on it. }}
     <div class="discord-member-list-host">
       {{#if this.show}}
         {{#if @memberList.compact}}
+          {{! eslint-disable-next-line ember/template-no-invalid-interactive }}
           <div
             class="discord-member-list__cloak"
             role="presentation"
