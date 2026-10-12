@@ -114,7 +114,6 @@ export default class MemberList {
     return [...byId.values()];
   }
 
-  /** The pager for the current channel's members, made on first use. */
   get pager() {
     const current = this.currentChannel.value;
     const key =

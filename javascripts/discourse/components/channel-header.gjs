@@ -106,7 +106,6 @@ export default class ChannelHeader extends Component {
       return;
     }
 
-    // Phones get core's full page search, as from core's own header.
     if (this.site.mobileView) {
       if (this.router.currentRouteName === "full-page-search") {
         document.querySelector(".full-page-search")?.focus();

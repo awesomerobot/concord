@@ -50,7 +50,6 @@ export default class DirectMessages {
     return this.chatChannelsManager?.directMessageChannels || [];
   }
 
-  /** The DM link a sidebar row was rendered from, by its name. */
   linkNamed(name) {
     return this.links.find((link) => link.name === name);
   }

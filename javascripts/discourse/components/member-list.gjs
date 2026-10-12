@@ -11,8 +11,6 @@ import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
 
-// Discord's member list, down the right of the page, or sliding in from the
-// right on small screens.
 export default class MemberList extends Component {
   @service sidebarState;
   @service siteSettings;

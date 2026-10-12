@@ -20,7 +20,6 @@ export function channelKey(type, id) {
 export default class SidebarSections {
   @tracked sections;
 
-  /** Called after the sections are saved. */
   onChange = () => {};
 
   constructor(currentUser) {
@@ -47,7 +46,6 @@ export default class SidebarSections {
     await this.#save(this.#with(this.sections, sectionName, key));
   }
 
-  /** @returns {number} The index of the section holding this channel, or -1. */
   sectionIndexOf(key) {
     return this.sections.findIndex((section) =>
       (section.channels || []).some((c) => channelKey(c.type, c.id) === key)

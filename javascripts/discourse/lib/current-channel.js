@@ -2,21 +2,16 @@ import { setOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import { i18n } from "discourse-i18n";
 
+// Core's own sign-in pages, which keep core's minimal header and nothing else.
+const AUTH_ROUTES = ["login", "signup", "discovery.login-required"];
+
 /**
  * Works out which channel the current page belongs to, for everything that
  * changes with it (the header row, the member list).
  *
  * Outside channels, the site-wide pages from the server menu get a title of
  * their own.
- *
- * @returns {{ type: "text", channel } | { type: "voice", room } |
- *   { type: "forum", category } | { type: "topic", topic } |
- *   { type: "tag", tag } | { type: "page", icon, name, description? } |
- *   undefined}
  */
-// Core's own sign-in pages, which keep core's minimal header and nothing else.
-const AUTH_ROUTES = ["login", "signup", "discovery.login-required"];
-
 export default class CurrentChannel {
   @service discovery;
   @service router;
@@ -31,6 +26,12 @@ export default class CurrentChannel {
     return AUTH_ROUTES.includes(this.router.currentRouteName);
   }
 
+  /**
+   * @returns {{ type: "text", channel } | { type: "voice", room } |
+   *   { type: "forum", category } | { type: "topic", topic } |
+   *   { type: "tag", tag } | { type: "page", icon, name, description? } |
+   *   undefined}
+   */
   get value() {
     const name = this.router.currentRouteName || "";
 

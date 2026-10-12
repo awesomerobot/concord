@@ -23,7 +23,6 @@ export default function scrollToActive(list) {
     rowRect.top - scroller.getBoundingClientRect().top + scroller.scrollTop;
   const bottom = top + rowRect.height;
 
-  // The slide-in list's server name stays stuck over the top of it.
   const header = scroller.querySelector(".discord-server-header");
   const covered =
     header && getComputedStyle(header).position === "sticky"

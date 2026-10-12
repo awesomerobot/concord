@@ -22,7 +22,6 @@ export default class ServerHeader extends Component {
   @service siteSettings;
   @service sidebarState;
 
-  // What's waiting in the review queue, which the server menu leads to.
   get reviewCount() {
     return this.currentUser?.can_review ? this.currentUser.reviewable_count : 0;
   }

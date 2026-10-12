@@ -80,7 +80,6 @@ export default class ChannelDirectory {
     };
   }
 
-  /** The channel link a sidebar row was rendered from, by its name. */
   linkNamed(name) {
     const { top, sections } = this.layout;
     return [...top, ...sections.flatMap((section) => section.links)].find(

@@ -93,7 +93,6 @@
   }
 }
 
-// DM avatars sit where a channel's icon does.
 .discord-channel--dm .sidebar-section-link-prefix.image img {
   width: 1.25em;
   height: 1.25em;
@@ -468,8 +467,7 @@ body.discord-header .d-header > .wrap {
   }
 
   // Flush to the left edge, so the sidebar lines up with the server name
-  // above it.
-  // The page starts where the header row's channel name does.
+  // above it and the page starts where the header row's channel name does.
   body.has-sidebar-page #main-outlet-wrapper {
     --d-main-content-gap: 1em;
     padding-left: 0;
@@ -570,7 +568,6 @@ body.discord-header .d-header > .wrap {
   box-shadow: none;
 }
 
-// Sits at the foot of the sidebar, under the scrolling channel list.
 .discord-user-panel {
   display: flex;
   align-items: center;
@@ -804,7 +801,6 @@ body.discord-header .d-header > .wrap {
   display: flex;
 }
 
-// Discord's green dot on the avatar's corner.
 .discord-member-list__presence {
   position: absolute;
   right: -2px;

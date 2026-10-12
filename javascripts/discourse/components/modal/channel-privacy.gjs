@@ -158,7 +158,6 @@ export default class ChannelPrivacyModal extends Component {
     }
   }
 
-  // Following the parent's link leaves the dialog behind.
   @action
   closeOnParentLink(event) {
     if (event.target.closest(".discord-channel-privacy-modal__parent")) {

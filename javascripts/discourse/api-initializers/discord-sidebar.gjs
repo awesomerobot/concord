@@ -178,7 +178,6 @@ export default apiInitializer((api) => {
           text = "";
           hideSectionHeader = true;
 
-          // Starting a conversation leads the list, as in Discord's Home.
           get links() {
             return [newDirectMessageLink, ...directMessages.links];
           }
@@ -282,7 +281,6 @@ export default apiInitializer((api) => {
     );
   }
 
-  // Names in the member list open user cards, as they do on the page.
   api.addCardClickListenerSelector(".discord-member-list-host");
 
   // A third column of the main grid, after the page itself.
