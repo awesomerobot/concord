@@ -1,6 +1,6 @@
 # Complete Discord Cancellation Kit
 
-A theme component that makes Discourse feel like Discord.
+A theme that makes Discourse feel like Discord.
 
 It replaces the sidebar with one section where everything is a channel:
 

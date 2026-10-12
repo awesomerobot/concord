@@ -1,6 +1,6 @@
 {
   "name": "Complete Discord Cancellation Kit",
-  "component": true,
+  "component": false,
   "authors": "Discourse",
   "about_url": null,
   "license_url": null,

@@ -7,7 +7,7 @@ RSpec.describe "Discord sidebar" do
   fab!(:chat_channel) { Fabricate(:category_channel, chatable: category, name: "hangout") }
   fab!(:voice_room) { Fabricate(:voice_room, name: "Campfire", public: true, creator: admin) }
 
-  let!(:theme) { upload_theme_component }
+  let!(:theme) { upload_theme }
   let(:sidebar) { find(".sidebar-wrapper") }
   let(:modal) { PageObjects::Modals::Base.new }
   let(:form) { PageObjects::Components::FormKit.new(".discord-create-channel-modal form") }
