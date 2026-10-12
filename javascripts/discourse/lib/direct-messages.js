@@ -20,6 +20,7 @@ export default class DirectMessages {
   @service sidebarState;
 
   #links = new Map();
+  #followedURL;
 
   constructor(owner, currentChannel, channelActions) {
     setOwner(this, owner);
@@ -82,11 +83,14 @@ export default class DirectMessages {
     this.sidebarState.setPanel(dmMode.panel);
   }
 
+  // A route that stops its own transition, like chat's new message modal,
+  // still reports a route change, so only an actual change of page counts.
   @bind
   follow() {
-    if (!this.available) {
+    if (!this.available || this.router.currentURL === this.#followedURL) {
       return;
     }
+    this.#followedURL = this.router.currentURL;
 
     const name = this.router.currentRouteName || "";
     let active;

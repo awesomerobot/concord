@@ -628,6 +628,16 @@ RSpec.describe "Discord sidebar" do
       expect(sidebar).to have_no_css(".discord-dm-header")
     end
 
+    it "keeps the DMs showing while a new DM is started from a channel" do
+      visit(category.relative_url)
+      dms_button.click
+
+      sidebar.find(".discord-dm-header__new").click
+      expect(page).to have_css(".chat-modal-new-message")
+      expect(sidebar).to have_css(".discord-dm-header")
+      expect(sidebar).to have_css("[data-section-name='discord-dms']")
+    end
+
     it "goes back to the channels from the top of the DMs" do
       visit("/latest")
       dms_button.click
