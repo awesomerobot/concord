@@ -295,11 +295,10 @@ RSpec.describe "Concord sidebar" do
       AiAgent.ensure_users!
     end
 
-    it "links to AI bot conversations beside the DM button" do
+    it "shows the AI conversations beside the DM button, without leaving the page" do
       visit("/latest")
 
       link = find(".concord-server-header__ai")
-      expect(link[:href]).to end_with("/discourse-ai/ai-bot/conversations")
       next_to_dms = page.evaluate_script(<<~JS)
         document.querySelector(".sidebar-wrapper .concord-server-header__ai").nextElementSibling.matches(".concord-server-header__dms")
       JS
@@ -313,16 +312,37 @@ RSpec.describe "Concord sidebar" do
       expect(sizes.uniq.size).to eq(1)
       screenshot("ai-conversations-link")
 
-      # A toggle, like the DM button: in, then back out to where you were.
+      # A toggle, like the DM button: the list swaps, the page stays.
       link.click
-      expect(page).to have_current_path(%r{^/discourse-ai/ai-bot/conversations})
       expect(page).to have_css(".concord-server-header__ai.--active[aria-pressed='true']")
+      expect(sidebar).to have_css(".ai-new-question-button")
+      expect(page).to have_no_css(".concord-channel--forum")
+      expect(page).to have_current_path("/latest")
       screenshot("ai-conversations-active")
 
       find(".concord-server-header__ai").click
-      expect(page).to have_current_path("/latest")
       expect(page).to have_css(".concord-server-header__ai[aria-pressed='false']")
       expect(channel_link("forum-#{category.slug}")).to be_present
+      expect(page).to have_current_path("/latest")
+
+      # Its way back does the same.
+      find(".concord-server-header__ai").click
+      sidebar.find(".sidebar-sections__back-to-forum", text: "Back to all channels").click
+      expect(channel_link("forum-#{category.slug}")).to be_present
+      expect(page).to have_current_path("/latest")
+      expect(page).to have_no_css("body.has-ai-conversations-sidebar")
+
+      # Starting a conversation goes to Discourse AI's page, list and all.
+      find(".concord-server-header__ai").click
+      sidebar.find(".ai-new-question-button").click
+      expect(page).to have_current_path(%r{^/discourse-ai/ai-bot/conversations})
+      expect(page).to have_css(".concord-server-header__ai[aria-pressed='true']")
+
+    end
+
+    it "opens the conversations on its own pages" do
+      visit("/discourse-ai/ai-bot/conversations")
+      expect(page).to have_css(".concord-server-header__ai[aria-pressed='true']")
     end
 
     it "is never pressed at the same time as the DM button" do

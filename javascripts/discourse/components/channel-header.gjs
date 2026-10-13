@@ -296,6 +296,7 @@ export default class ChannelHeader extends Component {
     {{bodyClass "concord-header"}}
     <div class="concord-channel-header">
       <ServerHeader
+        @aiConversations={{@aiConversations}}
         @always={{true}}
         @canCreate={{@canCreate}}
         @directMessages={{@directMessages}}

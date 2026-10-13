@@ -31,6 +31,7 @@ export default class ServerHeader extends Component {
   get showAiConversations() {
     const models = this.currentUser?.ai_available_llm_models;
     if (
+      !this.args.aiConversations?.manager ||
       !settings.ai_conversations_link ||
       !this.siteSettings.ai_bot_enabled ||
       !models
@@ -45,22 +46,6 @@ export default class ServerHeader extends Component {
     );
   }
 
-  get aiConversationsActive() {
-    return this.sidebarState.currentPanelKey === AI_PANEL;
-  }
-
-  // A toggle, like the DM button: out of the conversations goes back to the
-  // last forum page, as Discourse AI's own button does.
-  get aiConversationsHref() {
-    if (this.aiConversationsActive) {
-      return (
-        getOwner(this).lookup("service:ai-conversations-sidebar-manager")
-          ?.lastKnownAppURL || "/"
-      );
-    }
-    return "/discourse-ai/ai-bot/conversations";
-  }
-
   get show() {
     return (
       this.args.always ||
@@ -71,8 +56,17 @@ export default class ServerHeader extends Component {
   }
 
   @action
+  toggleAiConversations() {
+    this.args.aiConversations.toggle();
+  }
+
+  @action
   toggleDirectMessages() {
-    this.args.directMessages.toggle();
+    // Letting go of the AI list can bring the DMs back on its own, so whether
+    // to show them is decided first.
+    const show = !this.args.directMessages.active;
+    this.args.aiConversations?.release();
+    this.args.directMessages.show(show);
   }
 
   @action
@@ -108,13 +102,13 @@ export default class ServerHeader extends Component {
 
         {{#if this.showAiConversations}}
           <DButton
-            @href={{this.aiConversationsHref}}
+            @action={{this.toggleAiConversations}}
             @icon="far-discobot"
             @translatedTitle={{i18n (themePrefix "ai_conversations")}}
-            aria-pressed={{if this.aiConversationsActive "true" "false"}}
+            aria-pressed={{if @aiConversations.active "true" "false"}}
             class={{dConcatClass
               "btn-flat concord-server-header__ai"
-              (if this.aiConversationsActive "--active")
+              (if @aiConversations.active "--active")
             }}
           />
         {{/if}}

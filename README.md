@@ -140,9 +140,10 @@ switches back.
 
 With Discourse AI, people who can start an AI bot conversation get a button
 before the DM one, standing in for Discourse AI's header button. Like the DM
-button it's a toggle: it opens the conversations, with Discourse AI's own
-list beneath the server name, and from there goes back to the last forum
-page. The `ai_conversations_link` setting turns it off.
+button it's a toggle that swaps the channel list for Discourse AI's own list of
+conversations, without leaving the page; pressing it again, or the list's
+"Back to all channels", puts the channels back. Discourse AI's pages still
+open with its list showing. The `ai_conversations_link` setting turns it off.
 
 ## Coming back
 

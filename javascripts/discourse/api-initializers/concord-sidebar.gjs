@@ -11,6 +11,7 @@ import CreateChannelModal from "../components/modal/create-channel";
 import ServerHeader from "../components/server-header";
 import TopicLayout from "../components/topic-layout";
 import UserPanel from "../components/user-panel";
+import AiConversations from "../lib/ai-conversations";
 import ChannelActions from "../lib/channel-actions";
 import ChannelCreator from "../lib/channel-creator";
 import ChannelDirectory from "../lib/channel-directory";
@@ -56,6 +57,7 @@ export default apiInitializer((api) => {
     currentChannel,
     channelActions
   );
+  const aiConversations = new AiConversations(owner, directMessages);
   const sidebarState = owner.lookup("service:sidebar-state");
 
   const openCreateChannel = (sectionIndex = null) =>
@@ -193,6 +195,7 @@ export default apiInitializer((api) => {
     "before-sidebar-sections",
     <template>
       <ServerHeader
+        @aiConversations={{aiConversations}}
         @canCreate={{creator.types.length}}
         @directMessages={{directMessages}}
         @onCreate={{openCreateChannel}}
@@ -209,6 +212,7 @@ export default apiInitializer((api) => {
     <template>
       {{#unless currentChannel.isAuthPage}}
         <ChannelHeader
+          @aiConversations={{aiConversations}}
           @canCreate={{creator.types.length}}
           @currentChannel={{currentChannel}}
           @directMessages={{directMessages}}
