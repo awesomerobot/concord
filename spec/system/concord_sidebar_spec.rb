@@ -1047,6 +1047,21 @@ RSpec.describe "Concord sidebar" do
   end
 
   describe "user panel" do
+    it "puts the user's status emoji on their avatar" do
+      SiteSetting.enable_user_status = true
+      admin.set_status!("Out camping", "tent")
+      visit("/latest")
+
+      expect(find(".concord-user-panel__subtitle")).to have_text("Out camping")
+      avatar, status = page.evaluate_script(<<~JS)
+        [".concord-user-panel__avatar .avatar", ".concord-user-panel__avatar .user-status-background"]
+          .map((s) => { const r = document.querySelector(s).getBoundingClientRect(); return { right: r.right, bottom: r.bottom }; })
+      JS
+      expect(status["right"]).to be_within(4).of(avatar["right"])
+      expect(status["bottom"]).to be_within(2).of(avatar["bottom"])
+      screenshot("user-panel-status")
+    end
+
     it "shows the display name over the username, without saying either twice" do
       admin.update!(name: "Anne Admin")
       visit("/latest")

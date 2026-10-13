@@ -631,6 +631,13 @@ body.concord-header .d-header > .wrap {
       width: 2em;
       height: 2em;
     }
+
+    // Core only places the status emoji on its header's avatar.
+    .user-status-background {
+      position: absolute;
+      right: -3px;
+      bottom: -1px;
+    }
   }
 
   &__names {
