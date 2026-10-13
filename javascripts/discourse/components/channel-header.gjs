@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import { trustHTML } from "@ember/template";
 import Notifications from "discourse/components/header/user-dropdown/notifications";
 import bodyClass from "discourse/helpers/body-class";
 import { bind } from "discourse/lib/decorators";
@@ -266,7 +267,8 @@ export default class ChannelHeader extends Component {
 
     return {
       icon: "fab-discourse",
-      name: topic.title,
+      // Escaped by the server, with its emoji drawn, as core's header shows it.
+      name: topic.fancyTitle ? trustHTML(topic.fancyTitle) : topic.title,
       nameHref: topic.firstPostUrl,
       description: category?.displayName,
       descriptionHref: category?.url,

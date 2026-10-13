@@ -918,6 +918,17 @@ RSpec.describe "Concord sidebar" do
       expect(header).to have_css(".concord-channel-header__name", text: "Lounge")
     end
 
+    it "draws emoji in a topic's title" do
+      topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs :fire: <b>")).topic
+      visit(topic.relative_url)
+
+      name = header.find(".concord-channel-header__name a")
+      expect(name).to have_css("img.emoji")
+      expect(name).to have_text("Best campfire songs")
+      expect(name).to have_text("<b>")
+      expect(name).to have_no_css("b")
+    end
+
     it "shows a topic's title over its category" do
       topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
       visit(topic.relative_url)
