@@ -49,8 +49,8 @@ class MemberPager {
 
 /**
  * Who to show in the member list for the current channel, sorted into
- * sections: people in the call (voice), then each role's
- * online members, then everyone else online, then offline.
+ * sections: each role's online members, then everyone else online, then
+ * offline.
  *
  * "Online" means active on the site in the last few minutes, from chat's
  * presence channel, plus the who's-online plugin when it's there.
@@ -87,8 +87,14 @@ export default class MemberList {
     return this.site.mobileView || this.site.narrowDesktopView;
   }
 
+  // A voice channel lists who's in it under its name in the channel list,
+  // as in Discord, so it has no member list of its own.
+  get available() {
+    return this.currentChannel.value?.type !== "voice";
+  }
+
   get active() {
-    return this.compact ? this.slideOpen : this.open;
+    return this.available && (this.compact ? this.slideOpen : this.open);
   }
 
   toggle() {
@@ -154,15 +160,6 @@ export default class MemberList {
         placed.add(user.id);
         return true;
       });
-
-    if (current?.type === "voice") {
-      sections.push({
-        id: "voice",
-        title: current.room.name,
-        icon: "volume-high",
-        users: take(current.room.active_participants || []),
-      });
-    }
 
     // A channel's list only covers its members; elsewhere it's everyone.
     const memberIds =

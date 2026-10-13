@@ -369,7 +369,7 @@ export default class ChannelHeader extends Component {
               data-action-id={{headerAction.id}}
             />
           {{/each}}
-          {{#if @memberList}}
+          {{#if @memberList.available}}
             <DButton
               @action={{this.memberListAction.action}}
               @icon={{this.memberListAction.icon}}

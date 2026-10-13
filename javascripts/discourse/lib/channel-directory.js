@@ -8,6 +8,7 @@ import {
   TagChannelLink,
   TextChannelLink,
   VoiceChannelLink,
+  voiceParticipantLinks,
 } from "./channel-links";
 import { channelKey } from "./sidebar-sections";
 
@@ -28,6 +29,20 @@ export default class ChannelDirectory {
   #forumLinks = new Map();
   #tagLinks = new Map();
   #textLinks = new Map();
+
+  // order.
+  #withParticipants = (link) =>
+    link instanceof VoiceChannelLink
+      ? [
+          link,
+          ...voiceParticipantLinks({
+            room: link.room,
+            voiceRooms: this.voiceRooms,
+            voiceWebrtc: this.voiceWebrtc,
+            user: this.currentUser,
+          }),
+        ]
+      : [link];
 
   constructor(owner, sidebarSections, channelActions) {
     setOwner(this, owner);
@@ -63,7 +78,8 @@ export default class ChannelDirectory {
           placed.add(key);
           return byKey.get(key);
         })
-        .filter(Boolean),
+        .filter(Boolean)
+        .flatMap(this.#withParticipants),
     }));
 
     // Sections keep the order they were arranged in; the rest are one list,
@@ -75,7 +91,8 @@ export default class ChannelDirectory {
           a.sortName.localeCompare(b.sortName, undefined, {
             sensitivity: "base",
           })
-        ),
+        )
+        .flatMap(this.#withParticipants),
       sections,
     };
   }
@@ -208,6 +225,8 @@ export default class ChannelDirectory {
       new VoiceChannelLink({ room, voiceWebrtc: this.voiceWebrtc })
     );
   }
+
+  // Who's in a voice channel sits under it, so it's added once the list is in
 
   #memo(map, key, build) {
     if (!map.has(key)) {

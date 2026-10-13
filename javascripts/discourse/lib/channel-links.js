@@ -1,8 +1,11 @@
 import { trustHTML } from "@ember/template";
 import { avatarUrl } from "discourse/lib/avatar-utils";
+import { prioritizeNameInUx } from "discourse/lib/settings";
 import CategorySectionLink from "discourse/lib/sidebar/user/categories-section/category-section-link";
 import TagSectionLink from "discourse/lib/sidebar/user/tags-section/tag-section-link";
 import { emojiUnescape } from "discourse/lib/text";
+import { i18n } from "discourse-i18n";
+import VoiceParticipantSuffix from "../components/voice-participant-suffix";
 import { channelKey } from "./sidebar-sections";
 
 // Every link is prefixed by its kind, since a category, a tag and a chat
@@ -278,10 +281,183 @@ export class VoiceChannelLink {
   get prefixBadge() {
     return this.room.public ? null : "lock";
   }
+}
 
-  // Who's in the room, until the list shows their avatars underneath.
-  get badgeText() {
-    const count = this.room.active_participants?.length;
-    return count > 0 ? count.toString() : null;
+// A stage shows this many listeners before folding the rest into a count.
+const MAX_LISTENERS = 5;
+
+/**
+ * Who's in a voice channel, as rows under it, the way the voice plugin's own
+ * sidebar lists them: a stage's speakers first, then a few of its listeners.
+ * The rows take the plugin's names and classes, so its styles, speaking ring
+ * and right-click menu apply to them as they do there.
+ *
+ * @returns {Array} The rows, in order.
+ */
+export function voiceParticipantLinks({ room, voiceRooms, voiceWebrtc, user }) {
+  const participants = [...(room.active_participants || [])];
+
+  // The room's list catches up a moment after joining.
+  if (
+    user &&
+    voiceWebrtc?.connectionStateFor(room.id) === "connected" &&
+    !participants.some((participant) => participant?.id === user.id)
+  ) {
+    participants.push(user);
+  }
+
+  const link = (participant, options = {}) =>
+    new VoiceParticipantLink({
+      room,
+      participant,
+      voiceRooms,
+      voiceWebrtc,
+      user,
+      ...options,
+    });
+
+  if (room.room_type !== "stage") {
+    return participants.map((participant) => link(participant));
+  }
+
+  const onStage = ({ role }) => role === "moderator" || role === "speaker";
+  const listeners = participants.filter((participant) => !onStage(participant));
+  const links = participants
+    .filter(onStage)
+    .map((participant) => link(participant));
+
+  listeners.slice(0, MAX_LISTENERS).forEach((participant, index) => {
+    links.push(
+      link(participant, { listener: true, firstListener: index === 0 })
+    );
+  });
+
+  if (listeners.length > MAX_LISTENERS) {
+    links.push(
+      new VoiceListenerCountLink({
+        room,
+        count: listeners.length - MAX_LISTENERS,
+      })
+    );
+  }
+
+  return links;
+}
+
+class VoiceParticipantLink {
+  href = "#";
+  prefixType = "image";
+  keywords = { navigation: [] };
+  suffixComponent = VoiceParticipantSuffix;
+
+  constructor({
+    room,
+    participant,
+    voiceRooms,
+    voiceWebrtc,
+    user,
+    listener,
+    firstListener,
+  }) {
+    this.room = room;
+    this.participant = participant;
+    this.voiceRooms = voiceRooms;
+    this.voiceWebrtc = voiceWebrtc;
+    this.user = user;
+    this.listener = listener;
+    this.firstListener = firstListener;
+  }
+
+  get #isUser() {
+    return this.participant.id === this.user?.id;
+  }
+
+  get #speaking() {
+    return (
+      this.voiceRooms?.isParticipantSpeaking?.(
+        this.room.id,
+        this.participant.id
+      ) &&
+      !this.participant.is_muted &&
+      !this.participant.is_deafened
+    );
+  }
+
+  get #handRaised() {
+    return this.room.room_type === "stage" && !!this.participant.hand_raised_at;
+  }
+
+  get #ptt() {
+    return this.#isUser && !!this.voiceWebrtc?.pttEnabled;
+  }
+
+  get name() {
+    return `voice-participant-${this.room.id}-${this.participant.id}`;
+  }
+
+  get text() {
+    return prioritizeNameInUx(this.participant.name)
+      ? this.participant.name
+      : this.participant.username;
+  }
+
+  get title() {
+    return this.#speaking
+      ? `${this.text} — ${i18n("voice.participant.status_speaking")}`
+      : this.text;
+  }
+
+  get prefixValue() {
+    return avatarUrl(this.participant.avatar_template, "small");
+  }
+
+  get classNames() {
+    const { participant } = this;
+    return [
+      "voice-sidebar-participant",
+      this.listener && "voice-sidebar-participant--listener",
+      this.firstListener && "voice-sidebar-participant--listeners-start",
+      this.#speaking && "voice-sidebar-participant--speaking",
+      participant.is_muted && "voice-sidebar-participant--muted",
+      participant.is_deafened && "voice-sidebar-participant--deafened",
+      this.#handRaised && "voice-sidebar-participant--hand-raised",
+      participant.idle_state === "idle" && "voice-sidebar-participant--idle",
+      participant.idle_state === "afk" && "voice-sidebar-participant--afk",
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  get suffixArgs() {
+    return {
+      isHandRaised: this.#handRaised,
+      isScreenSharing: this.participant.is_screen_sharing,
+      isVideoOn: this.participant.is_video_on,
+      isPtt: this.#ptt,
+      isMuted: this.participant.is_muted,
+      isDeafened: this.participant.is_deafened,
+    };
+  }
+}
+
+class VoiceListenerCountLink {
+  href = "#";
+  prefixType = "icon";
+  prefixValue = "users";
+  keywords = { navigation: [] };
+  classNames =
+    "voice-sidebar-participant voice-sidebar-participant--listener-count";
+
+  constructor({ room, count }) {
+    this.room = room;
+    this.count = count;
+  }
+
+  get name() {
+    return `voice-listener-count-${this.room.id}`;
+  }
+
+  get text() {
+    return i18n("voice.stage.more_listeners", { count: this.count });
   }
 }

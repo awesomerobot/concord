@@ -318,6 +318,37 @@ RSpec.describe "Concord sidebar" do
     end
   end
 
+  describe "voice channels" do
+    fab!(:camper) { Fabricate(:user, username: "camper", name: "Cam Per") }
+
+    before { Voice::ParticipantTracker.add(voice_room.id, camper.id) }
+
+    it "lists who's in the call under the channel, and has no member list" do
+      visit("/latest")
+
+      room_link = channel_link("voice-room-#{voice_room.id}")
+      expect(room_link).to have_no_css(".sidebar-section-link-content-badge")
+      participant = sidebar.find(
+        ".sidebar-section-link.voice-sidebar-participant[data-link-name='voice-participant-#{voice_room.id}-#{camper.id}']",
+      )
+      expect(participant).to have_css(".sidebar-section-link-prefix img")
+      expect(participant).to have_css(".voice-participant-suffix", visible: :all)
+      names = page.evaluate_script(<<~JS)
+        [...document.querySelectorAll(".sidebar-section-link")].map((link) => link.dataset.linkName)
+      JS
+      expect(names[names.index("voice-room-#{voice_room.id}") + 1]).to eq(
+        "voice-participant-#{voice_room.id}-#{camper.id}",
+      )
+      screenshot("voice-participants")
+
+      visit("/voice/r/#{voice_room.slug}")
+      expect(page).to have_css(".concord-channel-header__name", text: "Campfire")
+      expect(page).to have_no_css(".concord-channel-header [data-action-id='member-list']")
+      expect(page).to have_no_css(".concord-member-list")
+      expect(page).to have_no_css("body.concord-member-list-open")
+    end
+  end
+
   describe "AI conversations link" do
     fab!(:llm_model)
 

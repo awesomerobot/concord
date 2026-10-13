@@ -9,7 +9,9 @@ It replaces the sidebar with one section where everything is a channel:
   or not, as in Discord. Opening one joins it, so leaving a channel doesn't
   take it out of the list (mute it instead). Chat's directory is loaded on
   each page load, up to 500 channels.
-- **Voice rooms** (voice plugin) are voice channels; clicking one joins it
+- **Voice rooms** (voice plugin) are voice channels; clicking one joins it,
+  and who's in each one is listed under it, as the voice plugin's own sidebar
+  does
 - **Tags** can be tag channels, with the `include_tags` setting (off by
   default for now)
 
@@ -160,10 +162,11 @@ browser, for signed-in people only; `remember_last_channel` turns it off.
 
 A panel down the right of the page for signed-in people, toggled by the
 people icon in the header row (the choice is remembered per browser). Below the
-`md` breakpoint the same icon slides it in from the right over the page instead; it starts closed and
-closes on navigation or a tap beside it. It shows:
+`md` breakpoint the same icon slides it in from the right over the page
+instead; it starts closed and closes on navigation or a tap beside it. Voice
+channels have none, since who's in the call is listed under the channel. It
+shows:
 
-- on a voice channel, who's in the call first
 - online members of each group in `member_list_roles` (admins and moderators
   by default), a section per role
 - everyone else online, then offline
