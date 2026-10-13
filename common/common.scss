@@ -1,8 +1,8 @@
 @use "lib/viewport";
 
-// Discord's channel list: quiet grey rows that light up when there's
+// The channel list: quiet grey rows that light up when there's
 // something new, with a pill on the left edge marking unread channels.
-.sidebar-section[data-section-name^="discord-"] {
+.sidebar-section[data-section-name^="concord-"] {
   // Inset like the channel rows below, so the caret sits over their icons.
   .sidebar-section-header-wrapper {
     padding-left: 1em;
@@ -26,7 +26,7 @@
     user-select: none;
   }
 
-  .discord-channel {
+  .concord-channel {
     // Shrinks to the row, so long names are cut off rather than widening it.
     min-width: 0;
     margin: 1px 0.5em;
@@ -54,7 +54,7 @@
     }
   }
 
-  .discord-channel--unread {
+  .concord-channel--unread {
     color: var(--primary);
     font-weight: 600;
 
@@ -77,7 +77,7 @@
   }
 
   // White on red on every row, the active one included.
-  .discord-channel .sidebar-section-link-content-badge {
+  .concord-channel .sidebar-section-link-content-badge {
     min-width: 1.4em;
     padding: 0 0.4em;
     border-radius: 1em;
@@ -93,17 +93,17 @@
   }
 }
 
-.discord-channel--dm .sidebar-section-link-prefix.image img {
+.concord-channel--dm .sidebar-section-link-prefix.image img {
   width: 1.25em;
   height: 1.25em;
   border-radius: 50%;
 }
 
-.discord-channel--connecting {
+.concord-channel--connecting {
   opacity: 0.7;
 }
 
-.discord-dm-header {
+.concord-dm-header {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -111,7 +111,7 @@
 
   // Discourse AI pads its own back link while its page is open, which it
   // still is when the DM button is pressed from there.
-  & .sidebar-sections__back-to-forum.discord-dm-header__back {
+  & .sidebar-sections__back-to-forum.concord-dm-header__back {
     order: 0;
     align-self: flex-start;
     padding: 0;
@@ -131,8 +131,8 @@
   }
 }
 
-// Channel types as Discord's stacked cards.
-.discord-create-channel-modal {
+// Channel types as stacked cards.
+.concord-create-channel-modal {
   .form-kit__control-radio-group,
   .form-kit__field-radio {
     width: 100%;
@@ -193,7 +193,7 @@
   }
 }
 
-.discord-server-header {
+.concord-server-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -295,7 +295,7 @@
   }
 }
 
-.discord-action-menu {
+.concord-action-menu {
   // The same as the user menu's icons.
   --d-button-transparent-icon-color: var(--primary-500);
 
@@ -338,13 +338,13 @@
   display: none;
 }
 
-// Discord's top row replaces core's header contents at every width, rendered
+// The channel header row replaces core's header contents at every width, rendered
 // inside core's header so everything sized from it keeps working.
-body.discord-header .d-header > .wrap {
+body.concord-header .d-header > .wrap {
   display: none;
 }
 
-.discord-channel-header {
+.concord-channel-header {
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -356,8 +356,8 @@ body.discord-header .d-header > .wrap {
 // messages' avatars and the typed text in line with theirs. Chat's messages
 // are inset 1rem, with avatars 28px wide in a --message-left-width column.
 .chat-channel__filter-bar {
-  --discord-filter-inset: 0.5rem;
-  padding-left: var(--discord-filter-inset);
+  --concord-filter-inset: 0.5rem;
+  padding-left: var(--concord-filter-inset);
 
   .filter-input-container {
     position: relative;
@@ -365,7 +365,7 @@ body.discord-header .d-header > .wrap {
     &::before {
       content: "";
       position: absolute;
-      left: calc(1rem + 14px - var(--discord-filter-inset) - 1px - 0.5em);
+      left: calc(1rem + 14px - var(--concord-filter-inset) - 1px - 0.5em);
       width: 1em;
       height: 1em;
       background: var(--primary-medium);
@@ -385,7 +385,7 @@ body.discord-header .d-header > .wrap {
 
   .filter-input {
     padding-left: calc(
-      1rem + var(--message-left-width) - var(--discord-filter-inset) - 1px
+      1rem + var(--message-left-width) - var(--concord-filter-inset) - 1px
     );
   }
 }
@@ -411,7 +411,7 @@ body.discord-header .d-header > .wrap {
 // header, so the header's contents stay but only that panel (and the cloak
 // behind it) shows. Both are fixed, so they escape the collapsed wrapper.
 @include viewport.until(md) {
-  body.discord-header .d-header > .wrap {
+  body.concord-header .d-header > .wrap {
     display: block;
     position: absolute;
     width: 0;
@@ -429,16 +429,16 @@ body.discord-header .d-header > .wrap {
     }
   }
 
-  .discord-channel-header {
-    > .discord-server-header,
-    .discord-channel-header__description {
+  .concord-channel-header {
+    > .concord-server-header,
+    .concord-channel-header__description {
       display: none;
     }
   }
 
   // The server name (and its DM and create buttons) stays at the top while
   // the channels scroll under it.
-  .sidebar-hamburger-dropdown .discord-server-header {
+  .sidebar-hamburger-dropdown .concord-server-header {
     position: sticky;
     top: 0;
     z-index: 1;
@@ -449,7 +449,7 @@ body.discord-header .d-header > .wrap {
   // job is done by the avatar in the header row, except for signing in.
   .sidebar-hamburger-dropdown {
     .sidebar-footer-wrapper,
-    .discord-user-panel:has(.discord-user-panel__me) {
+    .concord-user-panel:has(.concord-user-panel__me) {
       display: none;
     }
   }
@@ -457,27 +457,27 @@ body.discord-header .d-header > .wrap {
   // Core lays the slide-in panel's links in two columns from sm up; channels
   // stay one per row.
   .hamburger-panel
-    .sidebar-section-wrapper.sidebar-section[data-section-name^="discord-"]
+    .sidebar-section-wrapper.sidebar-section[data-section-name^="concord-"]
     .sidebar-section-content {
     display: block;
   }
 }
 
-.discord-channel-header__menu,
-.discord-channel-header__user,
-.discord-channel-header__more {
+.concord-channel-header__menu,
+.concord-channel-header__user,
+.concord-channel-header__more {
   @include viewport.from(md) {
     display: none;
   }
 }
 
-.discord-channel-header__actions .--collapsible {
+.concord-channel-header__actions .--collapsible {
   @include viewport.until(md) {
     display: none;
   }
 }
 
-.discord-channel-header__user {
+.concord-channel-header__user {
   position: relative;
   padding: 0 0.25em;
 
@@ -488,7 +488,7 @@ body.discord-header .d-header > .wrap {
 }
 
 @include viewport.from(md) {
-  // Fill the window like Discord. Core works out the page width and the
+  // Fill the window. Core works out the page width and the
   // composer's position from this, so it's set rather than removed.
   :root {
     --d-max-width: calc(100vw - var(--d-sidebar-width));
@@ -501,7 +501,7 @@ body.discord-header .d-header > .wrap {
     padding-left: 0;
   }
 
-  .discord-channel-header > .discord-server-header {
+  .concord-channel-header > .concord-server-header {
     width: var(--d-sidebar-width);
     flex-shrink: 0;
     box-sizing: border-box;
@@ -510,12 +510,12 @@ body.discord-header .d-header > .wrap {
   }
 
   // The copy at the top of the sidebar is for narrow screens.
-  .sidebar-wrapper .discord-server-header {
+  .sidebar-wrapper .concord-server-header {
     display: none;
   }
 }
 
-.discord-channel-header__channel {
+.concord-channel-header__channel {
   display: flex;
   flex: 1 1 auto;
   align-items: center;
@@ -524,12 +524,12 @@ body.discord-header .d-header > .wrap {
   padding-inline: 1em;
 }
 
-.discord-channel-header__icon {
+.concord-channel-header__icon {
   flex-shrink: 0;
   color: var(--primary-medium);
 }
 
-.discord-channel-header__back {
+.concord-channel-header__back {
   display: flex;
   margin: -0.35em;
   padding: 0.35em;
@@ -542,8 +542,8 @@ body.discord-header .d-header > .wrap {
 }
 
 // Links in the row read as the row's text until hovered.
-.discord-channel-header__name a,
-.discord-channel-header__description a {
+.concord-channel-header__name a,
+.concord-channel-header__description a {
   color: inherit;
 
   &:hover {
@@ -553,7 +553,7 @@ body.discord-header .d-header > .wrap {
 
 // A long name (a topic title, say) is cut off rather than pushing the actions
 // off the row, but only once there's no description left to cut.
-.discord-channel-header__name {
+.concord-channel-header__name {
   flex: 0 1 auto;
   min-width: 3em;
   overflow: hidden;
@@ -565,7 +565,7 @@ body.discord-header .d-header > .wrap {
 }
 
 // Takes only the room the name leaves.
-.discord-channel-header__description {
+.concord-channel-header__description {
   flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
@@ -577,7 +577,7 @@ body.discord-header .d-header > .wrap {
   white-space: nowrap;
 }
 
-.discord-channel-header__actions {
+.concord-channel-header__actions {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -586,7 +586,7 @@ body.discord-header .d-header > .wrap {
 }
 
 // Core's header search panel, in a popover rather than hanging off the header.
-.discord-search-panel.menu-panel {
+.concord-search-panel.menu-panel {
   position: static;
 
   // Core's header search width; the menu around it allows up to 600px.
@@ -596,7 +596,7 @@ body.discord-header .d-header > .wrap {
   box-shadow: none;
 }
 
-.discord-user-panel {
+.concord-user-panel {
   display: flex;
   align-items: center;
   gap: 0.25em;
@@ -683,14 +683,14 @@ body.discord-header .d-header > .wrap {
 }
 
 // The user menu normally hangs off the header, so it's absolutely placed.
-.discord-user-menu .user-menu.revamped,
-.discord-profile-menu .user-menu.revamped {
+.concord-user-menu .user-menu.revamped,
+.concord-profile-menu .user-menu.revamped {
   position: static;
   border: none;
   box-shadow: none;
 }
 
-.discord-user-menu .user-menu.revamped {
+.concord-user-menu .user-menu.revamped {
   height: min(32em, 70vh);
 
   // The user's name in the user panel opens the profile tab.
@@ -709,7 +709,7 @@ body.discord-header .d-header > .wrap {
   }
 }
 
-.discord-profile-menu .user-menu.revamped {
+.concord-profile-menu .user-menu.revamped {
   height: auto;
   max-height: 70vh;
 
@@ -719,13 +719,13 @@ body.discord-header .d-header > .wrap {
 }
 
 // Lets the list take its place in the main grid as if unwrapped.
-.discord-member-list-host {
+.concord-member-list-host {
   display: contents;
 }
 
-// Discord's member list: a third column on the main grid, or on small
+// The member list: a third column on the main grid, or on small
 // screens a panel sliding in from the right over a shade, like core's menus.
-.discord-member-list {
+.concord-member-list {
   display: none;
 
   &.--slide-in {
@@ -743,11 +743,11 @@ body.discord-header .d-header > .wrap {
     background: var(--d-sidebar-background);
     box-shadow: 0 0 30px -2px rgb(0, 0, 0, 0.5);
 
-    @include d-animation(discord-slide-in-right, 250ms, ease-out);
+    @include d-animation(concord-slide-in-right, 250ms, ease-out);
   }
 }
 
-@keyframes discord-slide-in-right {
+@keyframes concord-slide-in-right {
   from {
     transform: translateX(100%);
   }
@@ -757,7 +757,7 @@ body.discord-header .d-header > .wrap {
   }
 }
 
-.discord-member-list__cloak {
+.concord-member-list__cloak {
   position: fixed;
   inset: 0;
   z-index: z("header") + 1;
@@ -765,16 +765,16 @@ body.discord-header .d-header > .wrap {
 }
 
 @include viewport.from(md) {
-  body.has-sidebar-page.discord-member-list-open #main-outlet-wrapper {
+  body.has-sidebar-page.concord-member-list-open #main-outlet-wrapper {
     grid-template-areas:
       "sidebar content members"
       "sidebar below-content members";
     grid-template-columns:
       var(--d-sidebar-width) minmax(0, 1fr)
-      var(--discord-member-list-width);
+      var(--concord-member-list-width);
   }
 
-  .discord-member-list {
+  .concord-member-list {
     display: block;
     grid-area: members;
     position: sticky;
@@ -789,10 +789,10 @@ body.discord-header .d-header > .wrap {
 }
 
 :root {
-  --discord-member-list-width: 15em;
+  --concord-member-list-width: 15em;
 }
 
-.discord-member-list__heading {
+.concord-member-list__heading {
   display: flex;
   gap: 0.35em;
   align-items: center;
@@ -804,7 +804,7 @@ body.discord-header .d-header > .wrap {
   text-transform: uppercase;
 }
 
-.discord-member-list__member {
+.concord-member-list__member {
   display: flex;
   align-items: center;
   gap: 0.6em;
@@ -824,12 +824,12 @@ body.discord-header .d-header > .wrap {
   }
 }
 
-.discord-member-list__avatar {
+.concord-member-list__avatar {
   position: relative;
   display: flex;
 }
 
-.discord-member-list__presence {
+.concord-member-list__presence {
   position: absolute;
   right: -2px;
   bottom: -2px;
@@ -840,14 +840,14 @@ body.discord-header .d-header > .wrap {
   background: var(--success);
 }
 
-.discord-member-list__name {
+.concord-member-list__name {
   overflow: hidden;
   color: var(--primary-high);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.discord-channel-header__actions .btn.--active .d-icon {
+.concord-channel-header__actions .btn.--active .d-icon {
   color: var(--primary);
 }
 
@@ -856,20 +856,20 @@ body.discord-header .d-header > .wrap {
 // outlet keeps its full width and pads the topic in, so it still fills
 // narrower screens. The composer, fixed to the window, starts where the topic
 // does (measured by the TopicLayout component).
-body.discord-topic {
-  --discord-topic-width: calc(
+body.concord-topic {
+  --concord-topic-width: calc(
     var(--topic-avatar-width) + var(--topic-body-width) +
       (var(--topic-body-width-padding) * 2) + 1em + 10em
   );
 
   #main-outlet {
-    padding-inline: max(0px, calc((100% - var(--discord-topic-width)) / 2));
+    padding-inline: max(0px, calc((100% - var(--concord-topic-width)) / 2));
   }
 
   @include viewport.from(md) {
     &.has-sidebar-page #reply-control:not(.fullscreen).hide-preview {
       left: 0;
-      margin-left: var(--discord-topic-left, var(--d-sidebar-width));
+      margin-left: var(--concord-topic-left, var(--d-sidebar-width));
     }
   }
 }
@@ -893,6 +893,6 @@ body.discord-topic {
   display: none;
 }
 
-.discord-channel-privacy-modal__shared {
+.concord-channel-privacy-modal__shared {
   margin-top: 0;
 }

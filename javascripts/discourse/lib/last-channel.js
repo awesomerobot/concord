@@ -2,7 +2,7 @@ import { ajax } from "discourse/lib/ajax";
 import getURL from "discourse/lib/get-url";
 import Category from "discourse/models/category";
 
-const STORAGE_KEY = "discord-last-channel";
+const STORAGE_KEY = "concord-last-channel";
 
 // How long the homepage waits on a channel being checked before giving up on
 // it for this visit.
@@ -10,7 +10,7 @@ const CHECK_TIMEOUT = 5000;
 
 /**
  * Reopens the channel someone was last in when they come back to the site's
- * address, as Discord does. Only a fresh load of the homepage itself is
+ * address. Only a fresh load of the homepage itself is
  * redirected: a link to any other page goes where it says, and the home link
  * inside the app still goes home.
  *

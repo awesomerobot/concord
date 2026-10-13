@@ -23,7 +23,7 @@ const COLLAPSIBLE = ["threads", "pins", "settings"];
 const isCollapsible = (headerAction) => COLLAPSIBLE.includes(headerAction.id);
 
 /**
- * Discord's top row: the server's name over the channel list, then the
+ * The top row: the server's name over the channel list, then the
  * current channel's name, description and actions. Rendered inside core's
  * header so everything that sizes itself to the header keeps working.
  */
@@ -63,7 +63,7 @@ export default class ChannelHeader extends Component {
     ) {
       this.search.visible = false;
       this.#toggleSearch(
-        document.querySelector(".discord-channel-header__search")
+        document.querySelector(".concord-channel-header__search")
       );
     } else if (
       type === "user" &&
@@ -71,7 +71,7 @@ export default class ChannelHeader extends Component {
       !this.site.narrowDesktopView
     ) {
       this.header.userVisible = false;
-      document.querySelector(".discord-user-panel__notifications")?.click();
+      document.querySelector(".concord-user-panel__notifications")?.click();
     }
   }
 
@@ -121,13 +121,13 @@ export default class ChannelHeader extends Component {
       return;
     }
 
-    if (this.menu.getByIdentifier("discord-search")) {
-      this.menu.close("discord-search");
+    if (this.menu.getByIdentifier("concord-search")) {
+      this.menu.close("concord-search");
       return;
     }
 
     this.menu.show(anchor, {
-      identifier: "discord-search",
+      identifier: "concord-search",
       component: SearchPopover,
       placement: "bottom-end",
       // The panel's own width rules; the menu's default cap is narrower.
@@ -183,7 +183,7 @@ export default class ChannelHeader extends Component {
   @action
   openMore(event) {
     this.menu.show(event.currentTarget, {
-      identifier: "discord-channel-header-more",
+      identifier: "concord-channel-header-more",
       component: ActionMenu,
       data: { items: this.moreMenuItems },
       placement: "bottom-end",
@@ -293,8 +293,8 @@ export default class ChannelHeader extends Component {
 
   <template>
     {{! Core's header contents make way while this is shown. }}
-    {{bodyClass "discord-header"}}
-    <div class="discord-channel-header">
+    {{bodyClass "concord-header"}}
+    <div class="concord-channel-header">
       <ServerHeader
         @always={{true}}
         @canCreate={{@canCreate}}
@@ -302,30 +302,30 @@ export default class ChannelHeader extends Component {
         @onCreate={{@onCreate}}
       />
 
-      <div class="discord-channel-header__channel">
+      <div class="concord-channel-header__channel">
         {{! "hamburger-dropdown" makes core's close-on-click-outside leave
             this button to toggle the panel itself. }}
         <DButton
           @action={{this.toggleChannelList}}
           @icon="bars"
           @title="sidebar.title"
-          class="btn-flat discord-channel-header__menu hamburger-dropdown"
+          class="btn-flat concord-channel-header__menu hamburger-dropdown"
         />
         {{#if this.channel.name}}
           {{#if this.channel.back}}
             <a
-              class="discord-channel-header__icon discord-channel-header__back"
+              class="concord-channel-header__icon concord-channel-header__back"
               href={{this.channel.back.href}}
               title={{this.channel.back.title}}
             >
               {{dIcon "chevron-left"}}
             </a>
           {{else}}
-            <span class="discord-channel-header__icon">
+            <span class="concord-channel-header__icon">
               {{dIcon this.channel.icon}}
             </span>
           {{/if}}
-          <h1 class="discord-channel-header__name">
+          <h1 class="concord-channel-header__name">
             {{#if this.channel.nameHref}}
               <a href={{this.channel.nameHref}}>{{this.channel.name}}</a>
             {{else}}
@@ -333,7 +333,7 @@ export default class ChannelHeader extends Component {
             {{/if}}
           </h1>
           {{#if this.channel.description}}
-            <span class="discord-channel-header__description">
+            <span class="concord-channel-header__description">
               {{#if this.channel.descriptionHref}}
                 <a
                   href={{this.channel.descriptionHref}}
@@ -345,12 +345,12 @@ export default class ChannelHeader extends Component {
           {{/if}}
         {{/if}}
 
-        <div class="discord-channel-header__actions">
+        <div class="concord-channel-header__actions">
           {{#if this.moreItems.length}}
             <DButton
               @icon="ellipsis"
               @translatedTitle={{t "more"}}
-              class="btn-flat discord-channel-header__more"
+              class="btn-flat concord-channel-header__more"
               {{on "click" this.openMore}}
             />
           {{/if}}
@@ -381,7 +381,7 @@ export default class ChannelHeader extends Component {
           <DButton
             @icon="magnifying-glass"
             @title="search.title"
-            class="btn-flat discord-channel-header__search"
+            class="btn-flat concord-channel-header__search"
             {{on "click" this.openSearch}}
           />
 
@@ -389,7 +389,7 @@ export default class ChannelHeader extends Component {
             {{! "user-menu-panel" makes core's close-on-click-outside leave
                 this button to toggle the menu itself. }}
             <button
-              class="btn-transparent discord-channel-header__user user-menu-panel"
+              class="btn-transparent concord-channel-header__user user-menu-panel"
               title={{i18n "user.avatar.header_title"}}
               type="button"
               {{on "click" this.toggleUserMenu}}

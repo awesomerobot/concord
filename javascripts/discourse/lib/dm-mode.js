@@ -2,7 +2,7 @@ import { tracked } from "@glimmer/tracking";
 import { CHANNELS_PANEL, DMS_PANEL } from "./constants";
 
 /**
- * Whether the sidebar shows direct messages (Discord's Home) rather than the
+ * Whether the sidebar shows direct messages (the Home view) rather than the
  * server's channels. A module of its own because the sidebar state patch
  * reads it from a pre-initializer, before anything else is set up.
  */

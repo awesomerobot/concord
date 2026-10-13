@@ -12,9 +12,9 @@ import { AI_PANEL, CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
 import { serverMenuItems } from "../lib/server-menu";
 import ActionMenu from "./action-menu";
 
-// The bar above Discord's channel list: the server's name, opening the
+// The bar above the channel list: the server's name, opening the
 // site-wide pages core's header used to link to, the switch to the user's DMs
-// (Discord's Home), and where you make channels that don't belong to a
+// (the Home view), and where you make channels that don't belong to a
 // section.
 export default class ServerHeader extends Component {
   @service currentUser;
@@ -78,7 +78,7 @@ export default class ServerHeader extends Component {
   @action
   openMenu(event) {
     this.menu.show(event.currentTarget, {
-      identifier: "discord-server-menu",
+      identifier: "concord-server-menu",
       component: ActionMenu,
       data: { items: serverMenuItems(getOwner(this)) },
       placement: "bottom-start",
@@ -88,18 +88,18 @@ export default class ServerHeader extends Component {
 
   <template>
     {{#if this.show}}
-      <div class="discord-server-header">
+      <div class="concord-server-header">
         <button
-          class="discord-server-header__name btn-transparent"
+          class="concord-server-header__name btn-transparent"
           type="button"
           {{on "click" this.openMenu}}
         >
-          <span class="discord-server-header__title">
+          <span class="concord-server-header__title">
             {{this.siteSettings.title}}
           </span>
           {{#if this.reviewCount}}
             <span
-              class="discord-server-header__review-badge"
+              class="concord-server-header__review-badge"
               title={{i18n "review.title"}}
             >{{this.reviewCount}}</span>
           {{/if}}
@@ -113,7 +113,7 @@ export default class ServerHeader extends Component {
             @translatedTitle={{i18n (themePrefix "ai_conversations")}}
             aria-pressed={{if this.aiConversationsActive "true" "false"}}
             class={{dConcatClass
-              "btn-flat discord-server-header__ai"
+              "btn-flat concord-server-header__ai"
               (if this.aiConversationsActive "--active")
             }}
           />
@@ -126,13 +126,13 @@ export default class ServerHeader extends Component {
             @translatedTitle={{i18n (themePrefix "direct_messages.title")}}
             aria-pressed={{if @directMessages.active "true" "false"}}
             class={{dConcatClass
-              "btn-flat discord-server-header__dms"
+              "btn-flat concord-server-header__dms"
               (if @directMessages.active "--active")
             }}
           >
             {{#if @directMessages.unreadCount}}
               <span
-                class="discord-server-header__dms-badge"
+                class="concord-server-header__dms-badge"
               >{{@directMessages.unreadCount}}</span>
             {{/if}}
           </DButton>
@@ -143,7 +143,7 @@ export default class ServerHeader extends Component {
             @action={{fn @onCreate null}}
             @icon="plus"
             @title={{themePrefix "create_channel.action"}}
-            class="btn-flat discord-server-header__create"
+            class="btn-flat concord-server-header__create"
           />
         {{/if}}
       </div>

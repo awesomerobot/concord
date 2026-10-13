@@ -22,7 +22,7 @@ export default class ActionMenu extends Component {
   @action
   openSubmenu(item, _actionParam, event) {
     this.menu.show(event.target, {
-      identifier: "discord-action-submenu",
+      identifier: "concord-action-submenu",
       component: ActionMenu,
       data: { items: item.items },
       modalForMobile: true,
@@ -33,7 +33,7 @@ export default class ActionMenu extends Component {
   }
 
   <template>
-    <DDropdownMenu class="discord-action-menu" as |dropdown|>
+    <DDropdownMenu class="concord-action-menu" as |dropdown|>
       {{#each @data.items as |item|}}
         {{#if item.heading}}
           <dropdown.divider />
@@ -67,7 +67,7 @@ export default class ActionMenu extends Component {
               data-item-id={{item.id}}
             >
               {{#if item.badge}}
-                <span class="discord-action-menu__badge">{{item.badge}}</span>
+                <span class="concord-action-menu__badge">{{item.badge}}</span>
               {{/if}}
             </DButton>
           </dropdown.item>

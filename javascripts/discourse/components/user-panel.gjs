@@ -9,7 +9,7 @@ import { i18n } from "discourse-i18n";
 import ProfileMenuPopover from "./profile-menu-popover";
 import UserMenuPopover from "./user-menu-popover";
 
-// Discord's panel at the foot of the channel list: who you are, with the
+// The panel at the foot of the channel list: who you are, with the
 // profile menu behind your name and notifications behind the bell.
 export default class UserPanel extends Component {
   @service currentUser;
@@ -38,7 +38,7 @@ export default class UserPanel extends Component {
   @action
   openUserMenu(event) {
     this.menu.show(event.currentTarget, {
-      identifier: "discord-user-menu",
+      identifier: "concord-user-menu",
       component: UserMenuPopover,
       placement: "top-start",
       modalForMobile: true,
@@ -48,7 +48,7 @@ export default class UserPanel extends Component {
   @action
   openProfileMenu(event) {
     this.menu.show(event.currentTarget, {
-      identifier: "discord-profile-menu",
+      identifier: "concord-profile-menu",
       component: ProfileMenuPopover,
       placement: "top-end",
       modalForMobile: true,
@@ -66,26 +66,26 @@ export default class UserPanel extends Component {
   }
 
   <template>
-    <div class="discord-user-panel">
+    <div class="concord-user-panel">
       {{#if this.currentUser}}
         <button
-          class="discord-user-panel__me btn-transparent"
+          class="concord-user-panel__me btn-transparent"
           title={{i18n "user.avatar.header_title"}}
           type="button"
           {{on "click" this.openProfileMenu}}
         >
-          <span class="discord-user-panel__avatar">
+          <span class="concord-user-panel__avatar">
             <Notifications />
           </span>
-          <span class="discord-user-panel__names">
-            <span class="discord-user-panel__name">{{this.name}}</span>
-            <span class="discord-user-panel__subtitle">{{this.subtitle}}</span>
+          <span class="concord-user-panel__names">
+            <span class="concord-user-panel__name">{{this.name}}</span>
+            <span class="concord-user-panel__subtitle">{{this.subtitle}}</span>
           </span>
         </button>
         <DButton
           @icon="bell"
           @title="user.notifications"
-          class="btn-flat discord-user-panel__notifications"
+          class="btn-flat concord-user-panel__notifications"
           {{on "click" this.openUserMenu}}
         >
           {{#if this.notificationCount}}
@@ -96,12 +96,12 @@ export default class UserPanel extends Component {
         <DButton
           @action={{this.showLogin}}
           @label="log_in"
-          class="btn-primary discord-user-panel__login"
+          class="btn-primary concord-user-panel__login"
         />
         <DButton
           @action={{this.showSignup}}
           @label="sign_up"
-          class="btn-default discord-user-panel__signup"
+          class="btn-default concord-user-panel__signup"
         />
       {{/if}}
     </div>

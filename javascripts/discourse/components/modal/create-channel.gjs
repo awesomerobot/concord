@@ -127,7 +127,7 @@ export default class CreateChannelModal extends Component {
       @closeModal={{@closeModal}}
       @flash={{this.flash}}
       @title={{i18n (themePrefix "create_channel.title")}}
-      class="discord-create-channel-modal"
+      class="concord-create-channel-modal"
     >
       <:body>
         <Form

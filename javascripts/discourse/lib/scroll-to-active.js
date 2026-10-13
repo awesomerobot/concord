@@ -23,7 +23,7 @@ export default function scrollToActive(list) {
     rowRect.top - scroller.getBoundingClientRect().top + scroller.scrollTop;
   const bottom = top + rowRect.height;
 
-  const header = scroller.querySelector(".discord-server-header");
+  const header = scroller.querySelector(".concord-server-header");
   const covered =
     header && getComputedStyle(header).position === "sticky"
       ? header.offsetHeight

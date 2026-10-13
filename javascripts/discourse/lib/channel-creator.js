@@ -110,8 +110,8 @@ export default class ChannelCreator {
       permissions: this.#permissions(groupIds),
     });
 
-    // Auto-join puts the channel in everyone's list who can see it, the way
-    // every Discord member sees every channel they have access to.
+    // Auto-join puts the channel in everyone's list who can see it, so
+    // every member sees every channel they have access to.
     const channel = await this.chatApi.createChannel({
       name,
       chatable_id: category.id,

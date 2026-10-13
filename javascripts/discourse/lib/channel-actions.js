@@ -404,7 +404,7 @@ export default class ChannelActions {
 
   #showAt(anchor, items, onClose) {
     this.menu.show(anchor, {
-      identifier: "discord-channel-menu",
+      identifier: "concord-channel-menu",
       component: ActionMenu,
       data: { items },
       placement: "right-start",

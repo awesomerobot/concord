@@ -44,22 +44,22 @@ export default class MemberList extends Component {
 
   <template>
     {{! Always there, so core's user cards can listen for clicks on it. }}
-    <div class="discord-member-list-host">
+    <div class="concord-member-list-host">
       {{#if this.show}}
         {{#if @memberList.compact}}
           {{! eslint-disable-next-line ember/template-no-invalid-interactive }}
           <div
-            class="discord-member-list__cloak"
+            class="concord-member-list__cloak"
             role="presentation"
             {{on "click" this.close}}
           ></div>
         {{else}}
-          {{bodyClass "discord-member-list-open"}}
+          {{bodyClass "concord-member-list-open"}}
         {{/if}}
         <aside
           aria-label={{i18n (themePrefix "member_list.title")}}
           class={{dConcatClass
-            "discord-member-list"
+            "concord-member-list"
             (if @memberList.compact "--slide-in")
           }}
         >
@@ -70,10 +70,10 @@ export default class MemberList extends Component {
           >
             {{#each @memberList.sections key="id" as |listSection|}}
               <section
-                class="discord-member-list__section"
+                class="concord-member-list__section"
                 data-section-id={{listSection.id}}
               >
-                <h2 class="discord-member-list__heading">
+                <h2 class="concord-member-list__heading">
                   {{#if listSection.icon}}{{dIcon listSection.icon}}{{/if}}
                   {{this.sectionTitle listSection}}
                   —
@@ -83,19 +83,19 @@ export default class MemberList extends Component {
                 {{#each listSection.users key="id" as |user|}}
                   <div
                     class={{dConcatClass
-                      "discord-member-list__member"
+                      "concord-member-list__member"
                       (unless (this.isOnline user) "--offline")
                     }}
                     data-username={{user.username}}
                   >
-                    <span class="discord-member-list__avatar">
+                    <span class="concord-member-list__avatar">
                       <DUserAvatar @size="small" @user={{user}} />
                       {{#if (this.isOnline user)}}
-                        <span class="discord-member-list__presence"></span>
+                        <span class="concord-member-list__presence"></span>
                       {{/if}}
                     </span>
                     <a
-                      class="discord-member-list__name"
+                      class="concord-member-list__name"
                       data-user-card={{user.username}}
                       href="/u/{{user.username}}"
                     >{{this.displayName user}}</a>

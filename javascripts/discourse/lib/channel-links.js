@@ -9,10 +9,10 @@ import { channelKey } from "./sidebar-sections";
 // channel can share a slug and section links are keyed by name.
 
 function channelClasses(kind, unread) {
-  const classes = ["discord-channel", `discord-channel--${kind}`];
+  const classes = ["concord-channel", `concord-channel--${kind}`];
 
   if (unread) {
-    classes.push("discord-channel--unread");
+    classes.push("concord-channel--unread");
   }
 
   return classes.join(" ");
@@ -145,7 +145,7 @@ export class TextChannelLink {
     return this.channel.chatable?.read_restricted ? "lock" : null;
   }
 
-  // Mentions get a count, like Discord's red pill; anything else unread just
+  // Mentions get a count, a red pill; anything else unread just
   // gets the dot.
   get badgeText() {
     const mentions = this.channel.tracking.mentionCount;
@@ -166,7 +166,7 @@ export class TextChannelLink {
 }
 
 // A direct message, in the DM list: the other person's avatar (or a group
-// icon), and their unread count as a badge, as Discord counts DMs.
+// icon), and their unread count as a badge.
 export class DirectMessageLink {
   route = "chat.channel";
   keywords = { navigation: [] };
@@ -263,13 +263,13 @@ export class VoiceChannelLink {
   }
 
   get classNames() {
-    const classes = ["discord-channel", "discord-channel--voice"];
+    const classes = ["concord-channel", "concord-channel--voice"];
     const state = this.voiceWebrtc?.connectionStateFor(this.room.id);
 
     if (state === "connected") {
       classes.push("sidebar-section-link--active");
     } else if (state === "connecting") {
-      classes.push("discord-channel--connecting");
+      classes.push("concord-channel--connecting");
     }
 
     return classes.join(" ");

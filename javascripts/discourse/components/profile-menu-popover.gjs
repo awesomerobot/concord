@@ -26,7 +26,7 @@ export default class ProfileMenuPopover extends Component {
   }
 
   <template>
-    <div class="discord-profile-menu">
+    <div class="concord-profile-menu">
       <div class="menu-panel user-menu revamped">
         <div class="panel-body">
           <div class="panel-body-contents">

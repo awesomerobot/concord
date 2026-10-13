@@ -78,7 +78,7 @@ export default apiInitializer((api) => {
     ];
   };
 
-  // Channels in no section sit at the top with no heading, as in Discord. A
+  // Channels in no section sit at the top with no heading. A
   // section without a header never collapses.
   class TopSection extends BaseCustomSidebarSection {
     name = TOP_SECTION;
@@ -221,7 +221,7 @@ export default apiInitializer((api) => {
 
   api.renderInOutlet("after-sidebar-sections", UserPanel);
 
-  // Discord opens a channel in the main area, never a floating panel, so chat
+  // A channel opens in the main area, never a floating panel, so chat
   // runs full page. That's chat's own per-browser preference, so it's set at
   // boot, and again ahead of every route change: chat's drawer shortcut (-)
   // switches it to the drawer just before navigating, and chat's routes read
@@ -258,10 +258,10 @@ export default apiInitializer((api) => {
   owner.lookup("service:chat")?.updatePresence?.();
 
   // Touch screens have no hover for the rows' `…` button, so a long press
-  // opens the channel's menu, as in Discord.
+  // opens the channel's menu.
   if (api.getCurrentUser()) {
     installLongPress(
-      `.sidebar-section[data-section-name^="discord-"] .sidebar-section-link`,
+      `.sidebar-section[data-section-name^="concord-"] .sidebar-section-link`,
       (row) => {
         const name = row.dataset.linkName;
         const link =
@@ -273,7 +273,7 @@ export default apiInitializer((api) => {
     );
   }
 
-  api.addCardClickListenerSelector(".discord-member-list-host");
+  api.addCardClickListenerSelector(".concord-member-list-host");
 
   // A third column of the main grid, after the page itself.
   api.renderInOutlet(

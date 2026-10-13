@@ -1,6 +1,6 @@
-# Complete Discord Cancellation Kit
+# Concord
 
-A theme that makes Discourse feel like Discord.
+A theme that turns Discourse into a chat server, where everything is a channel.
 
 It replaces the sidebar with one section where everything is a channel:
 
@@ -12,7 +12,7 @@ It replaces the sidebar with one section where everything is a channel:
 
 Channels can be sorted into collapsible sections, kept in the
 `sidebar_sections` setting. Anything not in a section is listed at the top
-with no heading, like Discord, all kinds together, alphabetically. Each section
+with no heading, all kinds together, alphabetically. Each section
 heading has its own `+`, which opens the
 modal with that section picked; admins can also pick the section in the modal.
 Sections are saved through the admin theme-setting endpoint, so only admins can
@@ -68,11 +68,11 @@ notifications and move to section (a submenu of the sections, so it doesn't
 lengthen the menu), with delete on its own at the end.
 
 Core hides the row button on narrow touch screens, so there a long press on a
-channel opens its menu instead, as in Discord.
+channel opens its menu instead.
 
 ## Layout
 
-Core's header contents are hidden at every width, and a Discord-style row
+Core's header contents are hidden at every width, and a channel header row
 takes their place inside the same header: the server name over the channel
 list, then the current channel's icon, name, description, actions and a search
 button that opens core's search panel as a dropdown. Living inside core's
@@ -127,9 +127,9 @@ group page's name are hidden so it isn't said twice.
 
 ## Direct messages
 
-Discord keeps DMs out of the server's channel list, in its Home view. Here a
-button beside the server name (with the DMs' unread count) swaps the channel
-list for the user's DMs: a "Back to all channels" link and a button to start a
+DMs are kept out of the server's channel list, in a Home view. A button
+beside the server name (with the DMs' unread count) swaps the channel list for
+the user's DMs: a "Back to all channels" link and a button to start a
 new one at the top, laid out like Discourse AI's conversations, then every DM
 and group chat they follow, with avatars and unread counts. Core's "Back to
 Forum" link, atop the admin and AI sidebars, reads "Back to all channels" too. Opening a DM
@@ -146,7 +146,7 @@ page. The `ai_conversations_link` setting turns it off.
 
 ## Coming back
 
-Like Discord, the site reopens the channel someone was last in (a topic counts
+The site reopens the channel someone was last in (a topic counts
 as its category's channel) when they come back to the site's address. Links to
 any other page go where they say, the home link still goes home, and a channel
 that's gone or private falls back to the homepage. It's per user and per
@@ -177,7 +177,7 @@ members can be found. Names open user cards, as they do on the page.
 System specs (`spec/system`) drive the whole thing in a browser, against a
 Discourse checkout with the chat and voice plugins:
 
-    LOAD_PLUGINS=1 bin/rspec /path/to/this/theme/spec/system/discord_sidebar_spec.rb
+    LOAD_PLUGINS=1 bin/rspec /path/to/this/theme/spec/system/concord_sidebar_spec.rb
 
 Unit tests (`test/unit`) cover the logic on its own: sections, privacy
 permissions, member list sorting, long press, link badges and the settings

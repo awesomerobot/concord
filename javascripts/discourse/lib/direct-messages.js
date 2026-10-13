@@ -10,7 +10,7 @@ const SERVER_CHANNEL_TYPES = ["text", "forum", "topic", "voice", "tag"];
 const DM_ROUTES = ["chat.new-message", "chat.direct-messages"];
 
 /**
- * Discord's Home: the user's direct messages, shown in the sidebar instead of
+ * The Home view: the user's direct messages, shown in the sidebar instead of
  * the server's channels. Opening a DM switches to it, and going to any of the
  * server's channels switches back; the DM button beside the server name
  * switches by hand.

@@ -100,7 +100,7 @@ export default class ChannelDirectory {
     return links;
   }
 
-  // Every category the user can see, like every channel in a Discord server,
+  // Every category the user can see, like every channel in a chat server,
   // so a channel shows up as soon as it's made. The categories that only back
   // chat channels are left out: the chat channel stands in for them.
   @cached

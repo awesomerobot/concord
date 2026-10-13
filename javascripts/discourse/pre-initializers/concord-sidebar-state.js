@@ -13,7 +13,7 @@ const REPLACED_PANELS = [MAIN_PANEL, "chat"];
 // each of those, the sidebar state redirects them to our panel. The service is
 // looked up early in boot, so this patches it from a pre-initializer.
 export default {
-  name: "discord-sidebar-state",
+  name: "concord-sidebar-state",
   before: "inject-discourse-objects",
 
   initialize() {

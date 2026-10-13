@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Discord sidebar" do
+RSpec.describe "Concord sidebar" do
   fab!(:admin)
   fab!(:group)
   fab!(:category) { Fabricate(:category, name: "Lounge") }
@@ -10,7 +10,7 @@ RSpec.describe "Discord sidebar" do
   let!(:theme) { upload_theme }
   let(:sidebar) { find(".sidebar-wrapper") }
   let(:modal) { PageObjects::Modals::Base.new }
-  let(:form) { PageObjects::Components::FormKit.new(".discord-create-channel-modal form") }
+  let(:form) { PageObjects::Components::FormKit.new(".concord-create-channel-modal form") }
 
   before do
     SiteSetting.navigation_menu = "sidebar"
@@ -38,7 +38,7 @@ RSpec.describe "Discord sidebar" do
           scroller = scroller.parentElement;
         }
         const view = scroller.getBoundingClientRect();
-        const header = document.querySelector("#{list} .discord-server-header");
+        const header = document.querySelector("#{list} .concord-server-header");
         const covered = header && getComputedStyle(header).position === "sticky" ? header.offsetHeight : 0;
         return scroller.scrollTop > 0 && row.top >= view.top + covered && row.bottom <= view.bottom;
       })()
@@ -55,7 +55,7 @@ RSpec.describe "Discord sidebar" do
   end
 
   def open_create_modal
-    find(".discord-server-header__create").click
+    find(".concord-server-header__create").click
     expect(modal).to be_open
   end
 
@@ -74,7 +74,7 @@ RSpec.describe "Discord sidebar" do
   it "replaces the sidebar with one list of channels, on forum and chat pages" do
     visit("/latest")
 
-    expect(page).to have_css(".discord-server-header")
+    expect(page).to have_css(".concord-server-header")
     expect(channel_link("forum-#{category.slug}")).to be_present
     expect(channel_link("text-hangout")).to be_present
     expect(channel_link("voice-room-#{voice_room.id}")).to be_present
@@ -91,7 +91,7 @@ RSpec.describe "Discord sidebar" do
   it "lists channels outside a section together, alphabetically" do
     visit("/latest")
 
-    top = sidebar.find(".sidebar-section[data-section-name='discord-channels']")
+    top = sidebar.find(".sidebar-section[data-section-name='concord-channels']")
     expect(top).to have_css(".sidebar-section-link", count: 4)
     expect(top.all(".sidebar-section-link-content-text").map(&:text)).to eq(
       %w[Campfire hangout Lounge Uncategorized],
@@ -103,7 +103,7 @@ RSpec.describe "Discord sidebar" do
     visit("/latest")
 
     widths = page.evaluate_script(<<~JS)
-      [...document.querySelectorAll(".discord-channel")].map((link) => link.getBoundingClientRect().width)
+      [...document.querySelectorAll(".concord-channel")].map((link) => link.getBoundingClientRect().width)
     JS
     expect(widths.uniq.size).to eq(1)
   end
@@ -154,7 +154,7 @@ RSpec.describe "Discord sidebar" do
       [{ "name" => "Gaming", "channels" => [{ "type" => "text", "id" => created.id }] }],
     )
 
-    gaming = sidebar.find(".sidebar-section[data-section-name='discord-section-gaming']")
+    gaming = sidebar.find(".sidebar-section[data-section-name='concord-section-gaming']")
     expect(gaming).to have_css(".sidebar-section-link[data-link-name='text-lfg']")
     expect(sidebar).to have_no_css(
       ".sidebar-section-link[data-link-name='forum-#{created.chatable.slug}']",
@@ -164,7 +164,7 @@ RSpec.describe "Discord sidebar" do
     link = channel_link("text-lfg")
     link.hover
     link.find(".sidebar-section-hover-button").click
-    find(".discord-action-menu .btn", text: "Delete").click
+    find(".concord-action-menu .btn", text: "Delete").click
     find(".dialog-footer .btn-danger").click
     expect(page).to have_no_css(".sidebar-section-link[data-link-name='text-lfg']")
     # It moves on to the latest page once everything's deleted.
@@ -186,7 +186,7 @@ RSpec.describe "Discord sidebar" do
 
     # Chat's drawer shortcut switches to the drawer just before it navigates.
     visit("/c/#{category.slug}/#{category.id}")
-    expect(page).to have_css(".discord-channel-header__name", text: "Lounge")
+    expect(page).to have_css(".concord-channel-header__name", text: "Lounge")
     find("body").send_keys("-")
     expect(page).to have_current_path(%r{/chat/c/})
     expect(page).to have_no_css(".chat-drawer.is-expanded")
@@ -217,16 +217,16 @@ RSpec.describe "Discord sidebar" do
     link = channel_link("text-hangout")
     link.hover
     link.find(".sidebar-section-hover-button").click
-    labels = all(".discord-action-menu .btn").map(&:text)
+    labels = all(".concord-action-menu .btn").map(&:text)
     expect(labels.first(4)).to eq(["Mark as read", "Rename", "Privacy", "Copy link"])
     expect(labels.last).to eq("Delete")
     expect(labels).not_to include("Hangouts")
     screenshot("channel-menu")
     labels_left = page.evaluate_script(<<~JS)
-      [...document.querySelectorAll(".discord-action-menu .btn .d-button-label")].map((l) => Math.round(l.getBoundingClientRect().left))
+      [...document.querySelectorAll(".concord-action-menu .btn .d-button-label")].map((l) => Math.round(l.getBoundingClientRect().left))
     JS
     expect(labels_left.uniq.size).to eq(1)
-    find(".discord-action-menu .btn", text: "Mute").click
+    find(".concord-action-menu .btn", text: "Mute").click
 
     expect(sidebar).to have_css(
       ".sidebar-section-link--muted[data-link-name='text-hangout']",
@@ -236,14 +236,14 @@ RSpec.describe "Discord sidebar" do
     link = channel_link("text-hangout")
     link.hover
     link.find(".sidebar-section-hover-button").click
-    find(".discord-action-menu [data-item-id='move-to-section']").click
+    find(".concord-action-menu [data-item-id='move-to-section']").click
     # Beside the channel's menu, which stays open.
-    expect(page).to have_css(".discord-action-menu", count: 2)
+    expect(page).to have_css(".concord-action-menu", count: 2)
     screenshot("channel-submenu")
-    find(".discord-action-menu .btn", text: "Hangouts").click
-    expect(page).to have_no_css(".discord-action-menu")
+    find(".concord-action-menu .btn", text: "Hangouts").click
+    expect(page).to have_no_css(".concord-action-menu")
 
-    hangouts = sidebar.find(".sidebar-section[data-section-name='discord-section-hangouts']")
+    hangouts = sidebar.find(".sidebar-section[data-section-name='concord-section-hangouts']")
     expect(hangouts).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
   end
 
@@ -253,14 +253,14 @@ RSpec.describe "Discord sidebar" do
     link = channel_link("text-hangout")
     link.hover
     link.find(".sidebar-section-hover-button").click
-    find(".discord-action-menu [data-item-id='move-to-section']").click
-    find(".discord-action-menu .btn", text: "New section…").click
+    find(".concord-action-menu [data-item-id='move-to-section']").click
+    find(".concord-action-menu .btn", text: "New section…").click
 
-    name_form = PageObjects::Components::FormKit.new(".discord-rename-modal form")
+    name_form = PageObjects::Components::FormKit.new(".concord-rename-modal form")
     name_form.field("name").fill_in("Hangouts")
     name_form.submit
 
-    hangouts = sidebar.find(".sidebar-section[data-section-name='discord-section-hangouts']")
+    hangouts = sidebar.find(".sidebar-section[data-section-name='concord-section-hangouts']")
     expect(hangouts).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
     expect(theme.reload.settings[:sidebar_sections].value).to eq(
       [{ "name" => "Hangouts", "channels" => [{ "type" => "text", "id" => chat_channel.id }] }],
@@ -298,15 +298,15 @@ RSpec.describe "Discord sidebar" do
     it "links to AI bot conversations beside the DM button" do
       visit("/latest")
 
-      link = find(".discord-server-header__ai")
+      link = find(".concord-server-header__ai")
       expect(link[:href]).to end_with("/discourse-ai/ai-bot/conversations")
       next_to_dms = page.evaluate_script(<<~JS)
-        document.querySelector(".sidebar-wrapper .discord-server-header__ai").nextElementSibling.matches(".discord-server-header__dms")
+        document.querySelector(".sidebar-wrapper .concord-server-header__ai").nextElementSibling.matches(".concord-server-header__dms")
       JS
       expect(next_to_dms).to eq(true)
       sizes = page.evaluate_script(<<~JS)
         ["ai", "dms", "create"].map((name) => {
-          const rect = document.querySelector(`.sidebar-wrapper .discord-server-header__${name}`).getBoundingClientRect();
+          const rect = document.querySelector(`.sidebar-wrapper .concord-server-header__${name}`).getBoundingClientRect();
           return [Math.round(rect.width), Math.round(rect.height)];
         })
       JS
@@ -316,32 +316,32 @@ RSpec.describe "Discord sidebar" do
       # A toggle, like the DM button: in, then back out to where you were.
       link.click
       expect(page).to have_current_path(%r{^/discourse-ai/ai-bot/conversations})
-      expect(page).to have_css(".discord-server-header__ai.--active[aria-pressed='true']")
+      expect(page).to have_css(".concord-server-header__ai.--active[aria-pressed='true']")
       screenshot("ai-conversations-active")
 
-      find(".discord-server-header__ai").click
+      find(".concord-server-header__ai").click
       expect(page).to have_current_path("/latest")
-      expect(page).to have_css(".discord-server-header__ai[aria-pressed='false']")
+      expect(page).to have_css(".concord-server-header__ai[aria-pressed='false']")
       expect(channel_link("forum-#{category.slug}")).to be_present
     end
 
     it "is never pressed at the same time as the DM button" do
       visit("/latest")
-      find(".discord-server-header__dms").click
-      expect(page).to have_css(".discord-server-header__dms[aria-pressed='true']")
+      find(".concord-server-header__dms").click
+      expect(page).to have_css(".concord-server-header__dms[aria-pressed='true']")
 
-      find(".discord-server-header__ai").click
-      expect(page).to have_css(".discord-server-header__ai[aria-pressed='true']")
-      expect(page).to have_css(".discord-server-header__dms[aria-pressed='false']")
+      find(".concord-server-header__ai").click
+      expect(page).to have_css(".concord-server-header__ai[aria-pressed='true']")
+      expect(page).to have_css(".concord-server-header__dms[aria-pressed='false']")
       expect(sidebar).to have_css(".sidebar-sections__back-to-forum", text: "Back to all channels")
 
       # From the conversations, the DM button shows the DMs, laid out as they
       # are from the channels.
-      find(".discord-server-header__dms").click
-      back = sidebar.find(".discord-dm-header__back", text: "Back to all channels")
+      find(".concord-server-header__dms").click
+      back = sidebar.find(".concord-dm-header__back", text: "Back to all channels")
       expect(back.evaluate_script("getComputedStyle(this).paddingTop")).to eq("0px")
-      expect(page).to have_css(".discord-server-header__dms[aria-pressed='true']")
-      expect(page).to have_css(".discord-server-header__ai[aria-pressed='false']")
+      expect(page).to have_css(".concord-server-header__dms[aria-pressed='true']")
+      expect(page).to have_css(".concord-server-header__ai[aria-pressed='false']")
     end
 
     it "can be turned off" do
@@ -349,8 +349,8 @@ RSpec.describe "Discord sidebar" do
       theme.save!
       visit("/latest")
 
-      expect(page).to have_css(".discord-server-header__dms")
-      expect(page).to have_no_css(".discord-server-header__ai")
+      expect(page).to have_css(".concord-server-header__dms")
+      expect(page).to have_no_css(".concord-server-header__ai")
     end
   end
 
@@ -392,13 +392,13 @@ RSpec.describe "Discord sidebar" do
       visit("/")
       expect(page).to have_css(".topic-list")
       expect(page).to have_current_path("/")
-      expect(page.evaluate_script("String(localStorage.getItem('discourse_discord-last-channel:#{admin.id}'))")).to eq("null")
+      expect(page.evaluate_script("String(localStorage.getItem('discourse_concord-last-channel:#{admin.id}'))")).to eq("null")
     end
 
     it "falls back to the homepage when a tag channel's gone" do
       tag = Fabricate(:tag, name: "campfire-songs")
       visit("/tag/#{tag.name}")
-      expect(page).to have_css(".discord-channel-header")
+      expect(page).to have_css(".concord-channel-header")
       tag.destroy!
 
       visit("/")
@@ -424,13 +424,13 @@ RSpec.describe "Discord sidebar" do
   end
 
   describe "privacy" do
-    let(:privacy_form) { PageObjects::Components::FormKit.new(".discord-channel-privacy-modal form") }
+    let(:privacy_form) { PageObjects::Components::FormKit.new(".concord-channel-privacy-modal form") }
 
     def open_privacy(name)
       link = channel_link(name)
       link.hover
       link.find(".sidebar-section-hover-button").click
-      find(".discord-action-menu [data-item-id='privacy']").click
+      find(".concord-action-menu [data-item-id='privacy']").click
     end
 
     it "makes a forum channel private, and public again" do
@@ -446,7 +446,7 @@ RSpec.describe "Discord sidebar" do
       screenshot("privacy")
       submit_modal
 
-      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(page).to have_no_css(".concord-channel-privacy-modal")
       expect(category.reload.read_restricted).to eq(true)
       expect(category.category_groups.pluck(:group_id)).to contain_exactly(group.id)
 
@@ -455,7 +455,7 @@ RSpec.describe "Discord sidebar" do
       privacy_form.field("isPrivate").toggle
       submit_modal
 
-      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(page).to have_no_css(".concord-channel-privacy-modal")
       expect(category.reload.read_restricted).to eq(false)
     end
 
@@ -466,10 +466,10 @@ RSpec.describe "Discord sidebar" do
 
       open_privacy("forum-lounge")
       privacy_form.field("isPrivate").toggle
-      expect(page).to have_css(".discord-channel-privacy-modal", text: "designers")
+      expect(page).to have_css(".concord-channel-privacy-modal", text: "designers")
       submit_modal
 
-      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(page).to have_no_css(".concord-channel-privacy-modal")
       expect(category.reload.read_restricted).to eq(true)
       expect(category.category_groups.pluck(:group_id)).to contain_exactly(designers.id)
     end
@@ -483,7 +483,7 @@ RSpec.describe "Discord sidebar" do
         ".form-kit__field[data-name='isPrivate'] button[role='switch'][disabled]",
         visible: :all,
       )
-      expect(page).to have_css(".discord-channel-privacy-modal", text: "Campfire stories")
+      expect(page).to have_css(".concord-channel-privacy-modal", text: "Campfire stories")
     end
 
     it "explains what a private parent allows a subcategory" do
@@ -492,7 +492,7 @@ RSpec.describe "Discord sidebar" do
       visit("/c/#{parent.slug}/#{design.slug}/#{design.id}")
 
       open_privacy("forum-#{design.slug}")
-      modal = find(".discord-channel-privacy-modal")
+      modal = find(".concord-channel-privacy-modal")
       expect(modal).to have_text("Stays private, since its Private events parent category is private.")
       expect(modal).to have_text("Only groups that can see Private events can be added: staff.")
       expect(page).to have_css(
@@ -501,9 +501,9 @@ RSpec.describe "Discord sidebar" do
       )
       screenshot("privacy-private-parent")
 
-      modal.first(".discord-channel-privacy-modal__parent", text: "Private events").click
+      modal.first(".concord-channel-privacy-modal__parent", text: "Private events").click
       expect(page).to have_current_path(%r{/c/#{parent.slug}/edit/security})
-      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(page).to have_no_css(".concord-channel-privacy-modal")
     end
 
     it "makes a text channel private through the category backing it" do
@@ -521,7 +521,7 @@ RSpec.describe "Discord sidebar" do
       group_chooser.collapse
       submit_modal
 
-      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(page).to have_no_css(".concord-channel-privacy-modal")
       expect(backing.reload.read_restricted).to eq(true)
       expect(container.reload.read_restricted).to eq(false)
     end
@@ -530,8 +530,8 @@ RSpec.describe "Discord sidebar" do
       visit("/latest")
 
       open_privacy("text-hangout")
-      expect(page).to have_css(".discord-channel-privacy-modal__shared", text: "Lounge")
-      find(".discord-channel-privacy-modal .btn", text: "Open category security").click
+      expect(page).to have_css(".concord-channel-privacy-modal__shared", text: "Lounge")
+      find(".concord-channel-privacy-modal .btn", text: "Open category security").click
       expect(page).to have_current_path(%r{/c/#{category.slug}/edit/security})
     end
 
@@ -542,7 +542,7 @@ RSpec.describe "Discord sidebar" do
       privacy_form.field("isPrivate").toggle
       submit_modal
 
-      expect(page).to have_no_css(".discord-channel-privacy-modal")
+      expect(page).to have_no_css(".concord-channel-privacy-modal")
       expect(voice_room.reload.public).to eq(false)
     end
   end
@@ -553,16 +553,16 @@ RSpec.describe "Discord sidebar" do
 
     visit("/latest")
 
-    heading = sidebar.find(".sidebar-section[data-section-name='discord-section-old']")
+    heading = sidebar.find(".sidebar-section[data-section-name='concord-section-old']")
     heading.find(".sidebar-section-header-wrapper").hover
     heading.find("[data-sidebar-action-id='sectionMenu']").click
-    find(".discord-action-menu .btn", text: "Rename section").click
+    find(".concord-action-menu .btn", text: "Rename section").click
 
-    rename_form = PageObjects::Components::FormKit.new(".discord-rename-modal form")
+    rename_form = PageObjects::Components::FormKit.new(".concord-rename-modal form")
     rename_form.field("name").fill_in("New")
     rename_form.submit
 
-    expect(sidebar).to have_css(".sidebar-section[data-section-name='discord-section-new']")
+    expect(sidebar).to have_css(".sidebar-section[data-section-name='concord-section-new']")
     expect(theme.reload.settings[:sidebar_sections].value.first["name"]).to eq("New")
   end
 
@@ -575,7 +575,7 @@ RSpec.describe "Discord sidebar" do
 
     visit("/latest")
 
-    section = "[data-section-name='discord-section-hangouts']"
+    section = "[data-section-name='concord-section-hangouts']"
     expect(sidebar).to have_css("#{section} .sidebar-section-link-prefix")
     screenshot("section")
 
@@ -598,16 +598,16 @@ RSpec.describe "Discord sidebar" do
     fab!(:friend) { Fabricate(:user, username: "campmate") }
     fab!(:dm_channel) { Fabricate(:direct_message_channel, users: [admin, friend]) }
 
-    let(:dms_button) { find(".discord-channel-header .discord-server-header__dms") }
+    let(:dms_button) { find(".concord-channel-header .concord-server-header__dms") }
 
     it "swaps the channel list for DMs from beside the server name" do
       Fabricate(:chat_message, chat_channel: dm_channel, user: friend, message: "hi there")
       visit("/latest")
 
-      expect(dms_button).to have_css(".discord-server-header__dms-badge", text: "1")
+      expect(dms_button).to have_css(".concord-server-header__dms-badge", text: "1")
       dms_button.click
 
-      dms = sidebar.find(".sidebar-section[data-section-name='discord-dms']")
+      dms = sidebar.find(".sidebar-section[data-section-name='concord-dms']")
       expect(dms).to have_no_css(".sidebar-section-header")
       expect(dms).to have_css(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
       expect(sidebar).to have_no_css(".sidebar-section-link[data-link-name='text-hangout']")
@@ -615,35 +615,35 @@ RSpec.describe "Discord sidebar" do
 
       dms.find(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']").click
       expect(page).to have_current_path(%r{/chat/c/.+/#{dm_channel.id}})
-      expect(sidebar).to have_css("[data-section-name='discord-dms']")
+      expect(sidebar).to have_css("[data-section-name='concord-dms']")
       screenshot("dm-channel")
 
-      sidebar.find(".discord-dm-header__new.btn-default", text: "New DM or group chat").click
+      sidebar.find(".concord-dm-header__new.btn-default", text: "New DM or group chat").click
       expect(page).to have_css(".chat-modal-new-message")
       send_keys(:escape)
 
-      find(".discord-channel-header .discord-server-header__dms").click
+      find(".concord-channel-header .concord-server-header__dms").click
       expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
-      expect(sidebar).to have_no_css("[data-section-name='discord-dms']")
-      expect(sidebar).to have_no_css(".discord-dm-header")
+      expect(sidebar).to have_no_css("[data-section-name='concord-dms']")
+      expect(sidebar).to have_no_css(".concord-dm-header")
     end
 
     it "keeps the DMs showing while a new DM is started from a channel" do
       visit(category.relative_url)
       dms_button.click
 
-      sidebar.find(".discord-dm-header__new").click
+      sidebar.find(".concord-dm-header__new").click
       expect(page).to have_css(".chat-modal-new-message")
-      expect(sidebar).to have_css(".discord-dm-header")
-      expect(sidebar).to have_css("[data-section-name='discord-dms']")
+      expect(sidebar).to have_css(".concord-dm-header")
+      expect(sidebar).to have_css("[data-section-name='concord-dms']")
     end
 
     it "goes back to the channels from the top of the DMs" do
       visit("/latest")
       dms_button.click
 
-      expect(sidebar.find(".discord-dm-header")).to have_css(".discord-dm-header__back + .discord-dm-header__new")
-      sidebar.find(".discord-dm-header__back", text: "Back to all channels").click
+      expect(sidebar.find(".concord-dm-header")).to have_css(".concord-dm-header__back + .concord-dm-header__new")
+      sidebar.find(".concord-dm-header__back", text: "Back to all channels").click
       expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
       expect(dms_button["aria-pressed"]).to eq("false")
     end
@@ -655,7 +655,7 @@ RSpec.describe "Discord sidebar" do
       row = sidebar.find(".sidebar-section-link[data-link-name='dm-#{dm_channel.id}']")
       row.hover
       row.find(".sidebar-section-hover-button").click
-      menu = find(".discord-action-menu")
+      menu = find(".concord-action-menu")
       expect(menu).to have_css("[data-item-id='mark-read']")
       expect(menu).to have_css(".btn", text: "Mute")
       expect(menu).to have_no_css("[data-item-id='move-to-section']")
@@ -673,25 +673,25 @@ RSpec.describe "Discord sidebar" do
 
       visit("/c/#{category.slug}/#{category.id}")
       expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
-      expect(sidebar).to have_no_css("[data-section-name='discord-dms']")
+      expect(sidebar).to have_no_css("[data-section-name='concord-dms']")
     end
   end
 
   describe "header" do
-    let(:header) { find(".discord-channel-header") }
+    let(:header) { find(".concord-channel-header") }
 
     it "opens the site's pages from the server name" do
       Fabricate(:reviewable)
       visit("/latest")
 
-      expect(header).to have_css(".discord-server-header__review-badge", text: "1")
+      expect(header).to have_css(".concord-server-header__review-badge", text: "1")
       expect(page.evaluate_script(<<~JS)).to eq("absolute")
-        getComputedStyle(document.querySelector(".discord-server-header__review-badge")).position
+        getComputedStyle(document.querySelector(".concord-server-header__review-badge")).position
       JS
-      header.find(".discord-server-header__name").click
-      menu = find(".discord-action-menu")
+      header.find(".concord-server-header__name").click
+      menu = find(".concord-action-menu")
       expect(menu).to have_css("[data-item-id='admin']")
-      expect(menu).to have_css("[data-item-id='review'] .discord-action-menu__badge")
+      expect(menu).to have_css("[data-item-id='review'] .concord-action-menu__badge")
       expect(menu).to have_css("[data-item-id='keyboard-shortcuts']")
       screenshot("server-menu")
 
@@ -715,7 +715,7 @@ RSpec.describe "Discord sidebar" do
         "/admin" => "Admin",
       }.each do |path, title|
         visit(path)
-        expect(header).to have_css(".discord-channel-header__name", exact_text: title)
+        expect(header).to have_css(".concord-channel-header__name", exact_text: title)
         expect(page).to have_no_css(
           ".badges > h1, .show-badge > h1, .group-info-names .group-info-details",
           visible: :visible,
@@ -728,7 +728,7 @@ RSpec.describe "Discord sidebar" do
       visit("/chat/c/hangout/#{chat_channel.id}")
 
       expect(page).to have_no_css(".d-header > .wrap", visible: :visible)
-      expect(header).to have_css(".discord-channel-header__name", text: "hangout")
+      expect(header).to have_css(".concord-channel-header__name", text: "hangout")
       expect(page).to have_css(".c-routes.--channel")
       expect(page).to have_no_css(".c-routes.--channel > .c-navbar-container", visible: :visible)
 
@@ -750,34 +750,34 @@ RSpec.describe "Discord sidebar" do
       )
       expect(overflow).to eq(0)
 
-      header.find(".discord-channel-header__search").click
-      expect(page).to have_css(".discord-search-panel #discord-search-input:focus")
+      header.find(".concord-channel-header__search").click
+      expect(page).to have_css(".concord-search-panel #concord-search-input:focus")
       expect(page.evaluate_script(<<~JS)).to eq(550)
-        document.querySelector(".discord-search-panel").getBoundingClientRect().width
+        document.querySelector(".concord-search-panel").getBoundingClientRect().width
       JS
       screenshot("search")
 
       send_keys(:escape)
-      expect(page).to have_no_css(".discord-search-panel")
+      expect(page).to have_no_css(".concord-search-panel")
     end
 
     # Not on the latest page, where / goes to the welcome banner's search.
     it "opens search from its keyboard shortcut" do
       visit("/c/#{category.slug}/#{category.id}")
-      expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
+      expect(header).to have_css(".concord-channel-header__name", text: "Lounge")
 
       find("body").send_keys("/")
-      expect(page).to have_css(".discord-search-panel #discord-search-input:focus")
+      expect(page).to have_css(".concord-search-panel #concord-search-input:focus")
       send_keys(:escape)
-      expect(page).to have_no_css(".discord-search-panel")
+      expect(page).to have_no_css(".concord-search-panel")
     end
 
     it "opens the user menu from its keyboard shortcut" do
       visit("/c/#{category.slug}/#{category.id}")
-      expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
+      expect(header).to have_css(".concord-channel-header__name", text: "Lounge")
 
       find("body").send_keys("p")
-      expect(page).to have_css(".discord-user-menu .user-menu")
+      expect(page).to have_css(".concord-user-menu .user-menu")
     end
 
     it "searches the channel's messages from a chat channel" do
@@ -785,7 +785,7 @@ RSpec.describe "Discord sidebar" do
       Fabricate(:chat_message, chat_channel: chat_channel, user: admin, message: "hello there")
       visit("/chat/c/-/#{chat_channel.id}")
 
-      header.find(".discord-channel-header__search").click
+      header.find(".concord-channel-header__search").click
       text_left, input_text_left = page.evaluate_script(<<~JS)
         (() => {
           const input = document.querySelector(".chat-channel__filter-bar input");
@@ -800,10 +800,10 @@ RSpec.describe "Discord sidebar" do
       expect(page.evaluate_script(<<~JS)).to eq("solid")
         getComputedStyle(document.querySelector(".chat-channel__filter-bar .filter-input-container")).outlineStyle
       JS
-      expect(page).to have_no_css(".discord-search-panel")
+      expect(page).to have_no_css(".concord-search-panel")
       screenshot("chat-search")
 
-      header.find(".discord-channel-header__search").click
+      header.find(".concord-channel-header__search").click
       expect(page).to have_no_css(".chat-channel__filter-bar")
     end
 
@@ -818,8 +818,8 @@ RSpec.describe "Discord sidebar" do
         visible: :visible,
       )
 
-      expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
-      expect(header).to have_css(".discord-channel-header__description", text: "Sit by the fire")
+      expect(header).to have_css(".concord-channel-header__name", text: "Lounge")
+      expect(header).to have_css(".concord-channel-header__description", text: "Sit by the fire")
       expect(page).to have_no_css(".list-controls .edit-category", visible: :visible)
       screenshot("forum")
 
@@ -876,10 +876,10 @@ RSpec.describe "Discord sidebar" do
 
       resize_window(width: 1000) do
         visit(topic.relative_url)
-        expect(header).to have_css(".discord-channel-header__name")
+        expect(header).to have_css(".concord-channel-header__name")
 
         title_cut, description_cut = page.evaluate_script(<<~JS)
-          [".discord-channel-header__name", ".discord-channel-header__description"].map((s) => {
+          [".concord-channel-header__name", ".concord-channel-header__description"].map((s) => {
             const el = document.querySelector(s);
             return el.scrollWidth > el.clientWidth;
           })
@@ -893,9 +893,9 @@ RSpec.describe "Discord sidebar" do
       topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
       visit(topic.relative_url)
 
-      header.find(".discord-channel-header__back").click
+      header.find(".concord-channel-header__back").click
       expect(page).to have_current_path(%r{/c/#{category.slug}/#{category.id}})
-      expect(header).to have_css(".discord-channel-header__name", text: "Lounge")
+      expect(header).to have_css(".concord-channel-header__name", text: "Lounge")
     end
 
     it "shows a topic's title over its category" do
@@ -903,15 +903,15 @@ RSpec.describe "Discord sidebar" do
       visit(topic.relative_url)
 
       expect(header).to have_css(
-        ".discord-channel-header__name a[href='#{topic.relative_url}/1']",
+        ".concord-channel-header__name a[href='#{topic.relative_url}/1']",
         text: "Best campfire songs",
       )
       expect(header).to have_css(
-        ".discord-channel-header__description a[href='#{category.url}']",
+        ".concord-channel-header__description a[href='#{category.url}']",
         text: "Lounge",
       )
       expect(header).to have_css(
-        ".discord-channel-header__back[href='#{category.url}'][title='Back to Lounge']",
+        ".concord-channel-header__back[href='#{category.url}'][title='Back to Lounge']",
       )
       screenshot("topic")
 
@@ -934,12 +934,12 @@ RSpec.describe "Discord sidebar" do
             window: window.innerWidth,
             outlet: rect("#main-outlet-wrapper").width,
             sidebar: rect(".sidebar-wrapper").left,
-            server: rect(".discord-channel-header .discord-server-header").right,
+            server: rect(".concord-channel-header .concord-server-header").right,
             sidebarRight: rect(".sidebar-wrapper").right,
             content: rect("#main-outlet").left,
             channel:
-              rect(".discord-channel-header__channel").left +
-              parseFloat(getComputedStyle(document.querySelector(".discord-channel-header__channel")).paddingLeft),
+              rect(".concord-channel-header__channel").left +
+              parseFloat(getComputedStyle(document.querySelector(".concord-channel-header__channel")).paddingLeft),
           };
         })()
       JS
@@ -956,46 +956,46 @@ RSpec.describe "Discord sidebar" do
       Fabricate(:notification, user: admin)
       visit("/latest")
 
-      panel = find(".discord-user-panel")
-      expect(panel).to have_css(".discord-user-panel__name", text: admin.username)
-      expect(panel).to have_css(".discord-user-panel__notifications .badge-notification", text: "1")
-      expect(panel).to have_no_css(".discord-user-panel__avatar .badge-notification", visible: :visible)
+      panel = find(".concord-user-panel")
+      expect(panel).to have_css(".concord-user-panel__name", text: admin.username)
+      expect(panel).to have_css(".concord-user-panel__notifications .badge-notification", text: "1")
+      expect(panel).to have_no_css(".concord-user-panel__avatar .badge-notification", visible: :visible)
       screenshot("user-panel")
 
-      panel.find(".discord-user-panel__notifications").click
-      expect(page).to have_css(".discord-user-menu .user-menu .quick-access-panel")
+      panel.find(".concord-user-panel__notifications").click
+      expect(page).to have_css(".concord-user-menu .user-menu .quick-access-panel")
       tabs_left, panel_left = page.evaluate_script(<<~JS)
-        [".discord-user-menu .menu-tabs-container", ".discord-user-menu .quick-access-panel"]
+        [".concord-user-menu .menu-tabs-container", ".concord-user-menu .quick-access-panel"]
           .map((s) => document.querySelector(s).getBoundingClientRect().left)
       JS
       expect(tabs_left).to be < panel_left
-      expect(page).to have_no_css(".discord-user-menu #user-menu-button-profile", visible: :visible)
+      expect(page).to have_no_css(".concord-user-menu #user-menu-button-profile", visible: :visible)
       screenshot("user-menu")
     end
 
     it "opens the profile menu from the user's name" do
       visit("/latest")
 
-      find(".discord-user-panel__me").click
-      menu = find(".discord-profile-menu #quick-access-profile")
+      find(".concord-user-panel__me").click
+      menu = find(".concord-profile-menu #quick-access-profile")
       expect(menu).to have_css("li.preferences")
       expect(menu).to have_css("li.logout")
       expect(page.evaluate_script(<<~JS)).to eq("400")
-        getComputedStyle(document.querySelector(".discord-profile-menu li.summary .item-label")).fontWeight
+        getComputedStyle(document.querySelector(".concord-profile-menu li.summary .item-label")).fontWeight
       JS
       screenshot("profile-menu")
 
       menu.find("li.preferences a").click
       expect(page).to have_current_path(%r{/u/#{admin.username}/preferences})
-      expect(page).to have_no_css(".discord-profile-menu")
+      expect(page).to have_no_css(".concord-profile-menu")
     end
 
     it "offers log in and sign up when signed out" do
       Capybara.reset_sessions!
       visit("/latest")
 
-      expect(page).to have_css(".discord-user-panel .discord-user-panel__login")
-      expect(page).to have_css(".discord-user-panel .discord-user-panel__signup")
+      expect(page).to have_css(".concord-user-panel .concord-user-panel__login")
+      expect(page).to have_css(".concord-user-panel .concord-user-panel__signup")
     end
 
     it "leaves the log in and sign up pages to core" do
@@ -1004,8 +1004,8 @@ RSpec.describe "Discord sidebar" do
       %w[/login /signup].each do |path|
         visit(path)
         expect(page).to have_css(".d-header .home-logo-wrapper-outlet", visible: :visible)
-        expect(page).to have_no_css(".discord-channel-header, .discord-member-list")
-        expect(page).to have_no_css("body.discord-member-list-open")
+        expect(page).to have_no_css(".concord-channel-header, .concord-member-list")
+        expect(page).to have_no_css("body.concord-member-list-open")
         screenshot("auth#{path.tr("/", "-")}")
       end
     end
@@ -1015,7 +1015,7 @@ RSpec.describe "Discord sidebar" do
     fab!(:member) { Fabricate(:user, username: "camper") }
     fab!(:outsider) { Fabricate(:user, username: "stranger") }
 
-    let(:list) { find(".discord-member-list") }
+    let(:list) { find(".concord-member-list") }
 
     before do
       chat_channel.add(member)
@@ -1023,7 +1023,7 @@ RSpec.describe "Discord sidebar" do
     end
 
     def section(id)
-      list.find(".discord-member-list__section[data-section-id='#{id}']")
+      list.find(".concord-member-list__section[data-section-id='#{id}']")
     end
 
     it "lists a chat channel's members, with online admins under their role" do
@@ -1041,7 +1041,7 @@ RSpec.describe "Discord sidebar" do
     it "opens user cards from the list" do
       visit("/chat/c/hangout/#{chat_channel.id}")
 
-      list.find("[data-username='camper'] .discord-member-list__name").click
+      list.find("[data-username='camper'] .concord-member-list__name").click
       expect(page).to have_css(".user-card .user-profile-link", text: "camper")
       expect(page).to have_current_path(%r{/chat/c/hangout/})
       screenshot("member-card")
@@ -1061,20 +1061,20 @@ RSpec.describe "Discord sidebar" do
       channel_link("text-hangout").click
       expect(page).to have_css(".chat-composer")
       channel_link("forum-#{category.slug}").click
-      expect(page).to have_css(".discord-channel-header__name", text: "Lounge")
+      expect(page).to have_css(".concord-channel-header__name", text: "Lounge")
       expect(section("role-admins")).to have_css("[data-username='#{admin.username}']")
     end
 
     it "hides and remembers being hidden" do
       visit("/latest")
-      expect(page).to have_css(".discord-member-list")
+      expect(page).to have_css(".concord-member-list")
 
-      find(".discord-channel-header [data-action-id='member-list']").click
-      expect(page).to have_no_css(".discord-member-list")
+      find(".concord-channel-header [data-action-id='member-list']").click
+      expect(page).to have_no_css(".concord-member-list")
 
       visit("/latest")
-      expect(page).to have_css(".discord-channel-header [data-action-id='member-list']")
-      expect(page).to have_no_css(".discord-member-list")
+      expect(page).to have_css(".concord-channel-header [data-action-id='member-list']")
+      expect(page).to have_no_css(".concord-member-list")
     end
   end
 
@@ -1082,20 +1082,20 @@ RSpec.describe "Discord sidebar" do
     def opens_channel_list_from_header
       visit("/chat/c/hangout/#{chat_channel.id}")
 
-      header = find(".discord-channel-header")
-      expect(header).to have_css(".discord-channel-header__name", text: "hangout")
+      header = find(".concord-channel-header")
+      expect(header).to have_css(".concord-channel-header__name", text: "hangout")
       expect(page).to have_no_css(".d-header .home-logo-wrapper-outlet", visible: :visible)
       expect(page).to have_no_css(".c-routes.--channel > .c-navbar-container", visible: :visible)
 
       screenshot("#{yield}-closed")
 
-      header.find(".discord-channel-header__menu").click
+      header.find(".concord-channel-header__menu").click
       panel = find(".hamburger-panel")
       expect(panel).to have_css(".sidebar-section-link[data-link-name='forum-#{category.slug}']")
-      expect(panel).to have_css(".discord-server-header")
-      expect(panel).to have_no_css(".discord-user-panel", visible: :visible)
+      expect(panel).to have_css(".concord-server-header")
+      expect(panel).to have_no_css(".concord-user-panel", visible: :visible)
       # Let the slide-in finish before the screenshot.
-      expect(page).to have_css(".hamburger-panel .discord-server-header__name", visible: :visible)
+      expect(page).to have_css(".hamburger-panel .concord-server-header__name", visible: :visible)
       sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
       screenshot(yield)
 
@@ -1103,7 +1103,7 @@ RSpec.describe "Discord sidebar" do
       expect(page).to have_current_path(%r{/c/#{category.slug}/#{category.id}})
       expect(page).to have_no_css(".hamburger-panel")
 
-      header.find(".discord-channel-header__user").click
+      header.find(".concord-channel-header__user").click
       menu = find(".user-menu-dropdown-wrapper .user-menu", visible: :visible)
       expect(menu).to have_css("#user-menu-button-profile")
       sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
@@ -1127,10 +1127,10 @@ RSpec.describe "Discord sidebar" do
         ).topic
       visit(topic.relative_url)
 
-      header = find(".discord-channel-header")
-      expect(header).to have_css(".discord-channel-header__user")
+      header = find(".concord-channel-header")
+      expect(header).to have_css(".concord-channel-header__user")
       right = page.evaluate_script(<<~JS)
-        document.querySelector(".discord-channel-header__user").getBoundingClientRect().right
+        document.querySelector(".concord-channel-header__user").getBoundingClientRect().right
       JS
       expect(right).to be <= page.evaluate_script("window.innerWidth")
       screenshot("mobile-long-title")
@@ -1139,43 +1139,43 @@ RSpec.describe "Discord sidebar" do
     it "slides the member list in from the right on phones", mobile: true do
       visit("/chat/c/hangout/#{chat_channel.id}")
 
-      expect(page).to have_no_css(".discord-member-list")
-      find(".discord-channel-header [data-action-id='member-list']").click
-      list = find(".discord-member-list.--slide-in")
-      expect(list).to have_css(".discord-member-list__member[data-username='#{admin.username}']")
-      expect(page).to have_no_css("body.discord-member-list-open")
+      expect(page).to have_no_css(".concord-member-list")
+      find(".concord-channel-header [data-action-id='member-list']").click
+      list = find(".concord-member-list.--slide-in")
+      expect(list).to have_css(".concord-member-list__member[data-username='#{admin.username}']")
+      expect(page).to have_no_css("body.concord-member-list-open")
       sleep 0.5 if ENV["DCCK_SCREENSHOTS"]
       screenshot("mobile-member-list")
 
-      list.find("[data-username='#{admin.username}'] .discord-member-list__name").click
+      list.find("[data-username='#{admin.username}'] .concord-member-list__name").click
       expect(page).to have_css(".user-card")
-      expect(page).to have_no_css(".discord-member-list")
+      expect(page).to have_no_css(".concord-member-list")
     end
 
     it "searches from the full search page on phones", mobile: true do
       visit("/latest")
 
-      find(".discord-channel-header__search").click
+      find(".concord-channel-header__search").click
       expect(page).to have_current_path(%r{^/search})
       expect(page).to have_css(".full-page-search")
-      expect(page).to have_no_css(".discord-search-panel")
+      expect(page).to have_no_css(".concord-search-panel")
     end
 
     it "folds a channel's extra actions into a more menu on phones", mobile: true do
       visit("/chat/c/hangout/#{chat_channel.id}")
 
-      header = find(".discord-channel-header")
-      expect(header).to have_css(".discord-channel-header__name", text: "hangout")
+      header = find(".concord-channel-header")
+      expect(header).to have_css(".concord-channel-header__name", text: "hangout")
       expect(header).to have_no_css("[data-action-id='pins']", visible: :visible)
       expect(header).to have_no_css("[data-action-id='settings']", visible: :visible)
       expect(header).to have_css("[data-action-id='member-list']", visible: :visible)
       # The menu leads the row's buttons.
       expect(
-        header.first(".discord-channel-header__actions > .btn", visible: :visible)[:class],
-      ).to include("discord-channel-header__more")
+        header.first(".concord-channel-header__actions > .btn", visible: :visible)[:class],
+      ).to include("concord-channel-header__more")
 
-      header.find(".discord-channel-header__more").click
-      menu = find(".discord-action-menu")
+      header.find(".concord-channel-header__more").click
+      menu = find(".concord-action-menu")
       expect(menu).to have_css("[data-item-id='pins']")
       expect(menu).to have_css("[data-item-id='settings']")
       screenshot("mobile-more-menu")
@@ -1187,20 +1187,20 @@ RSpec.describe "Discord sidebar" do
     it "keeps a lone action in the header row on phones", mobile: true do
       visit("/c/#{category.slug}/#{category.id}")
 
-      header = find(".discord-channel-header")
+      header = find(".concord-channel-header")
       expect(header).to have_css("[data-action-id='settings']", visible: :visible)
-      expect(header).to have_no_css(".discord-channel-header__more")
+      expect(header).to have_no_css(".concord-channel-header__more")
     end
 
     it "keeps the server name at the top of the channel list on phones", mobile: true do
       30.times { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
       visit("/latest")
-      find(".discord-channel-header__menu").click
-      expect(page).to have_css(".hamburger-panel .discord-server-header__name", visible: :visible)
+      find(".concord-channel-header__menu").click
+      expect(page).to have_css(".hamburger-panel .concord-server-header__name", visible: :visible)
 
       offsets = page.evaluate_script(<<~JS)
         (() => {
-          const name = document.querySelector(".hamburger-panel .discord-server-header");
+          const name = document.querySelector(".hamburger-panel .concord-server-header");
           let scroller = name.parentElement;
           while (scroller && scroller.scrollHeight <= scroller.clientHeight) {
             scroller = scroller.parentElement;
@@ -1219,7 +1219,7 @@ RSpec.describe "Discord sidebar" do
     it "slides the channel list in on a slow phone", mobile: true do
       20.times { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
       visit("/latest")
-      menu = find(".discord-channel-header__menu")
+      menu = find(".concord-channel-header__menu")
       page.driver.with_playwright_page do |pw|
         pw.context.new_cdp_session(pw).send_message(
           "Emulation.setCPUThrottlingRate",
@@ -1253,9 +1253,9 @@ RSpec.describe "Discord sidebar" do
 
     it "closes the channel list when the server menu navigates on phones", mobile: true do
       visit("/latest")
-      find(".discord-channel-header__menu").click
-      find(".hamburger-panel .discord-server-header__name").click
-      find(".discord-action-menu .btn", text: "About").click
+      find(".concord-channel-header__menu").click
+      find(".hamburger-panel .concord-server-header__name").click
+      find(".concord-action-menu .btn", text: "About").click
 
       expect(page).to have_current_path("/about")
       expect(page).to have_no_css(".hamburger-panel")
@@ -1265,7 +1265,7 @@ RSpec.describe "Discord sidebar" do
     it "scrolls the current channel into view in the channel list on phones", mobile: true do
       campsites = 40.times.map { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
       visit(campsites.last.url)
-      find(".discord-channel-header__menu").click
+      find(".concord-channel-header__menu").click
 
       expect(page).to have_css(".hamburger-panel .sidebar-section-link.active")
       sleep 0.5
@@ -1275,7 +1275,7 @@ RSpec.describe "Discord sidebar" do
 
     it "opens a channel's menu with a long press on phones", mobile: true do
       visit("/latest")
-      find(".discord-channel-header__menu").click
+      find(".concord-channel-header__menu").click
       row = find(".hamburger-panel .sidebar-section-link[data-link-name='text-hangout']")
 
       page.execute_script(<<~JS, row)
@@ -1288,14 +1288,14 @@ RSpec.describe "Discord sidebar" do
           row.click();
         };
       JS
-      expect(page).to have_css(".discord-action-menu .btn", text: "Mark as read")
+      expect(page).to have_css(".concord-action-menu .btn", text: "Mark as read")
       page.execute_script("window.__dcckRelease()")
 
       expect(page).to have_current_path("/latest")
-      expect(page).to have_css(".discord-action-menu .btn", text: "Mark as read")
+      expect(page).to have_css(".concord-action-menu .btn", text: "Mark as read")
       screenshot("mobile-long-press")
       labels_left = page.evaluate_script(<<~JS)
-        [...document.querySelectorAll(".discord-action-menu .btn .d-button-label")].map((l) => Math.round(l.getBoundingClientRect().left))
+        [...document.querySelectorAll(".concord-action-menu .btn .d-button-label")].map((l) => Math.round(l.getBoundingClientRect().left))
       JS
       expect(labels_left.uniq.size).to eq(1)
     end

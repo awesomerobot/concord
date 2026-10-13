@@ -5,7 +5,7 @@ import bodyClass from "discourse/helpers/body-class";
 import { bind } from "discourse/lib/decorators";
 
 /**
- * Centres a topic in the space beside the channel list (see `.discord-topic`
+ * Centres a topic in the space beside the channel list (see `.concord-topic`
  * in the stylesheet), and tells the composer where the topic starts, since
  * the composer is fixed to the window and can't line itself up.
  */
@@ -26,7 +26,7 @@ export default class TopicLayout extends Component {
         outlet.getBoundingClientRect().left +
         parseFloat(getComputedStyle(outlet).paddingLeft);
       document.documentElement.style.setProperty(
-        "--discord-topic-left",
+        "--concord-topic-left",
         `${left}px`
       );
     });
@@ -36,11 +36,11 @@ export default class TopicLayout extends Component {
   @bind
   disconnect() {
     this.#observer?.disconnect();
-    document.documentElement.style.removeProperty("--discord-topic-left");
+    document.documentElement.style.removeProperty("--concord-topic-left");
   }
 
   <template>
-    {{bodyClass "discord-topic"}}
+    {{bodyClass "concord-topic"}}
     <div
       hidden
       {{didInsert this.observe}}

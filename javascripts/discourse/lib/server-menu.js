@@ -10,7 +10,7 @@ import ReviewSectionLink from "discourse/lib/sidebar/user/community-section/revi
 import DiscourseURL from "discourse/lib/url";
 import { i18n } from "discourse-i18n";
 
-// Core's community section links, in Discord's server menu order. Reusing
+// Core's community section links, in server menu order. Reusing
 // them keeps who sees what, and the review count, in step with core.
 const LINK_GROUPS = [
   [[InviteSectionLink, "Invite"]],

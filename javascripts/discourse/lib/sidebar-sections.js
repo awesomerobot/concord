@@ -9,8 +9,7 @@ export function channelKey(type, id) {
 }
 
 /**
- * The headed sections the channel list is split into, like Discord's channel
- * categories, and which channels sit in each.
+ * The headed sections the channel list is split into, and which channels sit in each.
  *
  * They're stored in the `sidebar_sections` theme setting. Theme settings
  * aren't reactive, so this keeps its own tracked copy and writes back through

@@ -4,7 +4,7 @@ import { next } from "@ember/runloop";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 
-const OPEN_KEY = "discord_member_list_open";
+const OPEN_KEY = "concord_member_list_open";
 // Enough of a channel's members up front that its online members are found,
 // without paging through a huge channel before anything shows.
 const EAGER_PAGES = 5;
@@ -48,8 +48,8 @@ class MemberPager {
 }
 
 /**
- * Who to show in Discord's member list for the current channel, sorted into
- * sections the way Discord does: people in the call (voice), then each role's
+ * Who to show in the member list for the current channel, sorted into
+ * sections: people in the call (voice), then each role's
  * online members, then everyone else online, then offline.
  *
  * "Online" means active on the site in the last few minutes, from chat's

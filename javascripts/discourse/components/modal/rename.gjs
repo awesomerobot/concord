@@ -27,7 +27,7 @@ export default class RenameModal extends Component {
       @closeModal={{@closeModal}}
       @flash={{this.flash}}
       @title={{@model.title}}
-      class="discord-rename-modal"
+      class="concord-rename-modal"
     >
       <:body>
         <Form @data={{this.formData}} @onSubmit={{this.save}} as |form|>

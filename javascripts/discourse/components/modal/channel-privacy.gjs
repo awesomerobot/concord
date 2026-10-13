@@ -63,7 +63,7 @@ export default class ChannelPrivacyModal extends Component {
   // can be changed.
   get parentLink() {
     const { name, securityUrl } = this.loaded.privateParent;
-    return `<a class="discord-channel-privacy-modal__parent" href="${escapeExpression(securityUrl)}">${escapeExpression(name)}</a>`;
+    return `<a class="concord-channel-privacy-modal__parent" href="${escapeExpression(securityUrl)}">${escapeExpression(name)}</a>`;
   }
 
   // Its parent decides as much as it does, so say which way and why.
@@ -160,7 +160,7 @@ export default class ChannelPrivacyModal extends Component {
 
   @action
   closeOnParentLink(event) {
-    if (event.target.closest(".discord-channel-privacy-modal__parent")) {
+    if (event.target.closest(".concord-channel-privacy-modal__parent")) {
       this.args.closeModal();
     }
   }
@@ -195,11 +195,11 @@ export default class ChannelPrivacyModal extends Component {
       @closeModal={{@closeModal}}
       @flash={{this.flash}}
       @title={{t "title" name=@model.name}}
-      class="discord-create-channel-modal discord-channel-privacy-modal"
+      class="concord-create-channel-modal concord-channel-privacy-modal"
     >
       <:body>
         {{#if (eq this.privacy.kind "shared")}}
-          <p class="discord-channel-privacy-modal__shared">
+          <p class="concord-channel-privacy-modal__shared">
             {{t "shared" category=this.sharedCategoryName}}
           </p>
         {{else}}

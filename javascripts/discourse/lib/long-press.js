@@ -4,7 +4,7 @@ const SLOP = 10;
 
 /**
  * Calls `onLongPress(element)` when a touch rests on an element matching
- * `selector`, Discord's way into a channel's menu on phones. The tap that
+ * `selector`, the way into a channel's menu on phones. The tap that
  * ends the press doesn't follow the element's link, and the browser's own
  * long-press menu stays away.
  *

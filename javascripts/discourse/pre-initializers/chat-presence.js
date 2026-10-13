@@ -9,14 +9,14 @@ const ONLINE_OPTIONS = {
 };
 
 export default {
-  name: "discord-chat-presence",
+  name: "concord-chat-presence",
   before: "inject-discourse-objects",
 
   initialize() {
     withPluginApi((api) => {
       // Chat counts someone online only while chat is open. Here chat is one
-      // kind of channel among many, so being anywhere on the site counts, as
-      // in Discord; hiding one's presence still does.
+      // kind of channel among many, so being anywhere on the site counts;
+      // hiding one's presence still does.
       api.modifyClass(
         "service:chat",
         (Superclass) =>

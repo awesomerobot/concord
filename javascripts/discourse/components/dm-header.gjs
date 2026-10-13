@@ -23,10 +23,10 @@ export default class DmHeader extends Component {
 
   <template>
     {{#if @directMessages.active}}
-      <div class="discord-dm-header">
+      <div class="concord-dm-header">
         <button
           type="button"
-          class="sidebar-sections__back-to-forum discord-dm-header__back"
+          class="sidebar-sections__back-to-forum concord-dm-header__back"
           {{on "click" this.back}}
         >
           {{dIcon "arrow-left"}}
@@ -37,7 +37,7 @@ export default class DmHeader extends Component {
           @icon="plus"
           @translatedLabel={{i18n (themePrefix "direct_messages.new")}}
           @translatedTitle={{i18n "sidebar.start_new_dm.title"}}
-          class="btn-default discord-dm-header__new"
+          class="btn-default concord-dm-header__new"
         />
       </div>
     {{/if}}
