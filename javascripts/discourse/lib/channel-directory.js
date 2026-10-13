@@ -152,7 +152,15 @@ export default class ChannelDirectory {
       return [];
     }
 
-    return [...this.chatChannelsManager.publicMessageChannels];
+    // Joined channels, and every open one the user can see (see
+    // OpenChannels), since opening one joins it.
+    return this.chatChannelsManager.channels.filter(
+      (channel) =>
+        channel.isCategoryChannel &&
+        (channel.currentUserMembership?.following ||
+          channel.isOpen ||
+          this.chat.anonymousUserCanViewPublicChat)
+    );
   }
 
   get #voiceRooms() {

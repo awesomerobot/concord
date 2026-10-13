@@ -285,6 +285,39 @@ RSpec.describe "Concord sidebar" do
     end
   end
 
+  describe "text channels someone hasn't joined" do
+    fab!(:newcomer) { Fabricate(:user, trust_level: TrustLevel[0]) }
+    fab!(:porch) { Fabricate(:category_channel, chatable: category, name: "porch") }
+    fab!(:secret_category) { Fabricate(:private_category, group:, name: "Secret") }
+    fab!(:secret) { Fabricate(:category_channel, chatable: secret_category, name: "secret-plans") }
+
+    before do
+      SiteSetting.chat_allowed_groups = Group::AUTO_GROUPS[:trust_level_0]
+      porch.add(newcomer)
+      porch.membership_for(newcomer).update!(following: false)
+      sign_in(newcomer)
+    end
+
+    it "lists every channel they can see, and joins one when it's opened" do
+      visit("/latest")
+
+      expect(channel_link("text-hangout")).to be_present
+      expect(channel_link("text-porch")).to be_present
+      expect(sidebar).to have_no_css(".sidebar-section-link[data-link-name='text-secret-plans']")
+      expect(chat_channel.membership_for(newcomer)).to be_nil
+
+      channel_link("text-hangout").click
+      expect(page).to have_css(".chat-channel[data-id='#{chat_channel.id}']")
+      expect(page).to have_css(".chat-composer__input")
+      try_until_success { expect(chat_channel.membership_for(newcomer)&.following).to eq(true) }
+
+      channel_link("text-porch").click
+      expect(page).to have_css(".chat-channel[data-id='#{porch.id}']")
+      try_until_success { expect(porch.membership_for(newcomer).reload.following).to eq(true) }
+      expect(channel_link("text-hangout")).to be_present
+    end
+  end
+
   describe "AI conversations link" do
     fab!(:llm_model)
 

@@ -28,6 +28,7 @@ import DirectMessages from "../lib/direct-messages";
 import LastChannel from "../lib/last-channel";
 import installLongPress from "../lib/long-press";
 import MemberListData from "../lib/member-list";
+import OpenChannels from "../lib/open-channels";
 import relabelBackLink from "../lib/relabel-back-link";
 import replaySlideIn from "../lib/replay-slide-in";
 import scrollToActive from "../lib/scroll-to-active";
@@ -61,6 +62,13 @@ export default apiInitializer((api) => {
     channelActions
   );
   const aiConversations = new AiConversations(owner, directMessages);
+
+  if (
+    settings.include_chat_channels &&
+    owner.lookup("service:chat")?.userCanChat
+  ) {
+    new OpenChannels(owner).install();
+  }
   const sidebarState = owner.lookup("service:sidebar-state");
 
   const openCreateChannel = (sectionIndex = null) =>

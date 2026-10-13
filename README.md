@@ -5,7 +5,10 @@ A theme that turns Discourse into a chat server, where everything is a channel.
 It replaces the sidebar with one section where everything is a channel:
 
 - **Categories** are forum channels: every category the user can see
-- **Chat channels** are text channels
+- **Chat channels** are text channels: every open one the user can see, joined
+  or not, as in Discord. Opening one joins it, so leaving a channel doesn't
+  take it out of the list (mute it instead). Chat's directory is loaded on
+  each page load, up to 500 channels.
 - **Voice rooms** (voice plugin) are voice channels; clicking one joins it
 - **Tags** can be tag channels, with the `include_tags` setting (off by
   default for now)
