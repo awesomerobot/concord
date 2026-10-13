@@ -51,7 +51,10 @@ export default apiInitializer((api) => {
   );
   const modal = owner.lookup("service:modal");
   const currentChannel = new CurrentChannel(owner);
-  const memberList = new MemberListData(owner, currentChannel);
+  // Who's online comes from chat's presence, which only signed-in people can
+  // see, so visitors get no member list rather than everyone offline.
+  const memberList =
+    api.getCurrentUser() && new MemberListData(owner, currentChannel);
   const directMessages = new DirectMessages(
     owner,
     currentChannel,
@@ -283,9 +286,11 @@ export default apiInitializer((api) => {
   api.renderInOutlet(
     "after-main-outlet",
     <template>
-      {{#unless currentChannel.isAuthPage}}
-        <MemberList @memberList={{memberList}} />
-      {{/unless}}
+      {{#if memberList}}
+        {{#unless currentChannel.isAuthPage}}
+          <MemberList @memberList={{memberList}} />
+        {{/unless}}
+      {{/if}}
     </template>
   );
 

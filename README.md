@@ -155,9 +155,9 @@ browser, for signed-in people only; `remember_last_channel` turns it off.
 
 ## Member list
 
-A panel down the right of the page, toggled by the people icon in the header
-row (the choice is remembered per browser). Below the `md` breakpoint the same
-icon slides it in from the right over the page instead; it starts closed and
+A panel down the right of the page for signed-in people, toggled by the
+people icon in the header row (the choice is remembered per browser). Below the
+`md` breakpoint the same icon slides it in from the right over the page instead; it starts closed and
 closes on navigation or a tap beside it. It shows:
 
 - on a voice channel, who's in the call first

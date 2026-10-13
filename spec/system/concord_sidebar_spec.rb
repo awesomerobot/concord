@@ -1018,6 +1018,16 @@ RSpec.describe "Concord sidebar" do
       expect(page).to have_css(".concord-user-panel .concord-user-panel__signup")
     end
 
+    it "has no member list when signed out" do
+      Capybara.reset_sessions!
+      visit("/c/#{category.slug}/#{category.id}")
+
+      expect(page).to have_css(".concord-channel-header__name", text: category.name)
+      expect(page).to have_no_css(".concord-channel-header [data-action-id='member-list']")
+      expect(page).to have_no_css(".concord-member-list")
+      expect(page).to have_no_css("body.concord-member-list-open")
+    end
+
     it "leaves the log in and sign up pages to core" do
       Capybara.reset_sessions!
 

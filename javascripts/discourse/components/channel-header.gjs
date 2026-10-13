@@ -367,17 +367,19 @@ export default class ChannelHeader extends Component {
               data-action-id={{headerAction.id}}
             />
           {{/each}}
-          <DButton
-            @action={{this.memberListAction.action}}
-            @icon={{this.memberListAction.icon}}
-            @translatedTitle={{this.memberListAction.title}}
-            aria-pressed={{if this.memberListAction.active "true" "false"}}
-            class={{dConcatClass
-              "btn-flat"
-              (if this.memberListAction.active "--active")
-            }}
-            data-action-id={{this.memberListAction.id}}
-          />
+          {{#if @memberList}}
+            <DButton
+              @action={{this.memberListAction.action}}
+              @icon={{this.memberListAction.icon}}
+              @translatedTitle={{this.memberListAction.title}}
+              aria-pressed={{if this.memberListAction.active "true" "false"}}
+              class={{dConcatClass
+                "btn-flat"
+                (if this.memberListAction.active "--active")
+              }}
+              data-action-id={{this.memberListAction.id}}
+            />
+          {{/if}}
 
           <DButton
             @icon="magnifying-glass"
