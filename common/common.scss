@@ -478,12 +478,23 @@ body.concord-header .d-header > .wrap {
 }
 
 .concord-channel-header__user {
+  --concord-user-padding: 0.25em;
   position: relative;
-  padding: 0 0.25em;
+  padding: 0 var(--concord-user-padding);
 
   .avatar {
     width: 1.75em;
     height: 1.75em;
+  }
+}
+
+// Core only places the status emoji on the avatar in its own header.
+.concord-channel-header__user,
+.concord-user-panel__avatar {
+  .user-status-background {
+    position: absolute;
+    right: calc(var(--concord-user-padding, 0px) - 3px);
+    bottom: -1px;
   }
 }
 
@@ -630,13 +641,6 @@ body.concord-header .d-header > .wrap {
     .avatar {
       width: 2em;
       height: 2em;
-    }
-
-    // Core only places the status emoji on its header's avatar.
-    .user-status-background {
-      position: absolute;
-      right: -3px;
-      bottom: -1px;
     }
   }
 

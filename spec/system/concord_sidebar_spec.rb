@@ -1271,6 +1271,21 @@ RSpec.describe "Concord sidebar" do
       screenshot("mobile-long-title")
     end
 
+    it "puts the user's status emoji on the header's avatar on phones", mobile: true do
+      SiteSetting.enable_user_status = true
+      admin.set_status!("Out camping", "tent")
+      visit("/latest")
+
+      expect(page).to have_css(".concord-channel-header__user .user-status-background")
+      avatar, status = page.evaluate_script(<<~JS)
+        [".concord-channel-header__user .avatar", ".concord-channel-header__user .user-status-background"]
+          .map((s) => { const r = document.querySelector(s).getBoundingClientRect(); return { right: r.right, bottom: r.bottom }; })
+      JS
+      expect(status["right"]).to be_within(4).of(avatar["right"])
+      expect(status["bottom"]).to be_within(2).of(avatar["bottom"])
+      screenshot("mobile-header-status")
+    end
+
     it "slides the member list in from the right on phones", mobile: true do
       visit("/chat/c/hangout/#{chat_channel.id}")
 
