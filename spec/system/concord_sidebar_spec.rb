@@ -972,12 +972,27 @@ RSpec.describe "Concord sidebar" do
   end
 
   describe "user panel" do
+    it "shows the display name over the username, without saying either twice" do
+      admin.update!(name: "Anne Admin")
+      visit("/latest")
+
+      panel = find(".concord-user-panel")
+      expect(panel).to have_css(".concord-user-panel__name", exact_text: "Anne Admin")
+      expect(panel).to have_css(".concord-user-panel__subtitle", exact_text: admin.username)
+
+      admin.update!(name: "")
+      visit("/latest")
+      panel = find(".concord-user-panel")
+      expect(panel).to have_css(".concord-user-panel__name", exact_text: admin.username)
+      expect(panel).to have_no_css(".concord-user-panel__subtitle")
+    end
+
     it "opens the notifications menu from the bell" do
       Fabricate(:notification, user: admin)
       visit("/latest")
 
       panel = find(".concord-user-panel")
-      expect(panel).to have_css(".concord-user-panel__name", text: admin.username)
+      expect(panel).to have_css(".concord-user-panel__name", text: admin.name.presence || admin.username)
       expect(panel).to have_css(".concord-user-panel__notifications .badge-notification", text: "1")
       expect(panel).to have_no_css(".concord-user-panel__avatar .badge-notification", visible: :visible)
       screenshot("user-panel")

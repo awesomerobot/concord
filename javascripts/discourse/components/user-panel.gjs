@@ -16,10 +16,13 @@ export default class UserPanel extends Component {
   @service menu;
   @service siteSettings;
 
+  // Display name over username, as in a chat app, so the username isn't said
+  // twice; with no display name, the username stands alone.
   get name() {
-    return this.siteSettings.prioritize_full_name_in_ux
-      ? this.currentUser.name || this.currentUser.username
-      : this.currentUser.username;
+    return (
+      (this.siteSettings.enable_names && this.currentUser.name?.trim()) ||
+      this.currentUser.username
+    );
   }
 
   // The badge core shows on the header avatar, in the same order of priority.
@@ -32,7 +35,11 @@ export default class UserPanel extends Component {
   }
 
   get subtitle() {
-    return this.currentUser.status?.description || this.currentUser.username;
+    const { status, username } = this.currentUser;
+    if (status?.description) {
+      return status.description;
+    }
+    return this.name.toLowerCase() === username.toLowerCase() ? "" : username;
   }
 
   @action
@@ -79,7 +86,11 @@ export default class UserPanel extends Component {
           </span>
           <span class="concord-user-panel__names">
             <span class="concord-user-panel__name">{{this.name}}</span>
-            <span class="concord-user-panel__subtitle">{{this.subtitle}}</span>
+            {{#if this.subtitle}}
+              <span
+                class="concord-user-panel__subtitle"
+              >{{this.subtitle}}</span>
+            {{/if}}
           </span>
         </button>
         <DButton
