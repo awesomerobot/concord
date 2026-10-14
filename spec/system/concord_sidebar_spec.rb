@@ -1173,6 +1173,18 @@ RSpec.describe "Concord sidebar" do
       JS
     end
 
+    it "lists everyone online in a public channel, but only members in a private one" do
+      PresenceChannel.new("/chat/online").present(user_id: outsider.id, client_id: "stranger-tab")
+      visit("/chat/c/hangout/#{chat_channel.id}")
+      expect(section("online")).to have_css("[data-username='stranger']")
+
+      category.set_permissions(admins: :full)
+      category.save!
+      visit("/chat/c/hangout/#{chat_channel.id}")
+      expect(section("role-admins")).to have_css("[data-username='#{admin.username}']")
+      expect(list).to have_no_css("[data-username='stranger']")
+    end
+
     it "opens user cards from the list" do
       visit("/chat/c/hangout/#{chat_channel.id}")
 

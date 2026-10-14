@@ -161,9 +161,11 @@ export default class MemberList {
         return true;
       });
 
-    // A channel's list only covers its members; elsewhere it's everyone.
+    // A private channel's list only covers its members; elsewhere it's
+    // everyone who can see it. Members load a page at a time, so filtering a
+    // public channel by them would leave out people further down the pages.
     const memberIds =
-      current?.type === "text"
+      current?.type === "text" && current.channel.chatable?.read_restricted
         ? new Set(pager.users.map((user) => user.id))
         : null;
     const online = this.onlineUsers.filter(
