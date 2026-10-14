@@ -1,6 +1,5 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import { MAIN_PANEL, SEPARATED_MODE } from "discourse/lib/sidebar/panels";
-import { CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
+import { MAIN_PANEL } from "discourse/lib/sidebar/panels";
 import dmMode from "../lib/dm-mode";
 
 // The panels our channel list (or the DM list, when that's showing) stands in
@@ -10,41 +9,16 @@ const REPLACED_PANELS = [MAIN_PANEL, "chat"];
 
 // Core and chat both move the sidebar between the forum and chat panels, on
 // route changes and when the chat drawer opens or closes. Rather than chase
-// each of those, the sidebar state redirects them to our panel. The service is
-// looked up early in boot, so this patches it from a pre-initializer.
+// each of those, our panel is shown whenever one of theirs is asked for. Core
+// leaves combined mode and the panel switcher off while it does.
 export default {
   name: "concord-sidebar-state",
-  before: "inject-discourse-objects",
+  after: "freeze-valid-transformers",
 
   initialize() {
     withPluginApi((api) => {
-      api.modifyClass(
-        "service:sidebar-state",
-        (Superclass) =>
-          class extends Superclass {
-            setPanel(name) {
-              super.setPanel(
-                REPLACED_PANELS.includes(name) ? dmMode.panel : name
-              );
-            }
-
-            // Combined mode would flatten every panel's sections together, and
-            // also forces the main panel, so it becomes ours in separated mode.
-            setCombinedMode() {
-              super.setCombinedMode();
-              this.mode = SEPARATED_MODE;
-              this.currentPanelKey = dmMode.panel;
-            }
-
-            // Our panels switch between themselves.
-            showSwitchPanelButtons() {
-              if ([CHANNELS_PANEL, DMS_PANEL].includes(this.currentPanelKey)) {
-                this.hideSwitchPanelButtons();
-              } else {
-                super.showSwitchPanelButtons();
-              }
-            }
-          }
+      api.registerValueTransformer("sidebar-panel", ({ value }) =>
+        REPLACED_PANELS.includes(value) ? dmMode.panel : value
       );
     });
   },

@@ -268,9 +268,14 @@ export default apiInitializer((api) => {
     new LastChannel(owner, currentChannel, api.getCurrentUser()).install();
   }
 
-  // Chat only updates presence on its own routes, so a visit that starts on a
-  // forum page wouldn't count as online until chat was opened.
-  owner.lookup("service:chat")?.updatePresence?.();
+  // Chat counts someone online only while chat is open. Here chat is one kind
+  // of channel among many, so being anywhere on the site counts. Chat only
+  // updates presence on its own routes, so it's told to now.
+  const chat = owner.lookup("service:chat");
+  if (chat) {
+    api.registerValueTransformer("chat-presence-active", () => true);
+    chat.updatePresence();
+  }
 
   // Touch screens have no hover for the rows' `…` button, so a long press
   // opens the channel's menu.

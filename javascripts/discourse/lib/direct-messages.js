@@ -1,6 +1,7 @@
 import { setOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import { bind } from "discourse/lib/decorators";
+import { MAIN_PANEL } from "discourse/lib/sidebar/panels";
 import { DirectMessageLink } from "./channel-links";
 import { DMS_PANEL } from "./constants";
 import dmMode from "./dm-mode";
@@ -80,7 +81,9 @@ export default class DirectMessages {
 
   show(active) {
     dmMode.active = active;
-    this.sidebarState.setPanel(dmMode.panel);
+    // Asks for the forum's panel, which the sidebar-panel transformer turns
+    // into ours, so core keeps combined mode and the panel switcher off.
+    this.sidebarState.setPanel(MAIN_PANEL);
   }
 
   // A route that stops its own transition, like chat's new message modal,
