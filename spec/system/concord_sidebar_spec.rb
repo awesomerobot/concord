@@ -24,7 +24,7 @@ RSpec.describe "Concord sidebar" do
 
   def screenshot(name)
     dir = ENV["DCCK_SCREENSHOTS"]
-    page.save_screenshot(File.join(dir, "#{name}.png")) if dir
+    page.save_screenshot(File.join(dir, "#{name}.png")) if dir # rubocop:disable Lint/Debugger
   end
 
   # Whether the current channel's row is inside its list's scrolled view, and
@@ -60,15 +60,11 @@ RSpec.describe "Concord sidebar" do
   end
 
   def group_chooser
-    PageObjects::Components::SelectKit.new(
-      ".form-kit__field[data-name='groupIds'] .select-kit",
-    )
+    PageObjects::Components::SelectKit.new(".form-kit__field[data-name='groupIds'] .select-kit")
   end
 
   def section_chooser
-    PageObjects::Components::SelectKit.new(
-      ".form-kit__field[data-name='section'] .select-kit",
-    )
+    PageObjects::Components::SelectKit.new(".form-kit__field[data-name='section'] .select-kit")
   end
 
   it "replaces the sidebar with one list of channels, on forum and chat pages" do
@@ -206,10 +202,7 @@ RSpec.describe "Concord sidebar" do
   end
 
   it "mutes a text channel and moves it to a section from its menu" do
-    theme.update_setting(
-      :sidebar_sections,
-      [{ "name" => "Hangouts", "channels" => [] }].to_json,
-    )
+    theme.update_setting(:sidebar_sections, [{ "name" => "Hangouts", "channels" => [] }].to_json)
     theme.save!
 
     visit("/latest")
@@ -228,9 +221,7 @@ RSpec.describe "Concord sidebar" do
     expect(labels_left.uniq.size).to eq(1)
     find(".concord-action-menu .btn", text: "Mute").click
 
-    expect(sidebar).to have_css(
-      ".sidebar-section-link--muted[data-link-name='text-hangout']",
-    )
+    expect(sidebar).to have_css(".sidebar-section-link--muted[data-link-name='text-hangout']")
     expect(chat_channel.membership_for(admin).reload.muted).to eq(true)
 
     link = channel_link("text-hangout")
@@ -280,7 +271,9 @@ RSpec.describe "Concord sidebar" do
       JS
       expect(row_in_view?(".sidebar-wrapper")).to eq(false)
       page.execute_script("Discourse.visit(arguments[0])", campsites[30].url)
-      expect(page).to have_css(".sidebar-wrapper .sidebar-section-link.active[data-link-name='forum-#{campsites[30].slug}']")
+      expect(page).to have_css(
+        ".sidebar-wrapper .sidebar-section-link.active[data-link-name='forum-#{campsites[30].slug}']",
+      )
       try_until_success { expect(row_in_view?(".sidebar-wrapper")).to eq(true) }
     end
   end
@@ -328,9 +321,10 @@ RSpec.describe "Concord sidebar" do
 
       room_link = channel_link("voice-room-#{voice_room.id}")
       expect(room_link).to have_no_css(".sidebar-section-link-content-badge")
-      participant = sidebar.find(
-        ".sidebar-section-link.voice-sidebar-participant[data-link-name='voice-participant-#{voice_room.id}-#{camper.id}']",
-      )
+      participant =
+        sidebar.find(
+          ".sidebar-section-link.voice-sidebar-participant[data-link-name='voice-participant-#{voice_room.id}-#{camper.id}']",
+        )
       expect(participant).to have_css(".sidebar-section-link-prefix img")
       expect(participant).to have_css(".voice-participant-suffix", visible: :all)
       names = page.evaluate_script(<<~JS)
@@ -401,7 +395,6 @@ RSpec.describe "Concord sidebar" do
       sidebar.find(".ai-new-question-button").click
       expect(page).to have_current_path(%r{^/discourse-ai/ai-bot/conversations})
       expect(page).to have_css(".concord-server-header__ai[aria-pressed='true']")
-
     end
 
     it "opens the conversations on its own pages" do
@@ -476,7 +469,11 @@ RSpec.describe "Concord sidebar" do
       visit("/")
       expect(page).to have_css(".topic-list")
       expect(page).to have_current_path("/")
-      expect(page.evaluate_script("String(localStorage.getItem('discourse_concord-last-channel:#{admin.id}'))")).to eq("null")
+      expect(
+        page.evaluate_script(
+          "String(localStorage.getItem('discourse_concord-last-channel:#{admin.id}'))",
+        ),
+      ).to eq("null")
     end
 
     it "falls back to the homepage when a tag channel's gone" do
@@ -508,7 +505,9 @@ RSpec.describe "Concord sidebar" do
   end
 
   describe "privacy" do
-    let(:privacy_form) { PageObjects::Components::FormKit.new(".concord-channel-privacy-modal form") }
+    let(:privacy_form) do
+      PageObjects::Components::FormKit.new(".concord-channel-privacy-modal form")
+    end
 
     def open_privacy(name)
       link = channel_link(name)
@@ -572,12 +571,15 @@ RSpec.describe "Concord sidebar" do
 
     it "explains what a private parent allows a subcategory" do
       parent = Fabricate(:private_category, group: Group[:staff], name: "Private events")
-      design = Fabricate(:private_category, group: Group[:staff], parent_category: parent, name: "Design")
+      design =
+        Fabricate(:private_category, group: Group[:staff], parent_category: parent, name: "Design")
       visit("/c/#{parent.slug}/#{design.slug}/#{design.id}")
 
       open_privacy("forum-#{design.slug}")
       modal = find(".concord-channel-privacy-modal")
-      expect(modal).to have_text("Stays private, since its Private events parent category is private.")
+      expect(modal).to have_text(
+        "Stays private, since its Private events parent category is private.",
+      )
       expect(modal).to have_text("Only groups that can see Private events can be added: staff.")
       expect(page).to have_css(
         ".form-kit__field[data-name='isPrivate'] button[role='switch'][disabled]",
@@ -653,7 +655,9 @@ RSpec.describe "Concord sidebar" do
   it "centres section carets over the channel icons" do
     theme.update_setting(
       :sidebar_sections,
-      [{ "name" => "Hangouts", "channels" => [{ "type" => "forum", "id" => category.id }] }].to_json,
+      [
+        { "name" => "Hangouts", "channels" => [{ "type" => "forum", "id" => category.id }] },
+      ].to_json,
     )
     theme.save!
 
@@ -726,7 +730,9 @@ RSpec.describe "Concord sidebar" do
       visit("/latest")
       dms_button.click
 
-      expect(sidebar.find(".concord-dm-header")).to have_css(".concord-dm-header__back + .concord-dm-header__new")
+      expect(sidebar.find(".concord-dm-header")).to have_css(
+        ".concord-dm-header__back + .concord-dm-header__new",
+      )
       sidebar.find(".concord-dm-header__back", text: "Back to all channels").click
       expect(sidebar).to have_css(".sidebar-section-link[data-link-name='text-hangout']")
       expect(dms_button["aria-pressed"]).to eq("false")
@@ -829,9 +835,10 @@ RSpec.describe "Concord sidebar" do
     it "searches from a dropdown without widening the page" do
       visit("/latest")
 
-      overflow = page.evaluate_script(
-        "document.documentElement.scrollWidth - document.documentElement.clientWidth",
-      )
+      overflow =
+        page.evaluate_script(
+          "document.documentElement.scrollWidth - document.documentElement.clientWidth",
+        )
       expect(overflow).to eq(0)
 
       header.find(".concord-channel-header__search").click
@@ -931,22 +938,21 @@ RSpec.describe "Concord sidebar" do
 
         find(".topic-footer-main-buttons .create").click
         expect(page).to have_css("#reply-control.open")
-        find("#reply-control .toggle-preview").click if page.has_no_css?("#reply-control.hide-preview", wait: 0)
+        if page.has_no_css?("#reply-control.hide-preview", wait: 0)
+          find("#reply-control .toggle-preview").click
+        end
         expect(page).to have_css("#reply-control.hide-preview")
-        composer_left = page.evaluate_script(
-          "document.querySelector('#reply-control').getBoundingClientRect().left",
-        )
+        composer_left =
+          page.evaluate_script(
+            "document.querySelector('#reply-control').getBoundingClientRect().left",
+          )
         expect(composer_left).to be_within(1).of(posts["left"])
         screenshot("topic-centred-composer")
       end
     end
 
     it "cuts the description short before the title" do
-      long_category =
-        Fabricate(
-          :category,
-          name: "The lounge by the fire where everyone sings",
-        )
+      long_category = Fabricate(:category, name: "The lounge by the fire where everyone sings")
       topic =
         Fabricate(
           :post,
@@ -974,7 +980,8 @@ RSpec.describe "Concord sidebar" do
     end
 
     it "goes back to the forum channel from a topic" do
-      topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
+      topic =
+        Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
       visit(topic.relative_url)
 
       header.find(".concord-channel-header__back").click
@@ -983,7 +990,11 @@ RSpec.describe "Concord sidebar" do
     end
 
     it "draws emoji in a topic's title" do
-      topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs :fire: <b>")).topic
+      topic =
+        Fabricate(
+          :post,
+          topic: Fabricate(:topic, category:, title: "Best campfire songs :fire: <b>"),
+        ).topic
       visit(topic.relative_url)
 
       name = header.find(".concord-channel-header__name a")
@@ -994,7 +1005,8 @@ RSpec.describe "Concord sidebar" do
     end
 
     it "shows a topic's title over its category" do
-      topic = Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
+      topic =
+        Fabricate(:post, topic: Fabricate(:topic, category:, title: "Best campfire songs")).topic
       visit(topic.relative_url)
 
       expect(header).to have_css(
@@ -1082,9 +1094,15 @@ RSpec.describe "Concord sidebar" do
       visit("/latest")
 
       panel = find(".concord-user-panel")
-      expect(panel).to have_css(".concord-user-panel__name", text: admin.name.presence || admin.username)
+      expect(panel).to have_css(
+        ".concord-user-panel__name",
+        text: admin.name.presence || admin.username,
+      )
       expect(panel).to have_css(".concord-user-panel__notifications .badge-notification", text: "1")
-      expect(panel).to have_no_css(".concord-user-panel__avatar .badge-notification", visible: :visible)
+      expect(panel).to have_no_css(
+        ".concord-user-panel__avatar .badge-notification",
+        visible: :visible,
+      )
       screenshot("user-panel")
 
       panel.find(".concord-user-panel__notifications").click
@@ -1383,12 +1401,10 @@ RSpec.describe "Concord sidebar" do
       visit("/latest")
       menu = find(".concord-channel-header__menu")
       page.driver.with_playwright_page do |pw|
-        pw.context.new_cdp_session(pw).send_message(
-          "Emulation.setCPUThrottlingRate",
-          params: {
-            rate: 6,
-          },
-        )
+        pw
+          .context
+          .new_cdp_session(pw)
+          .send_message("Emulation.setCPUThrottlingRate", params: { rate: 6 })
       end
 
       # Where the list is drawn each frame once its channels are in it.
@@ -1421,11 +1437,14 @@ RSpec.describe "Concord sidebar" do
 
       expect(page).to have_current_path("/about")
       expect(page).to have_no_css(".hamburger-panel")
-      expect(page.evaluate_script("document.documentElement.classList.contains('scroll-lock')")).to eq(false)
+      expect(
+        page.evaluate_script("document.documentElement.classList.contains('scroll-lock')"),
+      ).to eq(false)
     end
 
     it "scrolls the current channel into view in the channel list on phones", mobile: true do
-      campsites = 40.times.map { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
+      campsites =
+        40.times.map { |i| Fabricate(:category, name: "Campsite #{i.to_s.rjust(2, "0")}") }
       visit(campsites.last.url)
       find(".concord-channel-header__menu").click
 

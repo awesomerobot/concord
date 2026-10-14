@@ -64,10 +64,10 @@ module("Unit | Lib | member-list", function (hooks) {
     ]);
   });
 
-  test("a chat channel lists only its own members", function (assert) {
+  test("a private chat channel lists only its own members", function (assert) {
     const list = memberList(getOwner(this), {
       type: "text",
-      channel: { id: 9 },
+      channel: { id: 9, chatable: { read_restricted: true } },
     });
     list.members = [alice, bob];
     list.online = [alice, carol];
@@ -78,18 +78,28 @@ module("Unit | Lib | member-list", function (hooks) {
     ]);
   });
 
-  test("a voice channel puts who's in the call first", function (assert) {
+  test("a public chat channel lists everyone online", function (assert) {
     const list = memberList(getOwner(this), {
-      type: "voice",
-      room: { name: "Campfire", active_participants: [carol] },
+      type: "text",
+      channel: { id: 9, chatable: { read_restricted: false } },
     });
-    list.members = [alice, carol];
+    list.members = [alice, bob];
     list.online = [alice, carol];
 
     assert.deepEqual(summary(list), [
-      ["voice", ["carol"]],
-      ["online", ["alice"]],
+      ["online", ["alice", "carol"]],
+      ["offline", ["bob"]],
     ]);
+  });
+
+  test("a voice channel has no member list", function (assert) {
+    const list = memberList(getOwner(this), {
+      type: "voice",
+      room: { name: "Campfire" },
+    });
+
+    assert.false(list.available);
+    assert.false(list.active);
   });
 
   test("empty sections are left out", function (assert) {
