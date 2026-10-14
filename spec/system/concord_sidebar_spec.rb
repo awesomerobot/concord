@@ -94,6 +94,19 @@ RSpec.describe "Concord sidebar" do
     )
   end
 
+  it "lists a forum channel's subcategories above its topics, as boxes" do
+    Fabricate(:category, name: "Annex", parent_category: category)
+    category.update!(show_subcategory_list: false, subcategory_list_style: "rows")
+
+    visit("/c/#{category.slug}/#{category.id}")
+    expect(find("#main-outlet")).to have_css(".category-boxes .category-box", text: "Annex")
+
+    visit("/latest")
+    sidebar.find(".sidebar-section-link", text: "Lounge").click
+    expect(page).to have_current_path(%r{/c/#{category.slug}/#{category.id}})
+    expect(find("#main-outlet")).to have_css(".category-boxes .category-box", text: "Annex")
+  end
+
   it "keeps channels with long names to the same width" do
     Fabricate(:category, name: "A really quite remarkably long channel name")
     visit("/latest")

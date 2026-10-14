@@ -2,6 +2,7 @@ import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import { apiInitializer } from "discourse/lib/api";
 import { getOwnerWithFallback } from "discourse/lib/get-owner";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
+import Category from "discourse/models/category";
 import { eq } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
 import ChannelHeader from "../components/channel-header";
@@ -250,6 +251,19 @@ export default apiInitializer((api) => {
     preferFullPage();
     owner.lookup("service:router").on("routeWillChange", preferFullPage);
   }
+
+  // The category dropdown that would lead to a subcategory is hidden, so a
+  // forum channel with subcategories always lists them above its topics, as
+  // boxes, since featured topics there would repeat the topic list below.
+  // Core's category route reads the setting once the transition is under way.
+  owner.lookup("service:router").on("routeWillChange", (transition) => {
+    const slugPath = transition.to?.params?.category_slug_path_with_id;
+    const category = slugPath && Category.findBySlugPathWithID(slugPath);
+    if (category?.isParent) {
+      category.show_subcategory_list = true;
+      category.subcategory_list_style = "boxes";
+    }
+  });
 
   // Core closes the slide-in channel list when one of its sidebar links is
   // tapped, but not when the server menu or a channel's menu navigates from
