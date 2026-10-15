@@ -3,6 +3,7 @@ import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
+import { FULL, REPLY, SEE } from "./constants";
 import { channelKey } from "./sidebar-sections";
 
 // Members fetched per group for a private voice channel. Voice rooms only know
@@ -16,6 +17,9 @@ const VOICE_MEMBER_LIMIT = 200;
  * - Forum: a category, restricted to the groups.
  * - Text: a chat channel. Chat channels take their access from a category, so
  *   each one gets its own backing category, kept under one container category.
+ *   Posting in the channel only needs Reply there, so that's all it gives,
+ *   and nobody but admins can start topics in it. Its "About" topic is closed
+ *   too, so the category is only ever used by the channel.
  * - Voice: a voice room. Rooms have members rather than groups, so the groups'
  *   current members are added.
  */
@@ -92,7 +96,7 @@ export default class ChannelCreator {
   async #createForum(name, groupIds) {
     const category = await this.#createCategory({
       name,
-      permissions: this.#permissions(groupIds),
+      permissions: this.#permissions(groupIds, FULL),
     });
 
     return {
@@ -107,8 +111,9 @@ export default class ChannelCreator {
     const category = await this.#createCategory({
       name,
       parent_category_id: container.id,
-      permissions: this.#permissions(groupIds),
+      permissions: this.#permissions(groupIds, REPLY) || { everyone: REPLY },
     });
+    await this.#closeAboutTopic(category);
 
     // Auto-join puts the channel in everyone's list who can see it, so
     // every member sees every channel they have access to.
@@ -201,11 +206,23 @@ export default class ChannelCreator {
     return this.#createCategory({
       name: i18n(themePrefix("create_channel.container_name")),
       slug,
+      permissions: { everyone: SEE },
     });
   }
 
-  // Category permissions are keyed by group name; 1 is full access.
-  #permissions(groupIds) {
+  // The topic core starts every category with, taking replies like any other.
+  async #closeAboutTopic(category) {
+    const topicId = category.topic_url?.match(/\/(\d+)\/?$/)?.[1];
+    if (topicId) {
+      await ajax(`/t/${topicId}/status`, {
+        type: "PUT",
+        data: { status: "closed", enabled: true },
+      });
+    }
+  }
+
+  // Category permissions are keyed by group name.
+  #permissions(groupIds, level) {
     if (!groupIds.length) {
       return undefined;
     }
@@ -214,7 +231,7 @@ export default class ChannelCreator {
 
     for (const group of this.site.groups) {
       if (groupIds.includes(group.id)) {
-        permissions[group.name] = 1;
+        permissions[group.name] = level;
       }
     }
 

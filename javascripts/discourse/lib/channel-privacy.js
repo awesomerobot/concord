@@ -2,16 +2,17 @@ import { setOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import Category from "discourse/models/category";
+import { FULL, REPLY } from "./constants";
 
 const EVERYONE = 0;
-const FULL = 1;
 
 /**
  * What a channel's privacy dialog changes, per kind of channel:
  *
  * - Forum: its category's group permissions.
  * - Text, made from the create modal: the permissions of the category that
- *   only exists to back it. A chat channel on any other category shares that
+ *   only exists to back it, always Reply so nobody starts topics in it. A
+ *   chat channel on any other category shares that
  *   category with a forum channel, so it's only pointed at, not changed.
  * - Voice: whether the room is public, and adding groups' current members.
  */
@@ -54,18 +55,25 @@ export default class ChannelPrivacy {
       return { kind: "shared", category };
     }
 
-    return this.#category(category, (isPrivate) => {
-      if (channel.chatable) {
-        channel.chatable.read_restricted = isPrivate;
-      }
-    });
+    return this.#category(
+      category,
+      (isPrivate) => {
+        if (channel.chatable) {
+          channel.chatable.read_restricted = isPrivate;
+        }
+      },
+      REPLY
+    );
   }
 
   // Core requires every group that can see a subcategory to be able to see
   // its parent, so a parent keeps its subcategories' groups (and can't be
   // private while one is public), and a subcategory can only use groups its
   // parent allows.
-  #category(category, afterSave) {
+  //
+  // With a fixed level, every group (or everyone, when public) gets that
+  // level, whatever it had before.
+  #category(category, afterSave, fixedLevel = null) {
     return {
       kind: "category",
       requiresGroups: true,
@@ -141,17 +149,20 @@ export default class ChannelPrivacy {
               this.site.groups.find((group) => group.id === id)?.name;
 
             if (name) {
-              permissions[name] = kept?.permission_type || FULL;
+              permissions[name] = fixedLevel || kept?.permission_type || FULL;
             }
           }
-        } else if (existing.some((p) => p.group_id === EVERYONE)) {
+        } else if (
+          !fixedLevel &&
+          existing.some((p) => p.group_id === EVERYONE)
+        ) {
           // Already public: left as it is, since everyone may have less than
           // full access (see only, say) with staff groups set apart.
           for (const p of existing) {
             permissions[p.group_name] = p.permission_type;
           }
         } else {
-          permissions.everyone = FULL;
+          permissions.everyone = fixedLevel || FULL;
         }
 
         const result = await ajax(`/categories/${category.id}`, {

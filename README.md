@@ -32,6 +32,11 @@ the channel to selected groups:
 - Text: a chat channel. Chat takes its access from a category, so each one
   gets its own backing category under the `chat_container_category` category
   (created if missing, and hidden from the list). Its members are auto-joined.
+  Posting in a chat channel only needs Reply on its category, so that's all a
+  backing category grants (and the container only See): nobody but admins can
+  start topics there, and its "About" topic is closed. Backing categories made
+  by older versions of the theme keep Create until their channel's privacy is
+  saved.
   Deleting the channel from its menu deletes that category too, so chat's own
   delete button is hidden on those channels' settings pages.
 - Voice: a private room with the groups' current members added (up to 200).

@@ -158,6 +158,16 @@ RSpec.describe "Concord sidebar" do
     created = Chat::Channel.find_by(name: "lfg")
     expect(created.chatable.parent_category.slug).to eq("chat-channels")
 
+    # Posting in the channel only needs Reply, so nobody else can start topics
+    # in its category, and the container can only be seen.
+    expect(created.chatable.category_groups.pluck(:group_id, :permission_type)).to eq(
+      [[Group::AUTO_GROUPS[:everyone], CategoryGroup.permission_types[:create_post]]],
+    )
+    expect(created.chatable.topic.closed).to eq(true)
+    expect(created.chatable.parent_category.category_groups.pluck(:permission_type)).to eq(
+      [CategoryGroup.permission_types[:readonly]],
+    )
+
     sections = theme.reload.settings[:sidebar_sections].value
     expect(sections).to eq(
       [{ "name" => "Gaming", "channels" => [{ "type" => "text", "id" => created.id }] }],
@@ -317,6 +327,24 @@ RSpec.describe "Concord sidebar" do
       porch.add(newcomer)
       porch.membership_for(newcomer).update!(following: false)
       sign_in(newcomer)
+    end
+
+    it "can post in a channel whose category only lets them reply" do
+      container = Fabricate(:category, slug: "chat-channels")
+      container.set_permissions(everyone: :readonly)
+      container.save!
+      backing = Fabricate(:category, name: "lfg", parent_category: container)
+      backing.set_permissions(everyone: :create_post)
+      backing.save!
+      lfg = Fabricate(:category_channel, chatable: backing, name: "lfg")
+      visit("/latest")
+
+      channel_link("text-lfg").click
+      find(".chat-composer__input").fill_in(with: "anyone up for a game?")
+      find(".chat-composer__input").send_keys(:enter)
+
+      expect(page).to have_css(".chat-message-text", text: "anyone up for a game?")
+      try_until_success { expect(lfg.chat_messages.last&.message).to eq("anyone up for a game?") }
     end
 
     it "lists every channel they can see, and joins one when it's opened" do
@@ -637,6 +665,9 @@ RSpec.describe "Concord sidebar" do
 
       expect(page).to have_no_css(".concord-channel-privacy-modal")
       expect(backing.reload.read_restricted).to eq(true)
+      expect(backing.category_groups.pluck(:group_id, :permission_type)).to contain_exactly(
+        [group.id, CategoryGroup.permission_types[:create_post]],
+      )
       expect(container.reload.read_restricted).to eq(false)
     end
 
