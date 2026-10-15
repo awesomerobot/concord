@@ -126,6 +126,7 @@ export default class ChannelPrivacy {
 
       // Groups that stay keep the level they had (core's category settings
       // can give a group less than full access); groups added get full access.
+      // Going public opens it to everyone in full.
       save: async ({ isPrivate, groupIds }, { existing, required }) => {
         const permissions = {};
 
@@ -142,6 +143,12 @@ export default class ChannelPrivacy {
             if (name) {
               permissions[name] = kept?.permission_type || FULL;
             }
+          }
+        } else if (existing.some((p) => p.group_id === EVERYONE)) {
+          // Already public: left as it is, since everyone may have less than
+          // full access (see only, say) with staff groups set apart.
+          for (const p of existing) {
+            permissions[p.group_name] = p.permission_type;
           }
         } else {
           permissions.everyone = FULL;

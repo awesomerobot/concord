@@ -32,9 +32,14 @@ the channel to selected groups:
 - Text: a chat channel. Chat takes its access from a category, so each one
   gets its own backing category under the `chat_container_category` category
   (created if missing, and hidden from the list). Its members are auto-joined.
-  Deleting the channel from its menu deletes that category too.
+  Deleting the channel from its menu deletes that category too, so chat's own
+  delete button is hidden on those channels' settings pages.
 - Voice: a private room with the groups' current members added (up to 200).
   Later group members don't get access, since rooms have no group access.
+
+Subcategories have no channel of their own, since the category dropdown that
+would lead to them is hidden. Instead a forum channel with subcategories always
+lists them above its topics, as boxes, whatever its own settings say.
 
 The default panels (forum, chat) are both redirected to this one, so moving
 between topics and chat doesn't swap the sidebar out. The admin and user
@@ -171,8 +176,8 @@ shows:
   by default), a section per role
 - everyone else online, then offline
 
-On a chat channel it covers the channel's members; elsewhere, everyone in the
-user directory. "Online" means active anywhere on the site in the last few
+On a private chat channel it covers the channel's members; on a public one,
+and elsewhere, everyone on the site. "Online" means active anywhere on the site in the last few
 minutes (chat would only count people while chat is open, so the theme has it
 count the whole site), plus the who's-online plugin when installed. Hiding
 your presence still hides you. Members load 50

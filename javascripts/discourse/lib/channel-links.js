@@ -4,6 +4,7 @@ import { prioritizeNameInUx } from "discourse/lib/settings";
 import CategorySectionLink from "discourse/lib/sidebar/user/categories-section/category-section-link";
 import TagSectionLink from "discourse/lib/sidebar/user/tags-section/tag-section-link";
 import { emojiUnescape } from "discourse/lib/text";
+import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
 import VoiceParticipantSuffix from "../components/voice-participant-suffix";
 import { channelKey } from "./sidebar-sections";
@@ -34,8 +35,10 @@ export class ForumChannelLink extends CategorySectionLink {
     return channelKey("forum", this.category.id);
   }
 
+  // By its slug path, since a subcategory's slug is only unique under its
+  // parent, and the long press finds a row's channel by name.
   get name() {
-    return `forum-${super.name}`;
+    return `forum-${Category.slugFor(this.category)}`;
   }
 
   get classNames() {

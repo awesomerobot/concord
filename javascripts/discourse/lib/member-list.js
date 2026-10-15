@@ -215,15 +215,12 @@ export default class MemberList {
 
   #serverPager() {
     return new MemberPager(async (page) => {
+      const limit = 50;
       const result = await ajax("/directory_items.json", {
-        data: { period: "all", order: "days_visited", page },
+        data: { period: "all", order: "days_visited", page, limit },
       });
-      return {
-        users: result.directory_items.map((item) => item.user),
-        more:
-          (page + 1) * result.directory_items.length <
-          result.meta.total_rows_directory_items,
-      };
+      const users = result.directory_items.map((item) => item.user);
+      return { users, more: users.length === limit };
     });
   }
 

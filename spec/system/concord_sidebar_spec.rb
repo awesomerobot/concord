@@ -166,7 +166,7 @@ RSpec.describe "Concord sidebar" do
     gaming = sidebar.find(".sidebar-section[data-section-name='concord-section-gaming']")
     expect(gaming).to have_css(".sidebar-section-link[data-link-name='text-lfg']")
     expect(sidebar).to have_no_css(
-      ".sidebar-section-link[data-link-name='forum-#{created.chatable.slug}']",
+      ".sidebar-section-link[data-link-name='forum-chat-channels/#{created.chatable.slug}']",
     )
 
     # Deleting it takes the category that only existed to back it.
@@ -603,7 +603,7 @@ RSpec.describe "Concord sidebar" do
         Fabricate(:private_category, group: Group[:staff], parent_category: parent, name: "Design")
       visit("/c/#{parent.slug}/#{design.slug}/#{design.id}")
 
-      open_privacy("forum-#{design.slug}")
+      open_privacy("forum-#{parent.slug}/#{design.slug}")
       modal = find(".concord-channel-privacy-modal")
       expect(modal).to have_text(
         "Stays private, since its Private events parent category is private.",

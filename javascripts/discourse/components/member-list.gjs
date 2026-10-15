@@ -3,6 +3,7 @@ import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import bodyClass from "discourse/helpers/body-class";
+import { userPath } from "discourse/lib/url";
 import { not } from "discourse/truth-helpers";
 import DLoadMore from "discourse/ui-kit/d-load-more";
 import DUserAvatar from "discourse/ui-kit/d-user-avatar";
@@ -97,7 +98,7 @@ export default class MemberList extends Component {
                     <a
                       class="concord-member-list__name"
                       data-user-card={{user.username}}
-                      href="/u/{{user.username}}"
+                      href={{userPath user.username}}
                     >{{this.displayName user}}</a>
                   </div>
                 {{/each}}

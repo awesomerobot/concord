@@ -3,7 +3,7 @@ en:
     description: "Replaces the sidebar with a single channel list made of categories, chat channels and voice rooms."
     settings:
       include_tags: "List the user's sidebar tags as channels. Off by default for now."
-      include_chat_channels: "List followed chat channels as channels (requires chat)."
+      include_chat_channels: "List chat channels as text channels: every open one the user can see, joined or not (requires chat)."
       ai_conversations_link: "Link to AI bot conversations beside the server name, for people who can start one (requires Discourse AI)."
       remember_last_channel: "Reopen the channel someone was last in when they come back to the site's address. Links to other pages, and the home link, aren't affected. Signed-in people only."
       sidebar_sections:

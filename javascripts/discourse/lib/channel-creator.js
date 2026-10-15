@@ -148,15 +148,21 @@ export default class ChannelCreator {
 
   /**
    * Adds the groups' current members to a voice room, which only knows
-   * individual members.
+   * individual members. People already in the room are left alone, since
+   * adding someone again resets their role, and so are bots (negative ids),
+   * which rooms refuse.
    *
    * @returns {Promise<string|undefined>} A notice when only some were added.
    */
   async addGroupMembersToRoom(room, groupIds) {
-    const { userIds, capped } = await this.#groupMemberIds(groupIds);
+    const [{ userIds, capped }, { memberships }] = await Promise.all([
+      this.#groupMemberIds(groupIds),
+      ajax(`/voice/rooms/${room.id}/memberships`),
+    ]);
+    const inRoom = new Set(memberships.map((m) => m.user_id));
 
     for (const userId of userIds) {
-      if (userId !== this.currentUser.id) {
+      if (userId > 0 && !inRoom.has(userId)) {
         await ajax(`/voice/rooms/${room.id}/memberships`, {
           type: "POST",
           data: { user_id: userId },

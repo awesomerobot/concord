@@ -90,6 +90,16 @@ module("Unit | Lib | channel-privacy", function (hooks) {
     assert.deepEqual(this.saved.permissions, { everyone: "1" });
   });
 
+  test("leaves a public category's levels alone when it stays public", async function (assert) {
+    this.permissions[5] = [{ ...everyone, permission_type: 3 }, staff];
+    const privacy = forum(getOwner(this), { id: 5, can_edit: true });
+    const loaded = await privacy.load();
+
+    await privacy.save({ isPrivate: false, groupIds: [] }, loaded);
+
+    assert.deepEqual(this.saved.permissions, { everyone: "3", staff: "1" });
+  });
+
   test("keeps the groups its subcategories use", async function (assert) {
     this.site.set("categories", [
       { id: 6, parent_category_id: 5, displayName: "Mockups" },

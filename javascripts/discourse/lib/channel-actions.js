@@ -2,6 +2,7 @@ import { setOwner } from "@ember/owner";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { withoutPrefix } from "discourse/lib/get-url";
 import { clipboardCopy } from "discourse/lib/utilities";
 import Category from "discourse/models/category";
 import { i18n } from "discourse-i18n";
@@ -197,11 +198,15 @@ export default class ChannelActions {
     return items;
   }
 
+  // Unread state and notifications belong to a membership, which a channel
+  // listed but never opened doesn't have yet.
   #textItems(channel) {
-    const items = {
-      markRead: this.#chatMarkRead(channel),
-      notifications: this.#chatNotifications(channel),
-    };
+    const items = {};
+
+    if (channel.currentUserMembership?.following) {
+      items.markRead = this.#chatMarkRead(channel);
+      items.notifications = this.#chatNotifications(channel);
+    }
 
     if (this.currentUser.staff) {
       items.rename = {
@@ -221,10 +226,13 @@ export default class ChannelActions {
         action: () =>
           this.#confirmDelete(channel.title, async () => {
             await this.chatApi.destroyChannel(channel.id);
+            const wasOpen = this.chat.activeChannel?.id === channel.id;
             this.chatChannelsManager.remove(channel);
             await this.#deleteBackingCategory(channel);
             await this.sidebarSections.removeChannel(`text:${channel.id}`);
-            this.router.transitionTo("discovery.latest");
+            if (wasOpen) {
+              this.router.transitionTo("discovery.latest");
+            }
           }),
       };
     }
@@ -336,9 +344,11 @@ export default class ChannelActions {
         danger: true,
         action: () =>
           this.#confirmDelete(room.name, async () => {
+            const url = this.router.urlFor("voice-room", room.slug);
             await ajax(`/voice/rooms/${room.id}`, { type: "DELETE" });
             this.voiceRooms.handleDirectoryEvent({ type: "destroyed", room });
             await this.sidebarSections.removeChannel(`voice:${room.id}`);
+            this.#goHomeIfOn(url);
           }),
       },
     };
@@ -495,8 +505,9 @@ export default class ChannelActions {
     }
   }
 
+  // Compared without the subfolder, which the router's current URL leaves out.
   #goHomeIfOn(url) {
-    if (this.router.currentURL?.startsWith(url)) {
+    if (this.router.currentURL?.startsWith(withoutPrefix(url))) {
       this.router.transitionTo("discovery.latest");
     }
   }

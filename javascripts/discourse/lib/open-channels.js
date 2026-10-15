@@ -55,6 +55,8 @@ export default class OpenChannels {
     if (
       !channel?.isCategoryChannel ||
       channel.currentUserMembership?.following ||
+      // Read-only to them (they can't post in its category), so it's just read.
+      !channel.canJoin ||
       !this.router.currentRouteName?.startsWith("chat.channel")
     ) {
       return;

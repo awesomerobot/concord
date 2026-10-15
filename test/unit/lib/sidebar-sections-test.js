@@ -17,9 +17,27 @@ module("Unit | Lib | sidebar-sections", function (hooks) {
     this.original = settings.sidebar_sections;
     this.saved = [];
 
+    // What the server holds, which a change is applied to.
+    this.stored = null;
+
+    pretender.get("/admin/themes/:id.json", () =>
+      response(200, {
+        theme: {
+          settings: [
+            {
+              setting: "sidebar_sections",
+              value: this.stored ?? settings.sidebar_sections,
+            },
+          ],
+        },
+      })
+    );
+
     pretender.put("/admin/themes/:id/setting", (request) => {
       const data = parsePostData(request.requestBody);
-      this.saved.push({ name: data.name, value: JSON.parse(data.value) });
+      const value = JSON.parse(data.value);
+      this.saved.push({ name: data.name, value });
+      this.stored = value;
       return response(200, {});
     });
   });
@@ -86,6 +104,21 @@ module("Unit | Lib | sidebar-sections", function (hooks) {
 
     await sections.deleteSection(0);
     assert.deepEqual(sections.sections, [{ name: "First", channels: [] }]);
+  });
+
+  test("a change keeps sections saved elsewhere since the page loaded", async function (assert) {
+    const sections = withSections([{ name: "A", channels: [] }]);
+    this.stored = [
+      { name: "A", channels: [] },
+      { name: "Events", channels: [{ type: "forum", id: 4 }] },
+    ];
+
+    await sections.addChannel("A", "text:7");
+
+    assert.deepEqual(sections.sections, [
+      { name: "A", channels: [{ type: "text", id: 7 }] },
+      { name: "Events", channels: [{ type: "forum", id: 4 }] },
+    ]);
   });
 
   test("removing a channel in no section saves nothing", async function (assert) {

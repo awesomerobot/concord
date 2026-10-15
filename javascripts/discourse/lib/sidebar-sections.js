@@ -15,6 +15,10 @@ export function channelKey(type, id) {
  * aren't reactive, so this keeps its own tracked copy and writes back through
  * the admin endpoint, which means only admins can change them. Other people
  * pick up changes on their next page load.
+ *
+ * The copy can be stale (another admin, or the theme's settings page, may
+ * have changed it since), so each change re-reads the setting first and is
+ * applied to that.
  */
 export default class SidebarSections {
   @tracked sections;
@@ -42,7 +46,7 @@ export default class SidebarSections {
    * @param {string} key A channel key, from `channelKey`.
    */
   async addChannel(sectionName, key) {
-    await this.#save(this.#with(this.sections, sectionName, key));
+    await this.#update((sections) => this.#with(sections, sectionName, key));
   }
 
   sectionIndexOf(key) {
@@ -52,38 +56,42 @@ export default class SidebarSections {
   }
 
   async renameSection(index, name) {
-    await this.#save(
-      this.sections.map((section, i) =>
+    await this.#update((sections) =>
+      sections.map((section, i) =>
         i === index ? { ...section, name } : section
       )
     );
   }
 
   async moveSection(index, offset) {
-    const sections = [...this.sections];
-    const [section] = sections.splice(index, 1);
-    sections.splice(index + offset, 0, section);
-    await this.#save(sections);
+    await this.#update((current) => {
+      const sections = [...current];
+      const [section] = sections.splice(index, 1);
+      sections.splice(index + offset, 0, section);
+      return sections;
+    });
   }
 
   // Its channels aren't touched; they go back to the top of the list.
   async deleteSection(index) {
-    await this.#save(this.sections.filter((_, i) => i !== index));
+    await this.#update((sections) => sections.filter((_, i) => i !== index));
   }
 
   /**
    * Moves a channel into the named section, or out of every section if null.
    */
   async moveChannel(key, sectionName) {
-    const sections = this.#without(key);
-    await this.#save(
-      sectionName === null ? sections : this.#with(sections, sectionName, key)
-    );
+    await this.#update((current) => {
+      const sections = this.#without(current, key);
+      return sectionName === null
+        ? sections
+        : this.#with(sections, sectionName, key);
+    });
   }
 
   async removeChannel(key) {
     if (this.sectionIndexOf(key) !== -1) {
-      await this.#save(this.#without(key));
+      await this.#update((sections) => this.#without(sections, key));
     }
   }
 
@@ -103,13 +111,24 @@ export default class SidebarSections {
     );
   }
 
-  #without(key) {
-    return this.sections.map((section) => ({
+  #without(sections, key) {
+    return sections.map((section) => ({
       ...section,
       channels: (section.channels || []).filter(
         (c) => channelKey(c.type, c.id) !== key
       ),
     }));
+  }
+
+  async #update(change) {
+    const { theme } = await ajax(`/admin/themes/${THEME_ID}.json`);
+    const stored = theme.settings.find(
+      (setting) => setting.setting === "sidebar_sections"
+    )?.value;
+
+    await this.#save(
+      change(typeof stored === "string" ? JSON.parse(stored) : stored || [])
+    );
   }
 
   async #save(sections) {
