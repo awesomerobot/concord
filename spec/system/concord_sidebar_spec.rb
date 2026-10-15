@@ -181,6 +181,21 @@ RSpec.describe "Concord sidebar" do
     expect(Category.exists?(created.chatable_id)).to eq(false)
   end
 
+  it "leaves deleting a channel with a backing category to its menu" do
+    container = Fabricate(:category, name: "Chat channels", slug: "chat-channels")
+    backing = Fabricate(:category, name: "plans", parent_category: container)
+    channel = Fabricate(:category_channel, chatable: backing, name: "plans")
+    channel.add(admin)
+
+    visit("/chat/c/#{channel.slug}/#{channel.id}/info/settings")
+    expect(page).to have_css(".c-channel-settings__auto-join-switch")
+    expect(page).to have_no_css(".c-channel-settings .delete-btn")
+
+    # A channel on a category of its own keeps chat's delete.
+    visit("/chat/c/#{chat_channel.slug}/#{chat_channel.id}/info/settings")
+    expect(page).to have_css(".c-channel-settings .delete-btn")
+  end
+
   it "opens chat full page even when the drawer was preferred" do
     visit("/latest")
     page.execute_script(

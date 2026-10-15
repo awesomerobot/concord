@@ -390,6 +390,14 @@ body.concord-header .d-header > .wrap {
   }
 }
 
+// A channel with a backing category is deleted from its menu in the channel
+// list, which takes the category too; chat's own delete would leave it behind.
+body.concord-backed-channel
+  .c-channel-settings
+  .chat-form__row:has(.delete-btn) {
+  display: none;
+}
+
 // Chat draws a line down its right edge, which beside the member list's own
 // reads as a doubled border; the member list (or the window) marks the edge.
 .has-full-page-chat .full-page-chat {

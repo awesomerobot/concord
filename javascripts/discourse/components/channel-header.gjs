@@ -293,9 +293,24 @@ export default class ChannelHeader extends Component {
     };
   }
 
+  // A channel made from the create modal has a category of its own under the
+  // chat container, which only the channel's own menu deletes along with it.
+  get hasBackingCategory() {
+    const { type, channel } = this.args.currentChannel.value || {};
+    if (type !== "text") {
+      return false;
+    }
+
+    const category = Category.findById(channel.chatableId);
+    return category?.parentCategory?.slug === settings.chat_container_category;
+  }
+
   <template>
     {{! Core's header contents make way while this is shown. }}
     {{bodyClass "concord-header"}}
+    {{#if this.hasBackingCategory}}
+      {{bodyClass "concord-backed-channel"}}
+    {{/if}}
     <div class="concord-channel-header">
       <ServerHeader
         @aiConversations={{@aiConversations}}
