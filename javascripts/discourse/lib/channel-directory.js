@@ -51,8 +51,8 @@ export default class ChannelDirectory {
 
     this.chat = owner.lookup("service:chat");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
-    this.voiceRooms = owner.lookup("service:voice-rooms");
-    this.voiceWebrtc = owner.lookup("service:voice-webrtc");
+    this.voiceRooms = owner.lookup("service:live-rooms");
+    this.voiceWebrtc = owner.lookup("service:live-webrtc");
 
     this.topicTrackingState.onStateChange(() => this.#refreshCounts());
   }
@@ -181,7 +181,7 @@ export default class ChannelDirectory {
   }
 
   get #voiceRooms() {
-    if (!this.voiceRooms || !this.siteSettings.voice_enabled) {
+    if (!this.voiceRooms || !this.siteSettings.live_enabled) {
       return [];
     }
 
@@ -218,7 +218,7 @@ export default class ChannelDirectory {
     );
   }
 
-  // Not memoized: the voice plugin swaps in a new room object on every update,
+  // Not memoized: the live plugin swaps in a new room object on every update,
   // so a fresh link per render is what keeps it current.
   #voiceLink(room) {
     return this.channelActions.decorate(

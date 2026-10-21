@@ -5,7 +5,7 @@ RSpec.describe "Concord sidebar" do
   fab!(:group)
   fab!(:category) { Fabricate(:category, name: "Lounge") }
   fab!(:chat_channel) { Fabricate(:category_channel, chatable: category, name: "hangout") }
-  fab!(:voice_room) { Fabricate(:voice_room, name: "Campfire", public: true, creator: admin) }
+  fab!(:voice_room) { Fabricate(:live_room, name: "Campfire", public: true, creator: admin) }
 
   let!(:theme) { upload_theme }
   let(:sidebar) { find(".sidebar-wrapper") }
@@ -14,9 +14,9 @@ RSpec.describe "Concord sidebar" do
 
   before do
     SiteSetting.navigation_menu = "sidebar"
-    SiteSetting.voice_enabled = true
-    SiteSetting.voice_allowed_groups = Group::AUTO_GROUPS[:trust_level_0]
-    SiteSetting.voice_create_room_allowed_groups = Group::AUTO_GROUPS[:admins]
+    SiteSetting.live_enabled = true
+    SiteSetting.live_allowed_groups = Group::AUTO_GROUPS[:trust_level_0]
+    SiteSetting.live_create_room_allowed_groups = Group::AUTO_GROUPS[:admins]
     chat_system_bootstrap(admin, [chat_channel])
     group.add(admin)
     sign_in(admin)
@@ -73,7 +73,7 @@ RSpec.describe "Concord sidebar" do
     expect(page).to have_css(".concord-server-header")
     expect(channel_link("forum-#{category.slug}")).to be_present
     expect(channel_link("text-hangout")).to be_present
-    expect(channel_link("voice-room-#{voice_room.id}")).to be_present
+    expect(channel_link("live-room-#{voice_room.id}")).to be_present
     expect(sidebar).to have_no_css(".sidebar-section[data-section-name='community']")
     expect(sidebar).to have_no_css(".sidebar-section[data-section-name='categories']")
 
@@ -234,9 +234,9 @@ RSpec.describe "Concord sidebar" do
     form.field("name").fill_in("Late night")
     submit_modal
 
-    room = Voice::Room.find_by(name: "Late night")
+    room = Live::Room.find_by(name: "Late night")
     expect(room.public).to eq(true)
-    expect(channel_link("voice-room-#{room.id}")).to be_present
+    expect(channel_link("live-room-#{room.id}")).to be_present
   end
 
   it "mutes a text channel and moves it to a section from its menu" do
@@ -370,28 +370,28 @@ RSpec.describe "Concord sidebar" do
   describe "voice channels" do
     fab!(:camper) { Fabricate(:user, username: "camper", name: "Cam Per") }
 
-    before { Voice::ParticipantTracker.add(voice_room.id, camper.id) }
+    before { Live::ParticipantTracker.add(voice_room.id, camper.id) }
 
     it "lists who's in the call under the channel, and has no member list" do
       visit("/latest")
 
-      room_link = channel_link("voice-room-#{voice_room.id}")
+      room_link = channel_link("live-room-#{voice_room.id}")
       expect(room_link).to have_no_css(".sidebar-section-link-content-badge")
       participant =
         sidebar.find(
-          ".sidebar-section-link.voice-sidebar-participant[data-link-name='voice-participant-#{voice_room.id}-#{camper.id}']",
+          ".sidebar-section-link.live-sidebar-participant[data-link-name='live-participant-#{voice_room.id}-#{camper.id}']",
         )
       expect(participant).to have_css(".sidebar-section-link-prefix img")
-      expect(participant).to have_css(".voice-participant-suffix", visible: :all)
+      expect(participant).to have_css(".live-participant-suffix", visible: :all)
       names = page.evaluate_script(<<~JS)
         [...document.querySelectorAll(".sidebar-section-link")].map((link) => link.dataset.linkName)
       JS
-      expect(names[names.index("voice-room-#{voice_room.id}") + 1]).to eq(
-        "voice-participant-#{voice_room.id}-#{camper.id}",
+      expect(names[names.index("live-room-#{voice_room.id}") + 1]).to eq(
+        "live-participant-#{voice_room.id}-#{camper.id}",
       )
       screenshot("voice-participants")
 
-      visit("/voice/r/#{voice_room.slug}")
+      visit("/live/r/#{voice_room.slug}")
       expect(page).to have_css(".concord-channel-header__name", text: "Campfire")
       expect(page).to have_no_css(".concord-channel-header [data-action-id='member-list']")
       expect(page).to have_no_css(".concord-member-list")
@@ -683,7 +683,7 @@ RSpec.describe "Concord sidebar" do
     it "makes a voice channel private" do
       visit("/latest")
 
-      open_privacy("voice-room-#{voice_room.id}")
+      open_privacy("live-room-#{voice_room.id}")
       privacy_form.field("isPrivate").toggle
       submit_modal
 

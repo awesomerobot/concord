@@ -235,7 +235,7 @@ export class DirectMessageLink {
   }
 }
 
-// A voice room is a voice channel. Named the way the voice plugin names its
+// A live room is a voice channel. Named the way the live plugin names its
 // own sidebar links, so its document-level click handler joins the room.
 export class VoiceChannelLink {
   href = "#";
@@ -253,7 +253,7 @@ export class VoiceChannelLink {
   }
 
   get name() {
-    return `voice-room-${this.room.id}`;
+    return `live-room-${this.room.id}`;
   }
 
   get sortName() {
@@ -290,7 +290,7 @@ export class VoiceChannelLink {
 const MAX_LISTENERS = 5;
 
 /**
- * Who's in a voice channel, as rows under it, the way the voice plugin's own
+ * Who's in a voice channel, as rows under it, the way the live plugin's own
  * sidebar lists them: a stage's speakers first, then a few of its listeners.
  * The rows take the plugin's names and classes, so its styles, speaking ring
  * and right-click menu apply to them as they do there.
@@ -395,7 +395,7 @@ class VoiceParticipantLink {
   }
 
   get name() {
-    return `voice-participant-${this.room.id}-${this.participant.id}`;
+    return `live-participant-${this.room.id}-${this.participant.id}`;
   }
 
   get text() {
@@ -406,7 +406,7 @@ class VoiceParticipantLink {
 
   get title() {
     return this.#speaking
-      ? `${this.text} — ${i18n("voice.participant.status_speaking")}`
+      ? `${this.text} — ${i18n("live.participant.status_speaking")}`
       : this.text;
   }
 
@@ -417,15 +417,15 @@ class VoiceParticipantLink {
   get classNames() {
     const { participant } = this;
     return [
-      "voice-sidebar-participant",
-      this.listener && "voice-sidebar-participant--listener",
-      this.firstListener && "voice-sidebar-participant--listeners-start",
-      this.#speaking && "voice-sidebar-participant--speaking",
-      participant.is_muted && "voice-sidebar-participant--muted",
-      participant.is_deafened && "voice-sidebar-participant--deafened",
-      this.#handRaised && "voice-sidebar-participant--hand-raised",
-      participant.idle_state === "idle" && "voice-sidebar-participant--idle",
-      participant.idle_state === "afk" && "voice-sidebar-participant--afk",
+      "live-sidebar-participant",
+      this.listener && "live-sidebar-participant--listener",
+      this.firstListener && "live-sidebar-participant--listeners-start",
+      this.#speaking && "live-sidebar-participant--speaking",
+      participant.is_muted && "live-sidebar-participant--muted",
+      participant.is_deafened && "live-sidebar-participant--deafened",
+      this.#handRaised && "live-sidebar-participant--hand-raised",
+      participant.idle_state === "idle" && "live-sidebar-participant--idle",
+      participant.idle_state === "afk" && "live-sidebar-participant--afk",
     ]
       .filter(Boolean)
       .join(" ");
@@ -449,7 +449,7 @@ class VoiceListenerCountLink {
   prefixValue = "users";
   keywords = { navigation: [] };
   classNames =
-    "voice-sidebar-participant voice-sidebar-participant--listener-count";
+    "live-sidebar-participant live-sidebar-participant--listener-count";
 
   constructor({ room, count }) {
     this.room = room;
@@ -457,10 +457,10 @@ class VoiceListenerCountLink {
   }
 
   get name() {
-    return `voice-listener-count-${this.room.id}`;
+    return `live-listener-count-${this.room.id}`;
   }
 
   get text() {
-    return i18n("voice.stage.more_listeners", { count: this.count });
+    return i18n("live.stage.more_listeners", { count: this.count });
   }
 }

@@ -39,7 +39,7 @@ export default class ChannelActions {
     this.chat = owner.lookup("service:chat");
     this.chatApi = owner.lookup("service:chat-api");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
-    this.voiceRooms = owner.lookup("service:voice-rooms");
+    this.voiceRooms = owner.lookup("service:live-rooms");
   }
 
   /** Puts the `…` button on a channel row. */
@@ -332,7 +332,7 @@ export default class ChannelActions {
         icon: "pencil",
         action: () =>
           this.#rename(t("rename"), room.name, (name) =>
-            ajax(`/voice/rooms/${room.id}`, {
+            ajax(`/live/rooms/${room.id}`, {
               type: "PUT",
               data: { room: { name } },
             }).then((result) => this.voiceRooms.upsertRoom(result.room))
@@ -344,8 +344,8 @@ export default class ChannelActions {
         danger: true,
         action: () =>
           this.#confirmDelete(room.name, async () => {
-            const url = this.router.urlFor("voice-room", room.slug);
-            await ajax(`/voice/rooms/${room.id}`, { type: "DELETE" });
+            const url = this.router.urlFor("live-room", room.slug);
+            await ajax(`/live/rooms/${room.id}`, { type: "DELETE" });
             this.voiceRooms.handleDirectoryEvent({ type: "destroyed", room });
             await this.sidebarSections.removeChannel(`voice:${room.id}`);
             this.#goHomeIfOn(url);
@@ -427,8 +427,8 @@ export default class ChannelActions {
     const href = link.href && link.href !== "#" ? link.href : null;
     const url =
       href ||
-      (link.route === "voice-room" || link.room
-        ? this.router.urlFor("voice-room", link.room.slug)
+      (link.route === "live-room" || link.room
+        ? this.router.urlFor("live-room", link.room.slug)
         : this.router.urlFor(
             link.route,
             ...(link.models || (link.model ? [link.model] : []))

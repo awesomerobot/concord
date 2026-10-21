@@ -19,7 +19,7 @@ export default class CurrentChannel {
   constructor(owner) {
     setOwner(this, owner);
     this.chat = owner.lookup("service:chat");
-    this.voiceRooms = owner.lookup("service:voice-rooms");
+    this.voiceRooms = owner.lookup("service:live-rooms");
   }
 
   get isAuthPage() {
@@ -45,7 +45,7 @@ export default class CurrentChannel {
       return topic && { type: "topic", topic };
     }
 
-    if (name === "voice-room") {
+    if (name === "live-room") {
       const room = this.voiceRooms?.roomBySlug(
         this.router.currentRoute.params.slug
       );

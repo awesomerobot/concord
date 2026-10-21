@@ -34,7 +34,7 @@ export default class ChannelCreator {
     this.chat = owner.lookup("service:chat");
     this.chatApi = owner.lookup("service:chat-api");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
-    this.voiceRooms = owner.lookup("service:voice-rooms");
+    this.voiceRooms = owner.lookup("service:live-rooms");
   }
 
   get canCreateForum() {
@@ -54,7 +54,7 @@ export default class ChannelCreator {
   get canCreateVoice() {
     return (
       !!this.voiceRooms &&
-      this.siteSettings.voice_enabled &&
+      this.siteSettings.live_enabled &&
       this.voiceRooms.canCreateRoom
     );
   }
@@ -132,7 +132,7 @@ export default class ChannelCreator {
   }
 
   async #createVoice(name, isPrivate, groupIds) {
-    const { room } = await ajax("/voice/rooms", {
+    const { room } = await ajax("/live/rooms", {
       type: "POST",
       data: { room: { name, public: !isPrivate } },
     });
@@ -145,7 +145,7 @@ export default class ChannelCreator {
 
     return {
       key: channelKey("voice", room.id),
-      route: "voice-room",
+      route: "live-room",
       models: [room.slug],
       notice,
     };
@@ -162,13 +162,13 @@ export default class ChannelCreator {
   async addGroupMembersToRoom(room, groupIds) {
     const [{ userIds, capped }, { memberships }] = await Promise.all([
       this.#groupMemberIds(groupIds),
-      ajax(`/voice/rooms/${room.id}/memberships`),
+      ajax(`/live/rooms/${room.id}/memberships`),
     ]);
     const inRoom = new Set(memberships.map((m) => m.user_id));
 
     for (const userId of userIds) {
       if (userId > 0 && !inRoom.has(userId)) {
-        await ajax(`/voice/rooms/${room.id}/memberships`, {
+        await ajax(`/live/rooms/${room.id}/memberships`, {
           type: "POST",
           data: { user_id: userId },
         });

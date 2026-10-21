@@ -26,7 +26,7 @@ export default class LastChannel {
     this.chat = owner.lookup("service:chat");
     this.chatApi = owner.lookup("service:chat-api");
     this.chatChannelsManager = owner.lookup("service:chat-channels-manager");
-    this.voiceRooms = owner.lookup("service:voice-rooms");
+    this.voiceRooms = owner.lookup("service:live-rooms");
     this.currentChannel = currentChannel;
     this.key = `${STORAGE_KEY}:${user.id}`;
   }

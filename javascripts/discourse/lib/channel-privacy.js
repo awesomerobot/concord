@@ -22,7 +22,7 @@ export default class ChannelPrivacy {
   constructor(owner, creator) {
     setOwner(this, owner);
     this.creator = creator;
-    this.voiceRooms = owner.lookup("service:voice-rooms");
+    this.voiceRooms = owner.lookup("service:live-rooms");
   }
 
   /**
@@ -189,7 +189,7 @@ export default class ChannelPrivacy {
       load: async () => ({ isPrivate: !room.public, groupIds: [] }),
 
       save: async ({ isPrivate, groupIds }) => {
-        const result = await ajax(`/voice/rooms/${room.id}`, {
+        const result = await ajax(`/live/rooms/${room.id}`, {
           type: "PUT",
           data: { room: { public: !isPrivate } },
         });
