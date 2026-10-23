@@ -84,6 +84,14 @@ RSpec.describe "Concord sidebar" do
     expect(sidebar).to have_no_css(".sidebar-section[data-section-name='chat-channels']")
   end
 
+  it "shows the sidebar when the site's navigation menu is the header dropdown" do
+    SiteSetting.navigation_menu = "header dropdown"
+    visit("/latest")
+
+    expect(page).to have_css(".concord-server-header")
+    expect(channel_link("forum-#{category.slug}")).to be_present
+  end
+
   it "lists channels outside a section together, alphabetically" do
     visit("/latest")
 

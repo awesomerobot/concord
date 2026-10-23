@@ -37,6 +37,9 @@ import SidebarSections from "../lib/sidebar-sections";
 
 export default apiInitializer((api) => {
   const owner = getOwnerWithFallback(api);
+  // The theme is built around the sidebar, so it doesn't follow the site's
+  // navigation menu setting. Only the client reads that setting.
+  owner.lookup("service:site-settings").navigation_menu = "sidebar";
   relabelBackLink();
   const sidebarSections = new SidebarSections(api.getCurrentUser());
   const creator = new ChannelCreator(owner);
