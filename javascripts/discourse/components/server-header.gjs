@@ -4,6 +4,7 @@ import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { getOwner } from "@ember/owner";
 import { service } from "@ember/service";
+import Logo from "discourse/components/header/logo";
 import DButton from "discourse/ui-kit/d-button";
 import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
@@ -12,15 +13,37 @@ import { AI_PANEL, CHANNELS_PANEL, DMS_PANEL } from "../lib/constants";
 import { serverMenuItems } from "../lib/server-menu";
 import ActionMenu from "./action-menu";
 
-// The bar above the channel list: the server's name, opening the
+// The bar above the channel list: the server's name (or logo), opening the
 // site-wide pages core's header used to link to, the switch to the user's DMs
 // (the Home view), and where you make channels that don't belong to a
 // section.
 export default class ServerHeader extends Component {
   @service currentUser;
   @service menu;
+  @service session;
   @service siteSettings;
   @service sidebarState;
+
+  // Picked the way core's home logo picks it: the dark logo leads when the
+  // default color scheme is dark, and is swapped in by the browser otherwise.
+  get logo() {
+    if (!settings.show_logo) {
+      return null;
+    }
+
+    const light = this.siteSettings.site_logo_url;
+    const dark = this.siteSettings.site_logo_dark_url;
+    const url = this.session.defaultColorSchemeIsDark ? dark || light : light;
+
+    if (!url) {
+      return null;
+    }
+
+    return {
+      url,
+      darkUrl: this.session.darkModeAvailable ? dark : null,
+    };
+  }
 
   get reviewCount() {
     return this.currentUser?.can_review ? this.currentUser.reviewable_count : 0;
@@ -31,6 +54,7 @@ export default class ServerHeader extends Component {
   get showAiConversations() {
     const models = this.currentUser?.ai_available_llm_models;
     if (
+      this.args.inAdmin ||
       !this.args.aiConversations?.manager ||
       !settings.ai_conversations_link ||
       !this.siteSettings.ai_bot_enabled ||
@@ -44,6 +68,15 @@ export default class ServerHeader extends Component {
         agent.allow_personal_messages &&
         (agent.has_default_llm || models.length)
     );
+  }
+
+  // Admin has no use for channels, so their buttons make way there.
+  get showDirectMessages() {
+    return this.args.directMessages?.available && !this.args.inAdmin;
+  }
+
+  get showCreate() {
+    return this.args.canCreate && !this.args.inAdmin;
   }
 
   get show() {
@@ -88,9 +121,20 @@ export default class ServerHeader extends Component {
           type="button"
           {{on "click" this.openMenu}}
         >
-          <span class="concord-server-header__title">
-            {{this.siteSettings.title}}
-          </span>
+          {{#if this.logo}}
+            <span class="concord-server-header__logo">
+              <Logo
+                @darkUrl={{this.logo.darkUrl}}
+                @key="logo-big"
+                @title={{this.siteSettings.title}}
+                @url={{this.logo.url}}
+              />
+            </span>
+          {{else}}
+            <span class="concord-server-header__title">
+              {{this.siteSettings.title}}
+            </span>
+          {{/if}}
           {{#if this.reviewCount}}
             <span
               class="concord-server-header__review-badge"
@@ -113,7 +157,7 @@ export default class ServerHeader extends Component {
           />
         {{/if}}
 
-        {{#if @directMessages.available}}
+        {{#if this.showDirectMessages}}
           <DButton
             @action={{this.toggleDirectMessages}}
             @icon="far-comments"
@@ -132,7 +176,7 @@ export default class ServerHeader extends Component {
           </DButton>
         {{/if}}
 
-        {{#if @canCreate}}
+        {{#if this.showCreate}}
           <DButton
             @action={{fn @onCreate null}}
             @icon="plus"

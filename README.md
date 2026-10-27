@@ -104,6 +104,16 @@ row's search and the user panel's notifications, since core's own menus would
 open in the hidden header; `/` still goes to the welcome banner's search when
 that's on screen.
 
+Left of the row's buttons is core's `before-header-panel` outlet, the one core
+renders left of its own header icons, so what's made for core's header shows
+up here. Core's language switcher, one of those hidden header icons, is shown
+there too, under core's own conditions (content localization on, and
+`content_localization_language_switcher` set for the viewer).
+
+In admin the row keeps to admin: the AI, DM and create buttons beside the server
+name, the member list and search are left out, and an X at the end goes back
+to the last page outside admin (or home), as core's "Back to Forum" does.
+
 Below the `md` breakpoint (phones, and narrow desktop windows) the row starts
 with a hamburger button that opens the channel list as core's slide-in panel,
 with the server name and user panel in it. The button asks core's header to
@@ -129,8 +139,10 @@ starts where the topic does.
 
 ## Server menu
 
-The site name at the top of the channel list opens a menu of the site-wide
-pages core's header and sidebar used to link to: invite, admin, review (with
+The site name at the top of the channel list (or the site's logo, at the
+name's height, when one is set; `show_logo` turns that off) opens a menu of the site-wide
+pages core's header and sidebar used to link to: home (`home_link` turns it
+off), invite, admin, review (with
 its pending count), about, FAQ or guidelines, groups, users, badges, and
 keyboard shortcuts. For people who review, the site name carries the review
 queue's count. The links are core's own community section links, so who

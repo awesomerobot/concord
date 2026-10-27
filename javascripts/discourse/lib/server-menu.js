@@ -28,8 +28,9 @@ const LINK_GROUPS = [
 ];
 
 /**
- * The items for the dropdown on the server name: the site-wide pages that
- * core's header and sidebar used to link to.
+ * The items for the dropdown on the server name: the homepage, if the theme
+ * says so, and the site-wide pages that core's header and sidebar used to
+ * link to.
  *
  * @returns {Array} ActionMenu items.
  */
@@ -54,6 +55,17 @@ export function serverMenuItems(owner) {
             : router.transitionTo(link.route),
       }))
   );
+
+  if (settings.home_link) {
+    groups.unshift([
+      {
+        id: "home",
+        label: i18n("home"),
+        icon: "house",
+        action: () => DiscourseURL.routeTo("/"),
+      },
+    ]);
+  }
 
   groups.push([
     {

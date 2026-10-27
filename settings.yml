@@ -4,6 +4,12 @@ include_tags:
 include_chat_channels:
   type: bool
   default: true
+show_logo:
+  type: bool
+  default: true
+home_link:
+  type: bool
+  default: true
 ai_conversations_link:
   type: bool
   default: true
