@@ -1125,6 +1125,150 @@ RSpec.describe "Concord sidebar" do
     end
   end
 
+  describe "server name logo" do
+    fab!(:logo) { Fabricate(:image_upload, width: 400, height: 120) }
+
+    let(:server_header) { find(".concord-channel-header .concord-server-header") }
+
+    before { SiteSetting.logo = logo }
+
+    it "shows the site name when turned off" do
+      theme.update_setting(:show_logo, false)
+      theme.save!
+      visit("/latest")
+
+      expect(server_header).to have_css(".concord-server-header__title", text: SiteSetting.title)
+      expect(server_header).to have_no_css(".concord-server-header__logo")
+    end
+
+    it "shows the logo at the name's height, with or without the buttons beside it" do
+      height = <<~JS
+        document.querySelector(".concord-channel-header .concord-server-header__logo img").getBoundingClientRect().height
+      JS
+
+      visit("/latest")
+      expect(server_header).to have_css(
+        ".concord-server-header__logo img[alt='#{SiteSetting.title}']",
+      )
+      expect(server_header).to have_no_css(".concord-server-header__title")
+      expect(server_header).to have_css(".concord-server-header__create")
+      with_buttons = page.evaluate_script(height)
+      screenshot("server-logo")
+
+      visit("/admin")
+      expect(server_header).to have_no_css(".concord-server-header__create")
+      expect(page.evaluate_script(height)).to be_within(1).of(with_buttons)
+      expect(with_buttons).to be < 30
+    end
+
+    it "falls back to the site name when there's no logo" do
+      SiteSetting.logo = nil
+      visit("/latest")
+
+      expect(server_header).to have_css(".concord-server-header__title", text: SiteSetting.title)
+      expect(server_header).to have_no_css(".concord-server-header__logo")
+    end
+  end
+
+  describe "home link" do
+    let(:server_name) { find(".concord-channel-header .concord-server-header__name") }
+
+    it "can be turned off" do
+      theme.update_setting(:home_link, false)
+      theme.save!
+      visit("/c/#{category.slug}/#{category.id}")
+
+      server_name.click
+      expect(find(".concord-action-menu")).to have_css("[data-item-id='about']")
+      expect(page).to have_no_css(".concord-action-menu [data-item-id='home']")
+    end
+
+    it "leads the server menu, and goes home" do
+      visit("/c/#{category.slug}/#{category.id}")
+
+      server_name.click
+      expect(page).to have_css(
+        ".concord-action-menu [data-item-id]:first-child[data-item-id='home']",
+      )
+      find(".concord-action-menu [data-item-id='home']").click
+      expect(page).to have_current_path("/")
+    end
+  end
+
+  describe "admin" do
+    let(:header) { find(".concord-channel-header") }
+
+    it "trades the channel buttons for a way out" do
+      visit("/c/#{category.slug}/#{category.id}")
+      expect(header).to have_css(".concord-server-header__dms")
+      expect(header).to have_css(".concord-server-header__create")
+      expect(header).to have_css("[data-action-id='member-list']")
+      expect(header).to have_css(".concord-channel-header__search")
+      expect(header).to have_no_css(".concord-channel-header__exit-admin")
+
+      # Through the app, so there's a page to go back to.
+      header.find(".concord-server-header__name").click
+      find(".concord-action-menu [data-item-id='admin']").click
+      expect(header).to have_css(".concord-channel-header__name", exact_text: "Admin")
+      expect(header).to have_no_css(".concord-server-header__dms")
+      expect(header).to have_no_css(".concord-server-header__create")
+      expect(header).to have_no_css("[data-action-id='member-list']")
+      expect(header).to have_no_css(".concord-channel-header__search")
+      expect(page).to have_no_css(".concord-member-list")
+      screenshot("admin-header")
+
+      header.find(".concord-channel-header__exit-admin").click
+      expect(page).to have_current_path("/c/#{category.slug}/#{category.id}")
+      expect(header).to have_css(".concord-channel-header__search")
+    end
+
+    it "exits home when admin was the first page" do
+      visit("/admin/users")
+
+      header.find(".concord-channel-header__exit-admin").click
+      expect(page).to have_no_current_path(%r{/admin})
+      expect(header).to have_no_css(".concord-channel-header__exit-admin")
+    end
+  end
+
+  describe "language switcher" do
+    let(:actions) { find(".concord-channel-header__actions") }
+
+    before do
+      SiteSetting.default_locale = "en"
+      SiteSetting.content_localization_supported_locales = "es|ja"
+      SiteSetting.content_localization_enabled = true
+      SiteSetting.allow_user_locale = true
+    end
+
+    it "shows core's switcher left of the header buttons, when core would" do
+      SiteSetting.content_localization_language_switcher = "all"
+      visit("/latest")
+
+      switcher = actions.find(".concord-channel-header__language")
+      expect(switcher).to have_css(".language-switcher__locale", text: "EN")
+      expect(page.evaluate_script(<<~JS)).to eq(true)
+        (() => {
+          const switcher = document.querySelector(".concord-channel-header__language");
+          const search = document.querySelector(".concord-channel-header__search");
+          return switcher.getBoundingClientRect().right <= search.getBoundingClientRect().left;
+        })()
+      JS
+      screenshot("language-switcher")
+
+      switcher.find("button[data-identifier='language-switcher']").click
+      expect(page).to have_css(".language-switcher-content [data-menu-option-id='ja']")
+    end
+
+    it "is hidden when core's is" do
+      SiteSetting.content_localization_language_switcher = "anonymous"
+      visit("/latest")
+
+      expect(actions).to have_css(".concord-channel-header__search")
+      expect(actions).to have_no_css(".concord-channel-header__language")
+    end
+  end
+
   describe "user panel" do
     it "puts the user's status emoji on their avatar" do
       SiteSetting.enable_user_status = true

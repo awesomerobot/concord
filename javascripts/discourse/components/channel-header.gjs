@@ -4,8 +4,12 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
 import Notifications from "discourse/components/header/user-dropdown/notifications";
+import LanguageSwitcher from "discourse/components/language-switcher";
+import PluginOutlet from "discourse/components/plugin-outlet";
 import bodyClass from "discourse/helpers/body-class";
+import { languageSwitcherEnabled } from "discourse/lib/content-localization";
 import { bind } from "discourse/lib/decorators";
+import getURL from "discourse/lib/get-url";
 import DiscourseURL from "discourse/lib/url";
 import Category from "discourse/models/category";
 import DButton from "discourse/ui-kit/d-button";
@@ -33,9 +37,11 @@ export default class ChannelHeader extends Component {
   @service currentUser;
   @service header;
   @service menu;
+  @service routeHistory;
   @service router;
   @service search;
   @service site;
+  @service siteSettings;
 
   isFolded = (headerAction) =>
     this.moreItems.length > 0 && isCollapsible(headerAction);
@@ -192,6 +198,31 @@ export default class ChannelHeader extends Component {
     });
   }
 
+  // Core's language switcher is one of its header icons, which are hidden
+  // here, so it's shown in this row instead, under the same conditions.
+  get showLanguageSwitcher() {
+    if (!languageSwitcherEnabled(this.siteSettings)) {
+      return false;
+    }
+
+    switch (this.siteSettings.content_localization_language_switcher) {
+      case "anonymous":
+        return !this.currentUser;
+      case "all":
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  // Back to the last page outside admin, as core's "Back to Forum" link does.
+  get exitAdminHref() {
+    const lastUrl = this.routeHistory.history.find(
+      (url) => !url.startsWith("/admin")
+    );
+    return getURL(lastUrl || "/");
+  }
+
   get memberListAction() {
     return {
       id: "member-list",
@@ -317,6 +348,7 @@ export default class ChannelHeader extends Component {
         @always={{true}}
         @canCreate={{@canCreate}}
         @directMessages={{@directMessages}}
+        @inAdmin={{@currentChannel.isAdmin}}
         @onCreate={{@onCreate}}
       />
 
@@ -364,6 +396,14 @@ export default class ChannelHeader extends Component {
         {{/if}}
 
         <div class="concord-channel-header__actions">
+          {{! The outlet core renders left of its header icons, so what's
+              made for core's header shows here. }}
+          <PluginOutlet @name="before-header-panel" />
+          {{#if this.showLanguageSwitcher}}
+            <span class="concord-channel-header__language language-switcher">
+              <LanguageSwitcher />
+            </span>
+          {{/if}}
           {{#if this.moreItems.length}}
             <DButton
               @icon="ellipsis"
@@ -398,12 +438,14 @@ export default class ChannelHeader extends Component {
             />
           {{/if}}
 
-          <DButton
-            @icon="magnifying-glass"
-            @title="search.title"
-            class="btn-flat concord-channel-header__search"
-            {{on "click" this.openSearch}}
-          />
+          {{#unless @currentChannel.isAdmin}}
+            <DButton
+              @icon="magnifying-glass"
+              @title="search.title"
+              class="btn-flat concord-channel-header__search"
+              {{on "click" this.openSearch}}
+            />
+          {{/unless}}
 
           {{#if this.currentUser}}
             {{! "user-menu-panel" makes core's close-on-click-outside leave
@@ -416,6 +458,15 @@ export default class ChannelHeader extends Component {
             >
               <Notifications />
             </button>
+          {{/if}}
+
+          {{#if @currentChannel.isAdmin}}
+            <DButton
+              @href={{this.exitAdminHref}}
+              @icon="xmark"
+              @translatedTitle={{t "exit_admin"}}
+              class="btn-flat concord-channel-header__exit-admin"
+            />
           {{/if}}
         </div>
       </div>

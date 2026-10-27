@@ -231,6 +231,24 @@
     white-space: nowrap;
   }
 
+  // The logo stands in for the name at the name's height, however wide, or
+  // however much room the buttons beside it leave. Core sizes its logo from
+  // --d-logo-height (by id, so it outranks a class), so that's what's set.
+  &__logo {
+    --d-logo-height: 1.5em;
+    display: flex;
+    min-width: 0;
+
+    img {
+      display: block;
+      width: auto;
+      max-width: 100%;
+      height: var(--d-logo-height);
+      object-fit: contain;
+      object-position: left center;
+    }
+  }
+
   // The buttons after the name: all one size, whatever their icon.
   &__ai,
   &__dms,
@@ -602,6 +620,29 @@ body.concord-backed-channel
   align-items: center;
   gap: 0.25em;
   margin-left: auto;
+}
+
+// Core styles its language switcher only among its own header icons, so the
+// look is repeated here: the language code and a small caret.
+.concord-channel-header__language {
+  display: flex;
+  align-items: center;
+
+  .language-switcher-trigger {
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--primary-low-mid);
+
+    .d-icon {
+      width: 1em;
+      font-size: var(--font-down-2);
+    }
+  }
+
+  .language-switcher__locale {
+    color: var(--primary-high);
+    font-size: var(--font-down-1);
+  }
 }
 
 // Core's header search panel, in a popover rather than hanging off the header.

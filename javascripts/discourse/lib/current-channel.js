@@ -22,6 +22,12 @@ export default class CurrentChannel {
     this.voiceRooms = owner.lookup("service:live-rooms");
   }
 
+  // Admin keeps to its own pages, so the header leaves out what's for
+  // channels and offers a way back instead.
+  get isAdmin() {
+    return (this.router.currentRouteName || "").startsWith("admin");
+  }
+
   get isAuthPage() {
     return AUTH_ROUTES.includes(this.router.currentRouteName);
   }

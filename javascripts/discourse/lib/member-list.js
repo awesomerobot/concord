@@ -88,9 +88,12 @@ export default class MemberList {
   }
 
   // A voice channel lists who's in it under its name in the channel list,
-  // as in Discord, so it has no member list of its own.
+  // as in Discord, so it has no member list of its own. Neither does admin.
   get available() {
-    return this.currentChannel.value?.type !== "voice";
+    return (
+      !this.currentChannel.isAdmin &&
+      this.currentChannel.value?.type !== "voice"
+    );
   }
 
   get active() {
