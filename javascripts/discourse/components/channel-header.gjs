@@ -399,6 +399,9 @@ export default class ChannelHeader extends Component {
           {{! The outlet core renders left of its header icons, so what's
               made for core's header shows here. }}
           <PluginOutlet @name="before-header-panel" />
+          <div class="concord-before-header-panel-outlet">
+            <PluginOutlet @name="concord-before-header-panel" />
+          </div>
           {{#if this.showLanguageSwitcher}}
             <span class="concord-channel-header__language language-switcher">
               <LanguageSwitcher />
