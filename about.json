@@ -9,5 +9,6 @@
   "minimum_discourse_version": "2026.10.0-latest",
   "maximum_discourse_version": null,
   "assets": {},
+  "screenshots": ["screenshots/light.webp", "screenshots/dark.webp"],
   "modifiers": {}
 }
